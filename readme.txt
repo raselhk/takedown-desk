@@ -1,18 +1,18 @@
-=== Takedown Desk ===
+=== Takedown Desk: Take It Down Act Removal Requests and DMCA Takedown Notices ===
 Contributors: raselhk
-Tags: take it down act, takedown, content moderation, bbpress, report content
+Tags: take it down act, dmca, takedown, content moderation, bbpress
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Take It Down Act plugin for WordPress and bbPress: removal request form, 48-hour deadline clock, one-step content removal and a dated record.
+Take It Down Act and DMCA takedown plugin for WordPress and bbPress: request forms, a deadline clock, one-step removal and a dated record.
 
 == Description ==
 
-Takedown Desk is a free Take It Down Act plugin for WordPress. It lets you handle removal requests for intimate images inside your own dashboard, from the first report to the dated record.
+Takedown Desk is a free Take It Down Act plugin for WordPress. It lets you handle removal requests for intimate images inside your own dashboard, from the first report to the dated record. It also gives you a DMCA takedown notice form for copyright complaints, in the same inbox.
 
 The Take It Down Act asks sites that host user content to give people a clear way to report intimate images shared without consent, and to remove them within 48 hours. Takedown Desk gives you that process in your own dashboard: a notice link, a request form, a deadline clock, one-step removal of the item and its identical copies, and a dated record of every action. It helps you handle requests the way the Act describes.
 
@@ -48,6 +48,18 @@ The Act covers public sites and apps that mainly host content from their users: 
 
 Forums and community sites are the sites the Act has most in mind. For them, Takedown Desk works as a content moderation tool for one job: reports of intimate images. A "Request removal" link can sit under every bbPress topic and reply, anyone can report an image without an account, the report lands in your moderators' inbox with a deadline clock, and one action removes the topic or reply together with identical copies of the image. bbPress has no public report link of its own; this adds one.
 
+= Copyright (DMCA) takedown notices =
+
+Turn on "Accept copyright notices" in Settings and Takedown Desk adds a DMCA takedown notice form to your site, on its own "Copyright notices" page with a footer link.
+
+* **The six parts of a DMCA notice.** The form asks for the parts listed in 17 U.S.C. 512(c)(3)(A): a signature, the copyrighted work, where the material is on your site, contact details, a good-faith statement, and a statement of accuracy and authority under penalty of perjury.
+* **One inbox.** Copyright notices arrive next to your other requests with a "Copyright" label and their own filter.
+* **Your own target time.** The law asks you to act "expeditiously" and sets no hour count, so you pick a target of 1 to 10 business days (2 by default). Moderators get reminders before it runs out.
+* **Removal and record.** Remove the material in one step, tell the sender the outcome, optionally tell the person who posted it, and keep every step in the dated record.
+* **Designated agent reminder.** Enter the date you registered your agent with the US Copyright Office and the status card reminds you before the 3-year renewal.
+
+Counter-notices are not part of this version. The form is off until you turn it on.
+
 = What it never does =
 
 * It never asks for, accepts or stores an image upload. A person should not have to send the image again, and your site should not collect it.
@@ -58,8 +70,8 @@ Forums and community sites are the sites the Act has most in mind. For them, Tak
 
 * Any public post type, pages, the media library and comments.
 * bbPress topics and replies.
-* The block editor: "Removal request form", "Removal request link" and "Takedown Desk summary" blocks.
-* Shortcodes `[takedown_desk_form]`, `[takedown_desk_link]` and `[takedown_desk_summary]`, so any builder that runs shortcodes, such as Bricks or Elementor.
+* The block editor: "Removal request form", "Copyright notice form", "Removal request link" and "Takedown Desk summary" blocks.
+* Shortcodes `[takedown_desk_form]`, `[takedown_desk_copyright_form]`, `[takedown_desk_link]` and `[takedown_desk_summary]`, so any builder that runs shortcodes, such as Bricks or Elementor.
 * WP Rocket, LiteSpeed Cache, W3 Total Cache, WP Super Cache, SiteGround Optimizer, WP Fastest Cache, Cache Enabler, Breeze and Nginx Helper for clearing the cache after a removal.
 
 = For developers =
@@ -191,7 +203,11 @@ The Federal Trade Commission enforces the notice and removal duties. Failing to 
 
 = Can I use it for copyright (DMCA) takedown notices? =
 
-Not in this version; it is built for intimate image requests under the Take It Down Act. A copyright notice form is planned for version 1.1.
+Yes, from version 1.1. Turn on "Accept copyright notices" in Settings. Takedown Desk creates a "Copyright notices" page with a DMCA takedown notice form that asks for the six parts the law lists, and the notices arrive in the same inbox with a target time you choose. It does not handle counter-notices. To rely on the DMCA safe harbor, a site also needs a designated agent registered with the US Copyright Office and a repeat infringer policy; the plugin reminds you about the agent renewal, and a lawyer can advise you on the rest.
+
+= What must a DMCA takedown notice include? =
+
+Six things under 17 U.S.C. 512(c)(3)(A): a physical or electronic signature, the copyrighted work, the material that is claimed to infringe and where it is, contact information, a statement of good-faith belief that the use is not authorized, and a statement that the notice is accurate and, under penalty of perjury, that the sender may act for the copyright owner. The copyright notice form asks for exactly these.
 
 == Screenshots ==
 
@@ -208,6 +224,11 @@ Not in this version; it is built for intimate image requests under the Take It D
 
 == Changelog ==
 
+= 1.1.0 =
+* New: Copyright (DMCA) takedown notice form. Turn it on in Settings to add a "Copyright notices" page, a footer link, a block and the shortcode `[takedown_desk_copyright_form]`.
+* New: Copyright notices arrive in the same inbox, with a target time in business days, reminders, one-step removal, outcome emails and the dated record.
+* New: Designated agent renewal reminder on the status card.
+
 = 1.0.1 =
 * Security: the encryption key no longer depends on your site's security keys or salts. Takedown Desk creates its own random key, or uses a TKDESK_KEY line in wp-config.php.
 * Security: form fields are sanitized as soon as they arrive.
@@ -220,6 +241,9 @@ Not in this version; it is built for intimate image requests under the Take It D
 * First release: notice link and page, request form with four required parts, 48-hour clock with reminders, one-step removal of the item and its identical copies, outcome emails, tamper-evident log with CSV export, setup check, privacy exporter and eraser, retention purge.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Adds an optional DMCA takedown notice form for copyright complaints. Off until you turn it on.
 
 = 1.0.1 =
 Security and privacy improvements, a new look for the public request pages, and optional Google reCAPTCHA.

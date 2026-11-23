@@ -217,12 +217,122 @@ function tkdesk_email_templates(): array {
 			array(),
 			array(),
 		),
+		// Copyright notices (setting dmca): tkdesk_email_key() picks these instead of the ones above.
+		'dmca_received'        => array(
+			/* translators: %s: notice ID. */
+			sprintf( __( 'We received your copyright notice %s', 'takedown-desk' ), '{request_id}' ),
+			array(
+				/* translators: 1: date and time the notice arrived, 2: notice ID. */
+				sprintf( __( 'We received your copyright notice on %1$s. Its ID is %2$s.', 'takedown-desk' ), '{received_time}', '{request_id}' ),
+				/* translators: %s: target date and time. */
+				sprintf( __( 'We review every notice and aim to decide by %s. We will email you the outcome.', 'takedown-desk' ), '{deadline}' ),
+				/* translators: %s: private status link. */
+				sprintf( __( 'You can check the status or add details here: %s', 'takedown-desk' ), '{status_link}' ),
+				'{site_name}',
+			),
+			array( 'status_link' ),
+			array(),
+		),
+		'dmca_needs_info'      => array(
+			/* translators: %s: notice ID. */
+			sprintf( __( 'We need a few details for copyright notice %s', 'takedown-desk' ), '{request_id}' ),
+			array(
+				__( 'To act on your copyright notice, we need a little more information:', 'takedown-desk' ),
+				'{question}',
+				/* translators: %s: private status link. */
+				sprintf( __( 'Reply here: %s', 'takedown-desk' ), '{status_link}' ),
+				__( 'We keep working on your notice while we wait.', 'takedown-desk' ),
+			),
+			array( 'question', 'status_link' ),
+			array( 'question', 'status_link' ),
+		),
+		'dmca_removed'         => array(
+			/* translators: %s: notice ID. */
+			sprintf( __( 'Your copyright notice %s: Removed', 'takedown-desk' ), '{request_id}' ),
+			array(
+				/* translators: 1: site name, 2: date and time of the removal. */
+				sprintf( __( 'We removed the material named in your notice from %1$s on %2$s.', 'takedown-desk' ), '{site_name}', '{removed_time}' ),
+				/* translators: %s: link to the copyright notice page. */
+				sprintf( __( 'If you see it on this site again, send a new notice: %s', 'takedown-desk' ), '{notice_link}' ),
+				'{redress}',
+			),
+			array( 'copies', 'removed_time', 'time_taken', 'notice_link', 'redress' ),
+			array(),
+		),
+		'dmca_declined'        => array(
+			/* translators: %s: notice ID. */
+			sprintf( __( 'Your copyright notice %s: Not removed', 'takedown-desk' ), '{request_id}' ),
+			array(
+				/* translators: %s: reason sentence. */
+				sprintf( __( 'We reviewed your notice and did not remove the material. Reason: %s', 'takedown-desk' ), '{reason}' ),
+				'{message}',
+				/* translators: %s: link to the copyright notice page. */
+				sprintf( __( 'If you think this is a mistake, or you have more details, reply to this email or send a new notice: %s', 'takedown-desk' ), '{notice_link}' ),
+				/* translators: %s: private status link. */
+				sprintf( __( 'You can see the status of your notice here: %s', 'takedown-desk' ), '{status_link}' ),
+				'{redress}',
+			),
+			array( 'reason', 'message', 'status_link', 'notice_link', 'redress' ),
+			array( 'reason' ),
+		),
+		// Never names who sent the notice.
+		'dmca_poster_removed'  => array(
+			/* translators: %s: site name. */
+			sprintf( __( 'We removed content you posted on %s', 'takedown-desk' ), '{site_name}' ),
+			array(
+				/* translators: 1: date and time of the removal, 2: site name. */
+				sprintf( __( 'On %1$s, we removed content you posted on %2$s:', 'takedown-desk' ), '{removed_time}', '{site_name}' ) . "\n{poster_items}",
+				/* translators: %s: notice ID. */
+				sprintf( __( 'Why: we received a copyright notice about this content. A moderator reviewed the notice and removed the content. Reference: %s.', 'takedown-desk' ), '{request_id}' ),
+				/* translators: %s: private review link. */
+				sprintf( __( 'If you think this was a mistake, ask for a review here: %s', 'takedown-desk' ), '{review_link}' ),
+				__( 'A moderator will look at it again. The content stays offline while they review it.', 'takedown-desk' ),
+				'{redress}',
+				'{site_name}',
+			),
+			array( 'poster_items', 'removed_time', 'review_link', 'redress' ),
+			array( 'review_link' ),
+		),
+		'mod_dmca_new'         => array(
+			/* translators: %s: notice ID. */
+			sprintf( __( 'Copyright notice %s: Received', 'takedown-desk' ), '{request_id}' ),
+			array(
+				/* translators: 1: item label, 2: target date and time with timezone. */
+				sprintf( __( 'A copyright notice arrived for %1$s. The target is %2$s.', 'takedown-desk' ), '{item}', '{deadline}' ),
+				$open,
+				__( 'We will remind you halfway to the target and again shortly before it, if it is still open.', 'takedown-desk' ),
+			),
+			array( 'hours_left' ),
+			array(),
+		),
+		'mod_dmca_reminder'    => array(
+			/* translators: 1: notice ID, 2: time left, e.g. 17 h 42 min. */
+			sprintf( __( 'Copyright notice %1$s: %2$s left', 'takedown-desk' ), '{request_id}', '{time_left}' ),
+			array(
+				/* translators: 1: notice ID, 2: item label, 3: target date and time, 4: time left. */
+				sprintf( __( 'Copyright notice %1$s for %2$s is still open. The target is %3$s, %4$s from now.', 'takedown-desk' ), '{request_id}', '{item}', '{deadline}', '{time_left}' ),
+				$open,
+			),
+			array( 'hours_left', 'time_left' ),
+			array(),
+		),
+		'mod_dmca_overdue'     => array(
+			/* translators: %s: notice ID. */
+			sprintf( __( 'Copyright notice %s: Past the target', 'takedown-desk' ), '{request_id}' ),
+			array(
+				/* translators: 1: notice ID, 2: target date and time. */
+				sprintf( __( 'Copyright notice %1$s passed its target at %2$s and is still open. Act on it as soon as you can.', 'takedown-desk' ), '{request_id}', '{deadline}' ),
+				$open,
+			),
+			array(),
+			array(),
+		),
 	);
 
 	$out = array();
 	foreach ( $list as $key => $t ) {
-		// The poster email gets no request times: what it may say is fixed by poster.php.
-		$base        = 0 === strpos( $key, 'poster_' ) ? array( 'site_name', 'site_url', 'request_id' ) : array( 'site_name', 'site_url', 'request_id', 'received_time', 'deadline' );
+		// The poster emails get no request times: what they may say is fixed by poster.php.
+		$base        = false !== strpos( $key, 'poster_' ) ? array( 'site_name', 'site_url', 'request_id' ) : array( 'site_name', 'site_url', 'request_id', 'received_time', 'deadline' );
 		$mod         = 0 === strpos( $key, 'mod_' ) ? array( 'item', 'admin_link' ) : array();
 		$out[ $key ] = array(
 			'subject'  => $t[0],
@@ -230,6 +340,10 @@ function tkdesk_email_templates(): array {
 			'tags'     => array_merge( $base, $mod, $t[2] ),
 			'required' => array_merge( array( 'request_id' ), $t[3] ),
 		);
+		// The Settings list groups these and shows them only while setting dmca is on.
+		if ( false !== strpos( $key, 'dmca_' ) ) {
+			$out[ $key ]['type'] = 'dmca';
+		}
 	}
 	return $out;
 }
@@ -278,6 +392,7 @@ function tkdesk_email_tag_labels(): array {
 		'item'          => __( 'The reported item, such as a post title', 'takedown-desk' ),
 		'admin_link'    => __( 'Link to the request in your dashboard', 'takedown-desk' ),
 		'hours_left'    => __( 'Whole hours left before the deadline', 'takedown-desk' ),
+		'time_left'     => __( 'Time left before the target, in hours and minutes', 'takedown-desk' ),
 		'poster_items'  => __( 'What was removed from the person who posted it, one item per line', 'takedown-desk' ),
 		'review_link'   => __( 'Private link where the person who posted it asks for a review', 'takedown-desk' ),
 		'redress'       => __( 'How to contest the decision, when "This site has visitors in the EU" is on', 'takedown-desk' ),
@@ -292,7 +407,7 @@ function tkdesk_email_tag_labels(): array {
  * @return array tag => string.
  */
 function tkdesk_email_values( array $request, array $vars = array() ): array {
-	$vars     = wp_parse_args(
+	$vars      = wp_parse_args(
 		$vars,
 		array(
 			'question'      => '',
@@ -305,12 +420,13 @@ function tkdesk_email_values( array $request, array $vars = array() ): array {
 			'review_link'   => '',
 		)
 	);
-	$received = tkdesk_ts( $request['received_at'] );
-	$due      = tkdesk_ts( $request['due_at'] );
-	$resolved = empty( $request['resolved_at'] ) ? tkdesk_now() : tkdesk_ts( $request['resolved_at'] );
-	$copies   = (int) $vars['removed_count'];
-	$reason   = '' !== $vars['reason'] ? $vars['reason'] : (string) ( $request['decline_reason'] ?? '' );
-	$label    = (string) ( $request['item_label'] ?? '' );
+	$received  = tkdesk_ts( $request['received_at'] );
+	$due       = tkdesk_ts( $request['due_at'] );
+	$resolved  = empty( $request['resolved_at'] ) ? tkdesk_now() : tkdesk_ts( $request['resolved_at'] );
+	$copies    = (int) $vars['removed_count'];
+	$reason    = '' !== $vars['reason'] ? $vars['reason'] : (string) ( $request['decline_reason'] ?? '' );
+	$label     = (string) ( $request['item_label'] ?? '' );
+	$copyright = 'dmca' === ( $request['type'] ?? '' ) && function_exists( 'tkdesk_copyright_url' ) ? tkdesk_copyright_url() : '';
 	return array(
 		'site_name'     => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
 		'site_url'      => home_url( '/' ),
@@ -319,17 +435,19 @@ function tkdesk_email_values( array $request, array $vars = array() ): array {
 		'deadline'      => tkdesk_format_deadline( $due ),
 		'status_link'   => '' !== $vars['token'] ? tkdesk_status_url( $request, $vars['token'] ) : '',
 		'question'      => (string) $vars['question'],
-		'reason'        => tkdesk_decline_reasons( (string) $vars['duplicate_of'] )[ $reason ] ?? '',
+		'reason'        => tkdesk_decline_reasons( (string) $vars['duplicate_of'], (string) ( $request['type'] ?? 'ncii' ) )[ $reason ] ?? '',
 		'message'       => (string) $vars['message'],
 		/* translators: %d: number of identical copies. */
 		'removed_items' => $copies > 0 ? sprintf( _n( 'the image you reported and %d identical copy', 'the image you reported and %d identical copies', $copies, 'takedown-desk' ), $copies ) : __( 'the image you reported', 'takedown-desk' ),
 		'copies'        => (string) $copies,
 		'removed_time'  => tkdesk_format_deadline( $resolved ),
 		'time_taken'    => tkdesk_duration_text( $resolved - $received ),
-		'notice_link'   => tkdesk_notice_url(),
+		// A copyright notice points back to the copyright notice page.
+		'notice_link'   => '' !== $copyright ? $copyright : tkdesk_notice_url(),
 		'item'          => '' !== $label ? $label : __( 'a link that is not matched to an item yet', 'takedown-desk' ),
 		'admin_link'    => tkdesk_admin_request_url( $request ),
 		'hours_left'    => (string) intdiv( max( 0, $due - tkdesk_now() ), HOUR_IN_SECONDS ),
+		'time_left'     => tkdesk_duration_text( max( 0, $due - tkdesk_now() ) ),
 		'poster_items'  => (string) $vars['poster_items'],
 		'review_link'   => (string) $vars['review_link'],
 		// DSA Art. 16(5) and 17(3)(f): how to contest the decision, only when the site has visitors in the EU.
@@ -539,9 +657,32 @@ function tkdesk_email_template( string $key, array $request, array $vars = array
 }
 
 /**
+ * The template a request uses for an email: copyright notices have their own.
+ *
+ * @param string $key     Email key as callers name it (requester_received, mod_new, ...).
+ * @param array  $request Request row.
+ * @return string
+ */
+function tkdesk_email_key( string $key, array $request ): string {
+	$dmca = array(
+		'requester_received'   => 'dmca_received',
+		'requester_needs_info' => 'dmca_needs_info',
+		'requester_removed'    => 'dmca_removed',
+		'requester_declined'   => 'dmca_declined',
+		'poster_removed'       => 'dmca_poster_removed',
+		'mod_new'              => 'mod_dmca_new',
+		'mod_24h'              => 'mod_dmca_reminder',
+		'mod_40h'              => 'mod_dmca_reminder',
+		'mod_overdue'          => 'mod_dmca_overdue',
+	);
+	return 'dmca' === ( $request['type'] ?? '' ) && isset( $dmca[ $key ] ) ? $dmca[ $key ] : $key;
+}
+
+/**
  * Send one email. Requester keys go to the decrypted contact email in the request's locale; poster keys
  * go to $vars['poster_email']; moderator keys go to the moderators. Test requests only ever reach the
- * current user. An email turned off in Settings is not sent and logs email_off.
+ * current user. An email turned off in Settings is not sent and logs email_off. A copyright notice uses
+ * its own template (tkdesk_email_key()); the recipients follow the key passed in.
  *
  * @param string $key     Email key.
  * @param array  $request Request row.
@@ -550,6 +691,8 @@ function tkdesk_email_template( string $key, array $request, array $vars = array
  */
 function tkdesk_send_email( string $key, array $request, array $vars = array() ): bool {
 	$to_requester = 0 === strpos( $key, 'requester_' );
+	$to_poster    = 0 === strpos( $key, 'poster_' );
+	$key          = tkdesk_email_key( $key, $request );
 	// Filed by the site itself: there is no requester to email.
 	if ( $to_requester && 'site' === ( $request['relationship'] ?? '' ) ) {
 		return false;
@@ -564,7 +707,7 @@ function tkdesk_send_email( string $key, array $request, array $vars = array() )
 			return false;
 		}
 		$to = array( $contact['email'] );
-	} elseif ( 0 === strpos( $key, 'poster_' ) ) {
+	} elseif ( $to_poster ) {
 		// The person who posted removed content (poster.php): the address is never stored.
 		$to = array_filter( array( (string) ( $vars['poster_email'] ?? '' ) ), 'is_email' );
 	} else {

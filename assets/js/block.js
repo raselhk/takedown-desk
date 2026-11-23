@@ -7,7 +7,7 @@
 
 	var el = wp.element.createElement;
 
-	[ 'takedown-desk/request-form', 'takedown-desk/notice-link' ].forEach( function ( name ) {
+	[ 'takedown-desk/request-form', 'takedown-desk/copyright-form', 'takedown-desk/notice-link' ].forEach( function ( name ) {
 		wp.blocks.registerBlockType( name, {
 			edit: function () {
 				return el(

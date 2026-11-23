@@ -101,7 +101,8 @@ function tkdesk_block_reupload( $file ) {
 
 /**
  * Block an attachment's hash for a request (hashing it first while the file still exists), or
- * release the block that request set.
+ * release the block that request set. A copyright notice blocks nothing: the same file may be
+ * uploaded again with permission.
  *
  * @param int  $attachment_id Attachment ID.
  * @param int  $request_id    Request ID.
@@ -109,6 +110,9 @@ function tkdesk_block_reupload( $file ) {
  */
 function tkdesk_block_hash( int $attachment_id, int $request_id, bool $block = true ): void {
 	global $wpdb;
+	if ( $block && 'dmca' === ( tkdesk_get_request( $request_id )['type'] ?? '' ) ) {
+		return;
+	}
 	$where = array( 'source_key' => 'attachment:' . $attachment_id );
 	if ( $block ) {
 		tkdesk_hash_attachment( $attachment_id );

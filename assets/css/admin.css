@@ -2453,6 +2453,35 @@ html:has(.tkdesk .tkd-secnav) {
 	gap: 4px;
 }
 
+/* Copyright notice: the two statements the sender confirmed, each with a green check. */
+.tkdesk .tkd-confirms {
+	display: grid;
+	gap: 6px;
+	inline-size: 100%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tkdesk .tkd-confirms li {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--tkd-space-2);
+	margin: 0;
+}
+
+.tkdesk .tkd-confirms .tkd-ico {
+	flex: none;
+	inline-size: 18px;
+	block-size: 18px;
+	margin-block-start: 2px;
+	padding: 2px;
+	border-radius: 50%;
+	background: var(--tkd-green-tile);
+	color: var(--tkd-green-ink);
+	stroke-width: 3;
+}
+
 /* Copies list. */
 .tkdesk .tkd-loading {
 	display: flex;
@@ -3433,6 +3462,13 @@ html:has(.tkdesk .tkd-settings) {
 .tkdesk .tkd-mails {
 	display: flex;
 	flex-direction: column;
+}
+
+/* Copyright notice emails: their own group under a small heading. */
+.tkdesk .tkd-mailgroup {
+	display: grid;
+	gap: var(--tkd-space-2);
+	margin-block-start: var(--tkd-space-4);
 }
 
 /* Email rows: name and when it is sent beside the on/off switch, then the actions and any warning. */

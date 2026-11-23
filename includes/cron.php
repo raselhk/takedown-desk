@@ -51,7 +51,8 @@ function tkdesk_schedule_events(): void {
 }
 
 /**
- * Sends the 24 h, 40 h and overdue reminders, each at most once per request.
+ * Sends the 24 h, 40 h and overdue reminders, each at most once per request. They fall due at half, five sixths
+ * and the end of the request's window (tkdesk_reminder_points()): 24 h, 40 h and 48 h for a 48-hour request.
  * Also the admin_init backstop, throttled to once per 5 minutes unless forced.
  *
  * @param bool $force Skip the throttle.
@@ -67,24 +68,26 @@ function tkdesk_tick( bool $force = false ): void {
 
 	$table  = tkdesk_table( 'requests' );
 	$stages = array(
-		// Stage => hours elapsed, guard column, email key, log event.
-		'24h'     => array( 24, 'reminder_24_sent_at', 'mod_24h', 'reminder_24' ),
-		'40h'     => array( 40, 'reminder_40_sent_at', 'mod_40h', 'reminder_40' ),
-		'overdue' => array( 48, 'overdue_sent_at', 'mod_overdue', 'overdue' ),
+		// Stage => reminder point, guard column, email key, log event.
+		'24h'     => array( 'first', 'reminder_24_sent_at', 'mod_24h', 'reminder_24' ),
+		'40h'     => array( 'second', 'reminder_40_sent_at', 'mod_40h', 'reminder_40' ),
+		'overdue' => array( 'overdue', 'overdue_sent_at', 'mod_overdue', 'overdue' ),
 	);
 	// The overdue guard is set last, so open requests without it are the only ones with work left.
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own table tkdesk_requests.
-	$rows = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE status IN (%s, %s, %s) AND received_at <= %s AND overdue_sent_at IS NULL', $table, 'new', 'in_review', 'needs_info', tkdesk_mysql( $now - 24 * HOUR_IN_SECONDS ) ), ARRAY_A );
+	$rows = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i WHERE status IN (%s, %s, %s) AND overdue_sent_at IS NULL', $table, 'new', 'in_review', 'needs_info' ), ARRAY_A );
 	foreach ( $rows as $row ) {
-		$row     = tkdesk_request_row( $row );
-		$elapsed = $now - tkdesk_ts( $row['received_at'] );
-		$due     = array();
+		$row    = tkdesk_request_row( $row );
+		$points = tkdesk_reminder_points( $row );
+		$due    = array();
 		foreach ( $stages as $stage => $s ) {
-			if ( $elapsed >= $s[0] * HOUR_IN_SECONDS && null === $row[ $s[1] ] ) {
+			if ( $now >= $points[ $s[0] ] && null === $row[ $s[1] ] ) {
 				$due[ $stage ] = $s;
 			}
 		}
-		$top = array_key_last( $due );
+		// A copyright notice has a business-day target, not 48 hours: the record says so (rest.php).
+		$detail = 'dmca' === $row['type'] ? array( 'dmca' => true ) : array();
+		$top    = array_key_last( $due );
 		foreach ( $due as $stage => $s ) {
 			// The guard is claimed before sending, so two ticks never send the same reminder.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own table tkdesk_requests.
@@ -92,11 +95,11 @@ function tkdesk_tick( bool $force = false ): void {
 				continue;
 			}
 			if ( $stage !== $top ) {
-				tkdesk_log( $row['id'], $s[3], array( 'skipped' => true ), 0 );
+				tkdesk_log( $row['id'], $s[3], $detail + array( 'skipped' => true ), 0 );
 				continue;
 			}
 			tkdesk_send_email( $s[2], $row );
-			tkdesk_log( $row['id'], $s[3], array(), 0 );
+			tkdesk_log( $row['id'], $s[3], $detail, 0 );
 			/**
 			 * Fires when a reminder stage is reached.
 			 *

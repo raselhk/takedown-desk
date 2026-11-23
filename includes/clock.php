@@ -1,6 +1,6 @@
 <?php
 /**
- * Clock: the single time source, the 48-hour deadline and its display.
+ * Clock: the single time source, the 48-hour deadline (business-day target for copyright notices) and its display.
  *
  * @package TakedownDesk
  */
@@ -43,13 +43,49 @@ function tkdesk_ts( ?string $mysql_gmt ): int {
 }
 
 /**
- * Deadline for a request received at a given time.
+ * Deadline for a request received at a given time: 48 hours, or for a copyright notice the target of
+ * setting dmca_days business days.
  *
- * @param int $received_ts Unix timestamp.
+ * @param int    $received_ts Unix timestamp.
+ * @param string $type        Request type (ncii | dmca).
  * @return int
  */
-function tkdesk_due( int $received_ts ): int {
-	return $received_ts + 48 * HOUR_IN_SECONDS;
+function tkdesk_due( int $received_ts, string $type = 'ncii' ): int {
+	return 'dmca' === $type ? tkdesk_add_business_days( $received_ts, max( 1, (int) tkdesk_setting( 'dmca_days' ) ) ) : $received_ts + 48 * HOUR_IN_SECONDS;
+}
+
+/**
+ * Adds business days in the site timezone: one calendar day at a time at the same local time of day; only
+ * days that land on Monday to Friday count. No holiday calendar.
+ *
+ * @param int $ts   Unix timestamp.
+ * @param int $days Business days.
+ * @return int
+ */
+function tkdesk_add_business_days( int $ts, int $days ): int {
+	$date = ( new DateTimeImmutable( '@' . $ts ) )->setTimezone( wp_timezone() );
+	while ( $days > 0 ) {
+		$date  = $date->modify( '+1 day' );
+		$days -= (int) $date->format( 'N' ) <= 5 ? 1 : 0;
+	}
+	return $date->getTimestamp();
+}
+
+/**
+ * When the reminders of a request fall due: half of its window, five sixths of it, and the deadline.
+ * For a 48-hour request that is 24 h, 40 h and 48 h after it arrived.
+ *
+ * @param array $request Request row.
+ * @return array array( 'first' => ts, 'second' => ts, 'overdue' => ts ).
+ */
+function tkdesk_reminder_points( array $request ): array {
+	$received = tkdesk_ts( $request['received_at'] ?? null );
+	$due      = tkdesk_ts( $request['due_at'] ?? null );
+	return array(
+		'first'   => $received + intdiv( $due - $received, 2 ),
+		'second'  => $received + intdiv( 5 * ( $due - $received ), 6 ),
+		'overdue' => $due,
+	);
 }
 
 /**

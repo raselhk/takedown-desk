@@ -1,6 +1,6 @@
 # Takedown Desk
 
-Free WordPress plugin by [Swift Web Dev](https://swiftwebdev.com/). Take It Down Act removal requests inside WordPress: a notice link, a request form, a 48-hour deadline clock, one-step removal of the item and its identical copies, and a dated record.
+Free WordPress plugin by [Swift Web Dev](https://swiftwebdev.com/). Take It Down Act removal requests and DMCA takedown notices inside WordPress: notice links, request forms, a deadline clock, one-step removal of the item and its identical copies, and a dated record.
 
 - WordPress.org slug: `takedown-desk`
 - Requires WordPress 6.5+, PHP 7.4+

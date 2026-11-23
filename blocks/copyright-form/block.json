@@ -1,0 +1,17 @@
+{
+	"apiVersion": 3,
+	"name": "takedown-desk/copyright-form",
+	"title": "Copyright notice form",
+	"category": "widgets",
+	"icon": "media-text",
+	"description": "The form people use to send you a copyright (DMCA) notice. Works without JavaScript.",
+	"keywords": [ "copyright", "dmca", "notice" ],
+	"textdomain": "takedown-desk",
+	"supports": {
+		"html": false,
+		"customClassName": false,
+		"multiple": false
+	},
+	"editorScript": "tkdesk-block",
+	"editorStyle": "tkdesk-form"
+}

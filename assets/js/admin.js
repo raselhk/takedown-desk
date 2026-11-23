@@ -84,6 +84,7 @@
 		download: [ 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4', 'm7 10 5 5 5-5', 'M12 15V3' ],
 		image: [ 'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z', 'M11 9a2 2 0 1 1-4 0 2 2 0 0 1 4 0z', 'm21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21' ],
 		users: [ 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2', 'M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0z', 'M22 21v-2a4 4 0 0 0-3-3.87', 'M16 3.13a4 4 0 0 1 0 7.75' ],
+		copyright: [ CIRCLE, 'M14.83 14.83a4 4 0 1 1 0-5.66' ],
 	};
 
 	/* ---------- DOM helpers ---------- */
@@ -156,6 +157,9 @@
 	const speak = ( msg, politeness ) => wp.a11y && wp.a11y.speak( msg, politeness || 'polite' );
 	const api = ( path, method, data ) => wp.apiFetch( { path: NS + path, method: method || 'GET', data } );
 	const isOpen = ( r ) => OPEN.includes( r.status );
+	// Copyright (DMCA) notices: their clock is a target the owner sets in business days, not the Act's 48 hours.
+	const isDmca = ( r ) => 'dmca' === ( r && r.type );
+	const windowOf = ( r ) => ( isDmca( r ) && Math.max( 0, r.due_at - r.received_at ) ) || WINDOW;
 	// Browsers drop control characters and spaces around a scheme and tabs or newlines inside it ("java\tscript:").
 	const safe = ( url ) => ( ! url || /^(javascript|data|vbscript):/i.test( String( url ).replace( /[\x00-\x20]+/g, '' ) ) ? '#' : url );
 	const muted = ( text ) => el( 'span', { class: 'tkd-muted', text } );
@@ -452,14 +456,15 @@
 		overdue: [ 'octagon', __( 'Overdue', 'takedown-desk' ) ],
 	};
 	let clocks = [];
-	const stateOf = ( rem ) => {
+	// Warn at half the window and urgent at the last sixth: 24 h and 8 h of 48, the reminder points of every type.
+	const stateOf = ( rem, win ) => {
 		if ( rem < 0 ) {
 			return 'overdue';
 		}
-		if ( rem <= 28800 ) {
+		if ( rem <= win / 6 ) {
 			return 'urgent';
 		}
-		return rem <= 86400 ? 'warn' : 'ok';
+		return rem <= win / 2 ? 'warn' : 'ok';
 	};
 	const fill = ( bar, frac ) => {
 		bar.style.strokeDashoffset = ( RING * ( 1 - frac ) ).toFixed( 2 );
@@ -492,25 +497,38 @@
 
 	function tick( c ) {
 		const rem = c.r.due_at ? c.r.due_at - now() : ( c.r.clock && c.r.clock.remaining ) || 0;
-		const state = stateOf( rem );
+		const dm = isDmca( c.r );
+		const win = windowOf( c.r );
+		const state = stateOf( rem, win );
 		const t = words( rem );
+		let past = /* translators: %s: time in words, e.g. 2 hours 55 minutes. */ sprintf( __( '%s past the deadline.', 'takedown-desk' ), t );
+		if ( dm ) {
+			past = /* translators: %s: time in words, e.g. 2 hours 55 minutes. */ sprintf( __( '%s past the target.', 'takedown-desk' ), t );
+		}
 		c.time.textContent = timeLeft( rem );
-		c.sr.textContent =
-			'overdue' === state
-				? /* translators: %s: time in words, e.g. 2 hours 55 minutes. */ sprintf( __( '%s past the deadline.', 'takedown-desk' ), t )
-				: /* translators: %s: time in words, e.g. 45 hours 4 minutes. */ sprintf( __( '%s left.', 'takedown-desk' ), t );
-		fill( c.bar, 'overdue' === state ? 1 : Math.min( 1, rem / WINDOW ) );
+		c.sr.textContent = 'overdue' === state ? past : /* translators: %s: time in words, e.g. 45 hours 4 minutes. */ sprintf( __( '%s left.', 'takedown-desk' ), t );
+		fill( c.bar, 'overdue' === state ? 1 : Math.min( 1, rem / win ) );
 		if ( state === c.state ) {
 			return;
 		}
 		const first = ! c.state;
 		c.state = state;
 		c.node.setAttribute( 'data-state', state );
-		c.label.replaceChildren( icon( STATES[ state ][ 0 ] ), el( 'span', { text: STATES[ state ][ 1 ] } ) );
+		let text = STATES[ state ][ 1 ];
+		if ( dm ) {
+			text = 'overdue' === state ? __( 'Past target', 'takedown-desk' ) : __( 'Target', 'takedown-desk' );
+		}
+		c.label.replaceChildren( icon( STATES[ state ][ 0 ] ), el( 'span', { text } ) );
 		if ( first || c.quiet ) {
 			return;
 		}
-		if ( 'overdue' === state ) {
+		if ( dm ) {
+			speak(
+				'overdue' === state
+					? /* translators: %s: request ID. */ sprintf( __( 'Request %s is past its target.', 'takedown-desk' ), c.r.public_id )
+					: /* translators: 1: request ID, 2: time in words, e.g. 20 hours 4 minutes. */ sprintf( __( 'Request %1$s has %2$s left.', 'takedown-desk' ), c.r.public_id, t )
+			);
+		} else if ( 'overdue' === state ) {
 			/* translators: %s: request ID. */
 			speak( sprintf( __( 'Request %s is overdue.', 'takedown-desk' ), c.r.public_id ) );
 		} else if ( 'ok' !== state ) {
@@ -541,6 +559,7 @@
 
 	const testChip = () => el( 'span', { class: 'tkd-chip tkd-chip--purple', text: __( 'Test request', 'takedown-desk' ) } );
 	const autoChip = () => el( 'span', { class: 'tkd-chip tkd-chip--blue' }, icon( 'shield' ), __( 'Auto-hidden', 'takedown-desk' ) );
+	const copyChip = () => el( 'span', { class: 'tkd-chip tkd-chip--orange' }, icon( 'copyright' ), __( 'Copyright', 'takedown-desk' ) );
 
 	// Auto-hidden state, then the advisory abuse signals in amber (signals.php). Advice only: nothing is declined.
 	function signalChips( r ) {
@@ -958,6 +977,9 @@
 			}
 			inbox.filter = 'string' === typeof p.filter && p.filter ? p.filter : inbox.filter;
 		}
+		if ( 'copyright' === inbox.filter && ! cfg.dmca ) {
+			inbox.filter = 'all'; // Copyright notices were turned off since.
+		}
 		const placeholder = __( 'Search by request ID or item', 'takedown-desk' );
 		const tip = infoTip( __( 'About search', 'takedown-desk' ), __( 'Contact details are encrypted, so names and email addresses cannot be searched.', 'takedown-desk' ) );
 		let timer = 0;
@@ -1020,7 +1042,7 @@
 	}
 
 	/* ---------- Status card (top of the inbox) ---------- */
-	const FIX = { create_notice_page: 'create', publish_notice_page: 'publish', add_form: 'add_form' };
+	const FIX = { create_notice_page: 'create', publish_notice_page: 'publish', add_form: 'add_form', create_copyright_page: 'dmca' };
 
 	function statusCard( slot ) {
 		api( 'status' ).then(
@@ -1079,11 +1101,14 @@
 							kind: 'error' === p.severity ? 'primary' : 'secondary',
 							onclick: ( e ) => {
 								const b = e.currentTarget;
+								const dmca = 'dmca' === FIX[ p.fix_action ];
 								busy( b, true );
-								api( 'setup/notice-page', 'POST', { page_id: ( s.notice_page && s.notice_page.id ) || 0, action: FIX[ p.fix_action ] } ).then(
+								( dmca ? api( 'dmca-page', 'POST' ) : api( 'setup/notice-page', 'POST', { page_id: ( s.notice_page && s.notice_page.id ) || 0, action: FIX[ p.fix_action ] } ) ).then(
 									( res ) => {
-										cfg.noticeUrl = res.url || cfg.noticeUrl;
-										toast( __( 'Notice page updated.', 'takedown-desk' ) );
+										if ( ! dmca ) {
+											cfg.noticeUrl = res.url || cfg.noticeUrl;
+										}
+										toast( dmca ? __( 'Copyright notice page created.', 'takedown-desk' ) : __( 'Notice page updated.', 'takedown-desk' ) );
 										statusCard( slot );
 									},
 									( err ) => {
@@ -1094,7 +1119,8 @@
 							},
 						} );
 					}
-					return p.fix_url ? linkChip( p.fix_label || __( 'Fix this', 'takedown-desk' ), p.fix_url ) : null;
+					// Another site's page (the Copyright Office directory, WordPress docs) opens in a new tab.
+					return p.fix_url ? linkChip( p.fix_label || __( 'Fix this', 'takedown-desk' ), p.fix_url, /^https?:/i.test( p.fix_url ) && 0 !== p.fix_url.indexOf( window.location.origin ) ) : null;
 				};
 				slot.replaceChildren(
 					el(
@@ -1149,6 +1175,8 @@
 				{ id: 'removed', label: __( 'Removed', 'takedown-desk' ) },
 				{ id: 'declined', label: __( 'Not removed', 'takedown-desk' ) },
 				{ id: 'spam', label: __( 'Spam', 'takedown-desk' ) },
+				/* translators: %d: number of copyright notices. */
+				...( cfg.dmca ? [ { id: 'copyright', label: sprintf( __( 'Copyright (%d)', 'takedown-desk' ), c.copyright || 0 ) } ] : [] ),
 				/* translators: %d: number of requests. */
 				...( c.review ? [ { id: 'review', label: sprintf( __( 'Review requested (%d)', 'takedown-desk' ), c.review ), alert: true } ] : [] ),
 			],
@@ -1180,7 +1208,11 @@
 
 	function loadInbox( ui, announce ) {
 		const my = ++seq;
-		const q = new URLSearchParams( { status: inbox.filter, page: inbox.page, per_page: 20, orderby: inbox.orderby, order: inbox.order } );
+		const copy = 'copyright' === inbox.filter; // Every copyright notice that is not spam.
+		const q = new URLSearchParams( { status: copy ? 'all' : inbox.filter, page: inbox.page, per_page: 20, orderby: inbox.orderby, order: inbox.order } );
+		if ( copy ) {
+			q.set( 'type', 'dmca' );
+		}
 		if ( inbox.search ) {
 			q.set( 'search', inbox.search );
 		}
@@ -1364,6 +1396,7 @@
 						'span',
 						{ class: 'tkd-req__top' },
 						el( 'a', { class: 'tkd-id', href, text: r.public_id } ),
+						cfg.dmca && isDmca( r ) ? copyChip() : null,
 						r.is_test ? testChip() : null,
 						r.minor ? el( 'span', { class: 'tkd-chip tkd-chip--red', text: __( 'Under 18', 'takedown-desk' ) } ) : null,
 						r.review_requested ? reviewChip() : null
@@ -1498,21 +1531,51 @@
 		},
 	};
 	const REQUESTER_ONLY = [ 'received_at', 'channel', 'email', 'phone', 'relationship', 'signature' ];
+	const DMCA_ONLY = [ 'work', 'work_url', 'address', 'accuracy' ];
 
 	function logDialog() {
 		const t0 = Math.floor( now() );
 		const F = {};
 		let filer = '';
+		let kind = ''; // Requester path with copyright notices on: 'ncii' or 'dmca', asked before the fields show.
+		let type = 'ncii';
 		let changed = false;
+		// What changes with the kind of request: arrival help, where the content is, who the requester is.
+		const KINDS = {
+			ncii: {
+				received: __( 'The 48-hour deadline counts from this time.', 'takedown-desk' ),
+				url: __( 'Where is the image?', 'takedown-desk' ),
+				urlHelp: __( 'Paste the link to the page that shows it. You can add more links in the next box.', 'takedown-desk' ),
+				rel: [
+					__( 'Who is the requester asking for?', 'takedown-desk' ),
+					[
+						[ 'self', __( 'Themselves', 'takedown-desk' ) ],
+						[ 'authorized', __( 'Someone they are authorized to act for', 'takedown-desk' ) ],
+					],
+				],
+			},
+			dmca: {
+				received: __( 'The target time counts from this time.', 'takedown-desk' ),
+				url: __( 'Where is the material on this site?', 'takedown-desk' ),
+				urlHelp: __( 'Paste the link to the page that shows it. You can add more links in the details box.', 'takedown-desk' ),
+				rel: [
+					__( 'Who is sending the notice?', 'takedown-desk' ),
+					[
+						[ 'owner', __( 'The copyright owner', 'takedown-desk' ) ],
+						[ 'agent', __( 'Someone authorized to act for the copyright owner', 'takedown-desk' ) ],
+					],
+				],
+			},
+		};
 		const f = ( o ) => {
 			F[ o.name ] = field( o );
 			return F[ o.name ].wrap;
 		};
 		const save = btn( __( 'Save request', 'takedown-desk' ), { kind: 'primary', type: 'submit', icon: 'check', disabled: true } );
 		const box = el( 'div' );
-		// Save stays off until a filer is chosen and a field changes, and again after a failed save until the next edit.
+		// Save stays off until the fields show and one changes, and again after a failed save until the next edit.
 		const ready = () => {
-			save.disabled = ! filer || ! changed;
+			save.disabled = ! filer || ! changed || grid.hidden;
 		};
 		const touch = () => {
 			changed = true;
@@ -1527,7 +1590,7 @@
 				name: 'received_at',
 				type: 'datetime-local',
 				label: __( 'When did it arrive?', 'takedown-desk' ),
-				help: __( 'The 48-hour deadline counts from this time.', 'takedown-desk' ),
+				help: KINDS.ncii.received,
 				value: localInput( t0 ),
 				required: true,
 				attrs: { max: localInput( t0 ) },
@@ -1548,10 +1611,19 @@
 				type: 'url',
 				wide: true,
 				required: true,
-				label: __( 'Where is the image?', 'takedown-desk' ),
-				help: __( 'Paste the link to the page that shows it. You can add more links in the next box.', 'takedown-desk' ),
+				label: KINDS.ncii.url,
+				help: KINDS.ncii.urlHelp,
 				attrs: { autocomplete: 'off' },
 			} ),
+			f( {
+				name: 'work',
+				type: 'textarea',
+				wide: true,
+				required: true,
+				label: __( 'Which copyrighted work is it about?', 'takedown-desk' ),
+				help: __( 'For example: the title of the photo, article or video, and who made it.', 'takedown-desk' ),
+			} ),
+			f( { name: 'work_url', type: 'url', wide: true, label: __( 'Where the original is (optional)', 'takedown-desk' ), help: __( 'A link to the original work, on any site.', 'takedown-desk' ), attrs: { autocomplete: 'off' } } ),
 			f( {
 				name: 'details',
 				type: 'textarea',
@@ -1562,48 +1634,91 @@
 			f( { name: 'statement', type: 'textarea', wide: true, required: true, label: FILERS.requester.statement[ 0 ], help: FILERS.requester.statement[ 1 ] } ),
 			f( { name: 'email', type: 'email', required: true, label: __( "Requester's email", 'takedown-desk' ), help: __( 'Any questions and the outcome go to this address.', 'takedown-desk' ), attrs: { autocomplete: 'off' } } ),
 			f( { name: 'phone', type: 'tel', label: __( "Requester's phone (optional)", 'takedown-desk' ), help: __( 'Only if they gave one.', 'takedown-desk' ), attrs: { autocomplete: 'off' } } ),
-			f( {
-				name: 'relationship',
-				type: 'select',
-				label: __( 'Who is the requester asking for?', 'takedown-desk' ),
-				options: [
-					[ 'self', __( 'Themselves', 'takedown-desk' ) ],
-					[ 'authorized', __( 'Someone they are authorized to act for', 'takedown-desk' ) ],
-				],
-			} ),
+			f( { name: 'address', type: 'textarea', rows: 2, wide: true, label: __( "Requester's postal address (optional)", 'takedown-desk' ), help: __( 'Only if they gave one.', 'takedown-desk' ), attrs: { maxlength: 300 } } ),
+			f( { name: 'relationship', type: 'select', label: KINDS.ncii.rel[ 0 ], options: KINDS.ncii.rel[ 1 ] } ),
 			f( { name: 'signature', required: true, label: __( 'Name the requester signed with', 'takedown-desk' ), help: __( 'Their full name as they gave it. It counts as their signature.', 'takedown-desk' ), attrs: { autocomplete: 'off' } } ),
-			f( { name: 'good_faith', type: 'checkbox', wide: true, required: true, label: FILERS.requester.goodFaith } )
+			f( { name: 'good_faith', type: 'checkbox', wide: true, required: true, label: FILERS.requester.goodFaith } ),
+			f( {
+				name: 'accuracy',
+				type: 'checkbox',
+				wide: true,
+				required: true,
+				label: __( 'The requester confirmed that the information in the notice is accurate and, under penalty of perjury, that they are the copyright owner or authorized to act for the owner.', 'takedown-desk' ),
+			} )
 		);
-		const pick = ( v ) => {
-			const p = FILERS[ v ];
-			filer = v;
-			REQUESTER_ONLY.forEach( ( k ) => {
-				F[ k ].wrap.hidden = 'admin' === v;
+		// The filer and, on the requester path with copyright notices on, the kind of request decide the fields.
+		const apply = () => {
+			const p = FILERS[ filer ];
+			const admin = 'admin' === filer;
+			const asks = ! admin && !! cfg.dmca;
+			type = asks ? kind : 'ncii';
+			const dm = 'dmca' === type;
+			const k = KINDS[ type ] || KINDS.ncii;
+			kinds.hidden = ! asks;
+			REQUESTER_ONLY.forEach( ( n ) => {
+				F[ n ].wrap.hidden = admin;
 			} );
+			DMCA_ONLY.forEach( ( n ) => {
+				F[ n ].wrap.hidden = ! dm;
+			} );
+			F.statement.wrap.hidden = dm;
 			F.statement.wrap.querySelector( '.tkd-label' ).textContent = p.statement[ 0 ];
 			F.statement.wrap.querySelector( '.tkd-help' ).textContent = p.statement[ 1 ];
-			F.good_faith.wrap.querySelector( '.tkd-check span' ).textContent = p.goodFaith;
-			F.good_faith.input.checked = false; // A different person confirms now, so the box starts empty.
+			F.received_at.wrap.querySelector( '.tkd-help' ).textContent = k.received;
+			F.url.wrap.querySelector( '.tkd-label' ).textContent = k.url;
+			F.url.wrap.querySelector( '.tkd-help' ).textContent = k.urlHelp;
+			F.relationship.wrap.querySelector( '.tkd-label' ).textContent = k.rel[ 0 ];
+			F.relationship.input.replaceChildren( ...k.rel[ 1 ].map( ( o ) => el( 'option', { value: o[ 0 ], text: o[ 1 ] } ) ) );
+			F.good_faith.wrap.querySelector( '.tkd-check span' ).textContent = dm
+				? __( 'The requester confirmed in good faith that the use of the material is not authorized by the copyright owner, its agent or the law.', 'takedown-desk' )
+				: p.goodFaith;
+			// A different person or statement now, so the boxes start empty.
+			F.good_faith.input.checked = false;
+			F.accuracy.input.checked = false;
 			hint.textContent = p.hint;
-			Object.keys( F ).forEach( ( k ) => F[ k ].set( '' ) );
+			Object.keys( F ).forEach( ( n ) => F[ n ].set( '' ) );
 			box.replaceChildren();
-			grid.hidden = false;
+			grid.hidden = ! type;
 			ready();
 		};
-		const who = radios(
-			'tkd-filer',
-			__( 'Who is filing this request?', 'takedown-desk' ),
-			[
-				[ 'admin', __( 'I am filing it for the site', 'takedown-desk' ) ],
-				[ 'requester', __( 'I am logging it for someone who contacted us', 'takedown-desk' ) ],
-			],
-			'',
-			pick
+		const required = ( set ) => {
+			set.querySelectorAll( 'input' ).forEach( ( input ) => {
+				input.required = true;
+			} );
+			return set;
+		};
+		const who = required(
+			radios(
+				'tkd-filer',
+				__( 'Who is filing this request?', 'takedown-desk' ),
+				[
+					[ 'admin', __( 'I am filing it for the site', 'takedown-desk' ) ],
+					[ 'requester', __( 'I am logging it for someone who contacted us', 'takedown-desk' ) ],
+				],
+				'',
+				( v ) => {
+					filer = v;
+					apply();
+				}
+			)
 		);
-		who.querySelectorAll( 'input' ).forEach( ( input ) => {
-			input.required = true;
-		} );
 		who.querySelector( 'input' ).setAttribute( 'data-autofocus', '' );
+		const kinds = required(
+			radios(
+				'tkd-kind',
+				__( 'What kind of request is it?', 'takedown-desk' ),
+				[
+					[ 'ncii', __( 'Intimate image request', 'takedown-desk' ) ],
+					[ 'dmca', __( 'Copyright notice', 'takedown-desk' ) ],
+				],
+				'',
+				( v ) => {
+					kind = v;
+					apply();
+				}
+			)
+		);
+		kinds.hidden = true;
 		// Field errors next to each field and in the summary; focus moves to the first one.
 		const fail = ( list, msg ) => {
 			changed = false;
@@ -1616,15 +1731,19 @@
 		const d = dialog( {
 			title: __( 'Log a removal request', 'takedown-desk' ),
 			wide: true,
-			body: [ el( 'p', { class: 'tkd-lead', text: __( 'Record a request that reached you outside the online form, or file one for the site yourself.', 'takedown-desk' ) } ), who, box, grid ],
+			body: [ el( 'p', { class: 'tkd-lead', text: __( 'Record a request that reached you outside the online form, or file one for the site yourself.', 'takedown-desk' ) } ), who, kinds, box, grid ],
 			buttons: [ save ],
 			onsubmit() {
-				if ( ! filer ) {
+				if ( ! filer || grid.hidden ) {
 					return;
 				}
 				const admin = 'admin' === filer;
+				const dm = 'dmca' === type;
 				Object.keys( F ).forEach( ( k ) => F[ k ].set( '' ) );
 				const data = { filer, good_faith: F.good_faith.input.checked };
+				if ( dm ) {
+					Object.assign( data, { type, accuracy: F.accuracy.input.checked } );
+				}
 				if ( ! admin ) {
 					const raw = F.received_at.input.value;
 					const at = Math.floor( new Date( raw ).getTime() / 1000 );
@@ -1638,7 +1757,13 @@
 					}
 					data.received_at = at;
 				}
-				( admin ? [ 'url', 'details', 'statement' ] : [ 'channel', 'url', 'details', 'statement', 'email', 'phone', 'relationship', 'signature' ] ).forEach( ( k ) => {
+				let keys = [ 'channel', 'url', 'details', 'statement', 'email', 'phone', 'relationship', 'signature' ];
+				if ( admin ) {
+					keys = [ 'url', 'details', 'statement' ];
+				} else if ( dm ) {
+					keys = [ 'channel', 'url', 'work', 'work_url', 'details', 'email', 'phone', 'address', 'relationship', 'signature' ];
+				}
+				keys.forEach( ( k ) => {
 					data[ k ] = F[ k ].input.value.trim();
 				} );
 				busy( save, true );
@@ -1654,7 +1779,20 @@
 					( e ) => {
 						busy( save, false );
 						const fields = ( e.data && e.data.fields ) || {};
-						const own = Object.assign( { url: __( 'Enter the full link to the page that shows the image, starting with https://.', 'takedown-desk' ) }, FILERS[ filer ].errors );
+						const own = Object.assign(
+							{ url: __( 'Enter the full link to the page that shows the image, starting with https://.', 'takedown-desk' ) },
+							FILERS[ filer ].errors,
+							dm
+								? {
+										url: __( 'Enter the full link to the page on this site that shows the material, starting with https://.', 'takedown-desk' ),
+										work: __( 'Describe the copyrighted work in 10 to 2,000 characters.', 'takedown-desk' ),
+										work_url: __( 'Enter the full link to the original, starting with https:// or http://.', 'takedown-desk' ),
+										address: __( 'Keep the address to 300 characters or fewer.', 'takedown-desk' ),
+										relationship: __( 'Choose who is sending the notice.', 'takedown-desk' ),
+										accuracy: FILERS.requester.errors.good_faith,
+								  }
+								: {}
+						);
 						const list = Object.keys( fields )
 							.filter( ( k ) => F[ k ] )
 							.map( ( k ) => [ F[ k ], own[ k ] || fields[ k ] ] );
@@ -1692,6 +1830,7 @@
 		failed: __( 'Failed', 'takedown-desk' ),
 	};
 	const acted = ( it ) => [ 'offline', 'image_removed', 'deleted' ].includes( it.action );
+	const noPause = ( r ) => ( isDmca( r ) ? __( 'Asking for details does not pause the target clock.', 'takedown-desk' ) : __( 'Asking for details does not pause the deadline.', 'takedown-desk' ) );
 	const chosen = () => ( det.r.items || [] ).filter( ( it ) => det.draft.sel.has( it.id ) && ! acted( it ) );
 
 	function openDetail( id ) {
@@ -1810,7 +1949,7 @@
 				el(
 					'div',
 					{ class: 'tkd-detail' },
-					el( 'div', { class: 'tkd-col' }, r.minor ? minorPanel( r ) : null, requestCard( r ), open && ! r.object ? matchCard() : null ),
+					el( 'div', { class: 'tkd-col' }, r.minor && ! isDmca( r ) ? minorPanel( r ) : null, requestCard( r ), open && ! r.object ? matchCard() : null ),
 					el(
 						'div',
 						{ class: 'tkd-col' },
@@ -1855,7 +1994,7 @@
 			r.is_test ? testChip() : null,
 			r.signals && r.signals.auto_hidden ? autoChip() : null,
 			r.review_requested ? reviewChip() : null,
-			! open && r.clock && r.clock.late ? el( 'span', { class: 'tkd-chip tkd-chip--red', text: __( 'Closed after the deadline', 'takedown-desk' ) } ) : null
+			! open && r.clock && r.clock.late ? el( 'span', { class: 'tkd-chip tkd-chip--red', text: isDmca( r ) ? __( 'Closed after the target', 'takedown-desk' ) : __( 'Closed after the deadline', 'takedown-desk' ) } ) : null
 		);
 		return el(
 			'header',
@@ -1863,7 +2002,7 @@
 			el(
 				'div',
 				{ class: 'tkd-hero__main' },
-				el( 'p', { class: 'tkd-hero__eyebrow', text: __( 'Removal request', 'takedown-desk' ) } ),
+				el( 'p', { class: 'tkd-hero__eyebrow', text: isDmca( r ) ? __( 'Copyright notice', 'takedown-desk' ) : __( 'Removal request', 'takedown-desk' ) } ),
 				el( 'h1', { class: 'tkd-hero__title tkd-mono', tabindex: '-1', text: r.public_id } ),
 				chips,
 				el( 'p', { class: 'tkd-hero__desc', text: r.object ? r.object.label : __( 'Item not matched', 'takedown-desk' ) } )
@@ -1999,8 +2138,9 @@
 		if ( jet.length ) {
 			const text = [
 				__( 'Hello Jetpack support,', 'takedown-desk' ),
-				/* translators: %s: site address. */
-				sprintf( __( 'We removed these images from %s after a removal request under the Take It Down Act, but the Jetpack image CDN still serves copies. Please purge them from the CDN cache:', 'takedown-desk' ), cfg.siteUrl || '' ),
+				isDmca( r )
+					? /* translators: %s: site address. */ sprintf( __( 'We removed these images from %s after a copyright notice, but the Jetpack image CDN still serves copies. Please purge them from the CDN cache:', 'takedown-desk' ), cfg.siteUrl || '' )
+					: /* translators: %s: site address. */ sprintf( __( 'We removed these images from %s after a removal request under the Take It Down Act, but the Jetpack image CDN still serves copies. Please purge them from the CDN cache:', 'takedown-desk' ), cfg.siteUrl || '' ),
 				jet.join( '\n' ),
 				__( 'Thank you.', 'takedown-desk' ),
 			].join( '\n\n' );
@@ -2128,10 +2268,22 @@
 		);
 	}
 
+	// "Where the original is": a link only for http and https; anything else stays plain text.
+	function workLink( url ) {
+		if ( ! url ) {
+			return muted( __( 'None given', 'takedown-desk' ) );
+		}
+		if ( ! /^https?:\/\//i.test( url ) ) {
+			return el( 'span', { class: 'tkd-mono tkd-break', text: url } );
+		}
+		return el( 'a', { class: 'tkd-inline tkd-mono tkd-break', href: url, target: '_blank', rel: 'noopener noreferrer' }, url, el( 'span', { class: 'tkd-sr', text: ' ' + __( '(opens in a new tab)', 'takedown-desk' ) } ) );
+	}
+
 	function requestCard( r ) {
 		const o = r.object;
 		const t = r.text;
 		const c = det.contact;
+		const dm = isDmca( r );
 		const rows = [];
 		rows.push( [
 			__( 'Reported item', 'takedown-desk' ),
@@ -2139,7 +2291,7 @@
 				? [
 						el( 'span', { class: 'tkd-strong', text: o.label } ),
 						safePreview( r ),
-						o.url ? el( 'p', { class: 'tkd-contentnote' }, icon( 'alert' ), el( 'span', { text: __( 'This item may show intimate content.', 'takedown-desk' ) } ) ) : null,
+						o.url && ! dm ? el( 'p', { class: 'tkd-contentnote' }, icon( 'alert' ), el( 'span', { text: __( 'This item may show intimate content.', 'takedown-desk' ) } ) ) : null,
 						el(
 							'span',
 							{ class: 'tkd-chips' },
@@ -2157,8 +2309,14 @@
 		}
 		if ( t ) {
 			rows.push( [ __( 'Link as submitted', 'takedown-desk' ), el( 'span', { class: 'tkd-mono tkd-break', text: t.url } ) ] );
+			if ( dm ) {
+				rows.push( [ __( 'Copyrighted work', 'takedown-desk' ), t.work ? para( t.work ) : muted( __( 'None given', 'takedown-desk' ) ) ] );
+				rows.push( [ __( 'Where the original is', 'takedown-desk' ), workLink( t.work_url ) ] );
+			}
 			rows.push( [ __( 'Details', 'takedown-desk' ), t.details ? para( t.details ) : muted( __( 'None given', 'takedown-desk' ) ) ] );
-			rows.push( [ __( 'Statement', 'takedown-desk' ), para( t.statement ) ] );
+			if ( ! dm ) {
+				rows.push( [ __( 'Statement', 'takedown-desk' ), para( t.statement ) ] );
+			}
 			if ( ( t.info_thread || [] ).length ) {
 				rows.push( [ __( 'Questions and replies', 'takedown-desk' ), thread( t.info_thread ) ] );
 			}
@@ -2172,13 +2330,23 @@
 		};
 		// The site signs with the filer's name, which the record already shows.
 		const filed = site && ( r.log || [] ).find( ( x ) => 'received' === x.event );
-		rows.push( [ __( 'Asking for', 'takedown-desk' ), asking[ r.relationship ] || asking.self ] );
-		rows.push( [
-			__( 'Under 18 in the image', 'takedown-desk' ),
-			r.minor
-				? el( 'span', { class: 'tkd-chip tkd-chip--red', text: __( 'Yes', 'takedown-desk' ) } )
-				: [ muted( __( 'Not marked', 'takedown-desk' ) ), btn( __( 'Mark as under 18', 'takedown-desk' ), { icon: 'flag', onclick: () => minorDialog( r, true ) } ) ],
-		] );
+		if ( dm ) {
+			// The two statements the sender had to confirm to send the notice (17 U.S.C. 512(c)(3)(A)(v) and (vi)).
+			const said = [
+				__( 'I believe in good faith that the use of the material is not authorized by the copyright owner, its agent or the law.', 'takedown-desk' ),
+				__( 'The information in this notice is accurate, and under penalty of perjury, I am the copyright owner or am authorized to act for the owner.', 'takedown-desk' ),
+			];
+			rows.push( [ __( 'Relationship to the work', 'takedown-desk' ), r.relationship_label || muted( __( 'Not available', 'takedown-desk' ) ) ] );
+			rows.push( [ __( 'Confirmed statements', 'takedown-desk' ), el( 'ul', { class: 'tkd-confirms' }, said.map( ( s ) => el( 'li', {}, icon( 'check' ), el( 'span', { text: s } ) ) ) ) ] );
+		} else {
+			rows.push( [ __( 'Asking for', 'takedown-desk' ), asking[ r.relationship ] || asking.self ] );
+			rows.push( [
+				__( 'Under 18 in the image', 'takedown-desk' ),
+				r.minor
+					? el( 'span', { class: 'tkd-chip tkd-chip--red', text: __( 'Yes', 'takedown-desk' ) } )
+					: [ muted( __( 'Not marked', 'takedown-desk' ) ), btn( __( 'Mark as under 18', 'takedown-desk' ), { icon: 'flag', onclick: () => minorDialog( r, true ) } ) ],
+			] );
+		}
 		rows.push( [ __( 'Signed', 'takedown-desk' ), [ ( c && c.signature ) || ( filed && filed.actor ), fmtDate( r.signed_at ) ].filter( Boolean ).join( ', ' ) || muted( __( 'Not available', 'takedown-desk' ) ) ] );
 		rows.push( [ __( 'Contact', 'takedown-desk' ), site ? muted( NO_REQUESTER ) : contactBlock( r ) ] );
 		if ( r.signals && r.signals.can_watch ) {
@@ -2481,7 +2649,8 @@
 			'div',
 			{ class: 'tkd-contact', id: 'tkd-contact', tabindex: '-1' },
 			c.email ? el( 'a', { class: 'tkd-inline', href: 'mailto:' + c.email, text: c.email } ) : null,
-			c.phone ? el( 'a', { class: 'tkd-inline', href: 'tel:' + String( c.phone ).replace( /[^0-9+]/g, '' ), text: c.phone } ) : null
+			c.phone ? el( 'a', { class: 'tkd-inline', href: 'tel:' + String( c.phone ).replace( /[^0-9+]/g, '' ), text: c.phone } ) : null,
+			c.address ? para( c.address ) : null
 		);
 	}
 
@@ -2725,7 +2894,7 @@
 						'div',
 						{ class: 'tkd-alert__msg' },
 						el( 'p', { class: 'tkd-strong', text: __( 'Waiting for the requester to reply.', 'takedown-desk' ) } ),
-						el( 'p', { text: __( 'Asking for details does not pause the deadline.', 'takedown-desk' ) } )
+						el( 'p', { text: noPause( r ) } )
 					),
 					btn( __( 'Continue without waiting', 'takedown-desk' ), { icon: 'arrow', onclick: ( e ) => act( e.currentTarget, 'continue', __( 'The request is back in review.', 'takedown-desk' ), '#tkd-decision-h', 'resume' ) } )
 				)
@@ -2797,11 +2966,15 @@
 			r.minor ? el( 'p', { class: 'tkd-help', text: __( 'Permanent deletion is off because the person in the image was under 18.', 'takedown-desk' ) } ) : null
 		);
 		const late = r.due_at && r.due_at < now();
+		let lateHelp = late ? __( 'This request is past its deadline. Add the reason for the delay to your note.', 'takedown-desk' ) : null;
+		if ( late && isDmca( r ) ) {
+			lateHelp = __( 'This notice is past its target. Add the reason for the delay to your note.', 'takedown-desk' );
+		}
 		const note = field( {
 			name: 'decision_note',
 			type: 'textarea',
 			label: __( 'Decision note (saved to the record)', 'takedown-desk' ),
-			help: late ? __( 'This request is past its deadline. Add the reason for the delay to your note.', 'takedown-desk' ) : null,
+			help: lateHelp,
 			value: d.note,
 			required: true,
 		} );
@@ -3080,7 +3253,7 @@
 			type: 'textarea',
 			rows: 4,
 			label: __( 'What do you need to know?', 'takedown-desk' ),
-			help: __( 'Asking for details does not pause the deadline.', 'takedown-desk' ),
+			help: noPause( det.r ),
 			value: __( 'Could you tell us which image on the page you mean, or add a direct link?', 'takedown-desk' ),
 			attrs: { 'data-autofocus': true },
 		} );
@@ -3135,11 +3308,13 @@
 			bad_faith: [ __( 'Not made in good faith', 'takedown-desk' ), __( 'We could not confirm the request with the information we have.', 'takedown-desk' ) ],
 			restored_after_review: [ __( 'Put back after a further review', 'takedown-desk' ), __( 'After a further review we put the item back. Reply if you have more information.', 'takedown-desk' ) ],
 		};
+		// The reasons for this request's type come with the request; older servers send none, so the list above stands in.
+		const list = Array.isArray( r.decline_reasons ) && r.decline_reasons.length ? r.decline_reasons : Object.keys( R ).map( ( key ) => ( { key, label: R[ key ][ 0 ] } ) );
 		const reason = field( {
 			name: 'reason',
 			type: 'select',
 			label: __( 'Reason', 'takedown-desk' ),
-			options: [ [ '', __( 'Choose a reason', 'takedown-desk' ) ] ].concat( Object.keys( R ).map( ( k ) => [ k, R[ k ][ 0 ] ] ) ),
+			options: [ [ '', __( 'Choose a reason', 'takedown-desk' ) ] ].concat( list.map( ( x ) => [ x.key, x.label ] ) ),
 			attrs: { 'data-autofocus': true },
 		} );
 		const note = field( { name: 'decline_note', type: 'textarea', required: true, label: __( 'Decision note (saved to the record)', 'takedown-desk' ), value: det.draft.note } );
@@ -3147,6 +3322,11 @@
 		const preview = el( 'div', { class: 'tkd-email' } );
 		const draw = () => {
 			const k = reason.input.value;
+			const picked = list.find( ( x ) => x.key === k );
+			let said = picked ? picked.label : __( '(Choose a reason)', 'takedown-desk' );
+			if ( R[ k ] ) {
+				said = R[ k ][ 1 ];
+			}
 			preview.replaceChildren(
 				el(
 					'p',
@@ -3157,7 +3337,7 @@
 				),
 				para(
 					[
-						__( 'We reviewed your request and did not remove the item.', 'takedown-desk' ) + ' ' + /* translators: %s: reason sentence. */ sprintf( __( 'Reason: %s', 'takedown-desk' ), R[ k ] ? R[ k ][ 1 ] : __( '(Choose a reason)', 'takedown-desk' ) ),
+						__( 'We reviewed your request and did not remove the item.', 'takedown-desk' ) + ' ' + /* translators: %s: reason sentence. */ sprintf( __( 'Reason: %s', 'takedown-desk' ), said ),
 						msg.input.value.trim(),
 						__( 'If you think this is a mistake, or you have more details, reply here:', 'takedown-desk' ) + ' ' + __( '[Private link]', 'takedown-desk' ),
 					]
@@ -3214,7 +3394,8 @@
 				ask,
 				note.wrap,
 				site ? el( 'p', { class: 'tkd-help', text: NO_REQUESTER } ) : msg.wrap,
-				site ? null : el( 'div', { class: 'tkd-field' }, el( 'p', { class: 'tkd-label', text: __( 'Email preview', 'takedown-desk' ) } ), preview ),
+				// A copyright notice gets its own "Not removed" email (Settings, Email templates), so this preview is for removal requests only.
+				site || isDmca( r ) ? null : el( 'div', { class: 'tkd-field' }, el( 'p', { class: 'tkd-label', text: __( 'Email preview', 'takedown-desk' ) } ), preview ),
 			],
 			buttons: [ go ],
 			onsubmit() {
@@ -4006,6 +4187,17 @@
 		[ 'poster_removed', __( 'Content removed, to the person who posted it', 'takedown-desk' ), __( 'After a removal, when "Notify the person who posted the item" is on.', 'takedown-desk' ), __( 'People whose content you remove will not be told why or how to ask for a review. The EU Digital Services Act expects a reason to be given.', 'takedown-desk' ) ],
 		[ 'mod_review', __( 'Review requested, to moderators', 'takedown-desk' ), __( 'When the person who posted removed content asks for a review.', 'takedown-desk' ) ],
 	];
+	// Copyright notice emails: listed under their own heading, shown while copyright notices are on.
+	const DMCA_EMAILS = [
+		[ 'dmca_received', __( 'Notice received, to the sender', 'takedown-desk' ), __( 'Right after someone sends a copyright notice, or you log one for them.', 'takedown-desk' ), __( 'Senders will not get this email, so they will not have their private link to check the status or add details.', 'takedown-desk' ) ],
+		[ 'dmca_needs_info', __( 'Question, to the sender', 'takedown-desk' ), __( 'When you ask the sender of a copyright notice for details.', 'takedown-desk' ), __( 'Senders will not get your questions, so they cannot send the details you ask for.', 'takedown-desk' ) ],
+		[ 'dmca_removed', __( 'Removed, to the sender', 'takedown-desk' ), __( 'When you close a copyright notice as removed.', 'takedown-desk' ), __( 'Senders will not hear that the material was removed.', 'takedown-desk' ) ],
+		[ 'dmca_declined', __( 'Not removed, to the sender', 'takedown-desk' ), __( 'When you close a copyright notice as not removed.', 'takedown-desk' ), __( 'Senders will not hear that the material stayed up or why.', 'takedown-desk' ) ],
+		[ 'dmca_poster_removed', __( 'Content removed after a copyright notice, to the person who posted it', 'takedown-desk' ), __( 'After a removal, when "Notify the person who posted the item" is on.', 'takedown-desk' ), __( 'People whose content you remove will not be told why or how to ask for a review.', 'takedown-desk' ) ],
+		[ 'mod_dmca_new', __( 'New copyright notice, to moderators', 'takedown-desk' ), __( 'Right after a copyright notice arrives.', 'takedown-desk' ) ],
+		[ 'mod_dmca_reminder', __( 'Target reminder, to moderators', 'takedown-desk' ), __( 'When half of the target time has passed, and again near the end.', 'takedown-desk' ) ],
+		[ 'mod_dmca_overdue', __( 'Past target, to moderators', 'takedown-desk' ), __( 'When the target time passes and the notice is still open.', 'takedown-desk' ) ],
+	];
 
 	// Fills {fields} the way emails.php does: one pass, unknown fields stay, a line whose fields all came out empty goes.
 	const TAG = /\{([a-z0-9_]+)\}/g;
@@ -4039,13 +4231,15 @@
 		const editor = data.email_editor || { templates: {}, tags: {} };
 		const sw = {};
 		reg.emails = {
-			get: () => EMAILS.reduce( ( o, m ) => Object.assign( o, { [ m[ 0 ] ]: { active: sw[ m[ 0 ] ].checked } } ), {} ),
+			get: () => Object.keys( sw ).reduce( ( o, k ) => Object.assign( o, { [ k ]: { active: sw[ k ].checked } } ), {} ),
 			set: () => false,
 		};
-		return el(
+		// Only the copyright templates this server has (an older one has none).
+		const dmca = DMCA_EMAILS.filter( ( m ) => editor.templates[ m[ 0 ] ] );
+		const rows = ( list ) => el(
 			'ul',
 			{ class: 'tkd-mails' },
-			EMAILS.map( ( m ) => {
+			list.map( ( m ) => {
 				const key = m[ 0 ];
 				const id = uid();
 				const input = el( 'input', { type: 'checkbox', role: 'switch', 'aria-labelledby': id, 'aria-describedby': id + 'd' } );
@@ -4098,6 +4292,11 @@
 				] );
 			} )
 		);
+		return [
+			rows( EMAILS ),
+			// The Copyright notices card's switch shows and hides this group (dmcaCard).
+			dmca.length ? el( 'div', { id: 'tkd-mails-dmca', class: 'tkd-mailgroup', hidden: ! ( data.settings || {} ).dmca }, el( 'h3', { class: 'tkd-subhead', text: __( 'Copyright notice emails', 'takedown-desk' ) } ), rows( dmca ) ) : null,
+		];
 	}
 
 	// Edit one email: subject and text, the fields it can use (click or Enter adds one at the cursor), a live preview.
@@ -4435,6 +4634,103 @@
 		);
 	}
 
+	// Settings card: copyright (DMCA) notices. Off by default; its switch also shows the copyright emails under Email templates.
+	function dmcaCard( data, v, h ) {
+		const on = h.toggle(
+			'dmca',
+			__( 'Accept copyright notices', 'takedown-desk' ),
+			__( 'Adds a copyright notice form, a Copyright filter under Requests and the copyright notice emails. Notices follow the target time below, not the 48-hour deadline.', 'takedown-desk' )
+		);
+		on.querySelector( 'input' ).addEventListener( 'change', ( e ) => {
+			const mails = document.getElementById( 'tkd-mails-dmca' );
+			if ( mails ) {
+				mails.hidden = ! e.target.checked;
+			}
+		} );
+		const days = h.fld(
+			'dmca_days',
+			{
+				type: 'select',
+				label: __( 'Target time', 'takedown-desk' ),
+				help: __( 'How long your team aims to take to act on a notice, counted from when it arrives. Saturdays and Sundays do not count. The DMCA asks you to act expeditiously and sets no number of days.', 'takedown-desk' ),
+				value: String( v.dmca_days || 2 ),
+				/* translators: %d: number of business days. */
+				options: [ ...Array( 10 ) ].map( ( x, i ) => [ String( i + 1 ), sprintf( _n( '%d business day', '%d business days', i + 1, 'takedown-desk' ), i + 1 ) ] ),
+			},
+			h.num
+		);
+		const agent = h.fld( 'dmca_agent_date', {
+			type: 'date',
+			label: __( 'Designated agent registered or renewed on', 'takedown-desk' ),
+			help: __( 'Register a designated agent with the US Copyright Office so people know where to send notices. A registration expires after 3 years unless you renew it. The status card reminds you 60 days before.', 'takedown-desk' ),
+		} );
+		const date = agent.querySelector( 'input' );
+		const renew = el( 'p', { class: 'tkd-note' } );
+		// Renew by: 3 years after the date in the field, updated as it changes.
+		const due = () => {
+			const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec( date.value );
+			renew.hidden = ! m;
+			if ( m ) {
+				const when = new Date( Date.UTC( +m[ 1 ] + 3, m[ 2 ] - 1, +m[ 3 ] ) ).toLocaleDateString( document.documentElement.lang || undefined, { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' } );
+				/* translators: %s: date. */
+				renew.replaceChildren( icon( 'clock' ), el( 'span', { text: sprintf( __( 'Renew by %s.', 'takedown-desk' ), when ) } ) );
+			}
+		};
+		date.addEventListener( 'input', due );
+		due();
+		// The page that holds the copyright form: its state, then Create the page or Edit page.
+		const pageBox = el( 'div', { class: 'tkd-field', id: 'tkd-dmca-page', tabindex: '-1' } );
+		const drawPage = ( p ) => {
+			const live = 'publish' === p.status;
+			const make = btn( __( 'Create the page', 'takedown-desk' ), {
+				icon: 'plus',
+				onclick: () => {
+					busy( make, true );
+					api( 'dmca-page', 'POST' ).then(
+						( res ) => {
+							drawPage( { id: res.page_id, url: res.url, edit_url: res.edit_url, status: res.status || ( res.url ? 'publish' : 'draft' ) } );
+							toast( __( 'Copyright notice page created.', 'takedown-desk' ) );
+							( pageBox.querySelector( 'a' ) || pageBox ).focus();
+						},
+						( err ) => {
+							busy( make, false );
+							toast( errMsg( err ), 'error' );
+						}
+					);
+				},
+			} );
+			// Native replaceChildren() prints null as text, so empty slots are filtered out.
+			pageBox.replaceChildren( ...[
+				el( 'p', { class: 'tkd-label', text: __( 'Copyright notice page', 'takedown-desk' ) } ),
+				p.id
+					? el(
+							'div',
+							{ class: 'tkd-chips' },
+							el( 'span', { class: 'tkd-chip tkd-chip--' + ( live ? 'green' : 'amber' ) }, el( 'span', { class: 'tkd-chip__dot', 'aria-hidden': 'true' } ), live ? __( 'Published', 'takedown-desk' ) : __( 'Not published', 'takedown-desk' ) ),
+							live && p.url ? linkChip( __( 'View page', 'takedown-desk' ), p.url, true ) : null,
+							p.edit_url ? linkChip( __( 'Edit page', 'takedown-desk' ), p.edit_url, true, 'edit' ) : null
+					  )
+					: el( 'div', { class: 'tkd-row2' }, muted( __( 'No page holds the copyright notice form yet.', 'takedown-desk' ) ), make ),
+				p.id && false === p.has_form ? el( 'p', { class: 'tkd-help', text: __( 'This page has no copyright notice form. Add the Copyright notice form block or the shortcode below.', 'takedown-desk' ) } ) : null,
+				copyBox( __( 'Shortcode for the form', 'takedown-desk' ), '[takedown_desk_copyright_form]' ),
+			].filter( Boolean ) );
+		};
+		drawPage( ( data.dmca && data.dmca.page ) || { id: 0 } );
+		return card(
+			'copyright',
+			'orange',
+			__( 'Copyright notices (DMCA)', 'takedown-desk' ),
+			'tkd-set-dmca',
+			on,
+			days,
+			h.toggle( 'dmca_footer_link', __( 'Show a Copyright notices link in the footer', 'takedown-desk' ), __( 'Adds a second link next to the removal request link once the copyright notice page is published.', 'takedown-desk' ) ),
+			agent,
+			renew,
+			el( 'div', { class: 'tkd-actions' }, linkChip( __( 'US Copyright Office agent directory', 'takedown-desk' ), 'https://www.copyright.gov/dmca-directory/', true ) ),
+			pageBox
+		);
+	}
+
 	function renderSettings() {
 		const my = ++seq;
 		const skel = skeletonCards();
@@ -4739,6 +5035,7 @@
 			),
 			cloudflareCard( data, fld, reg ),
 			lawsCard( toggle ),
+			dmcaCard( data, v, { fld, toggle, num } ),
 			card(
 				'shield',
 				'neutral',
@@ -4854,6 +5151,7 @@
 							busy( save, false );
 							clean( true );
 							Object.keys( reg ).forEach( ( k ) => reg[ k ].saved && reg[ k ].saved() );
+							cfg.dmca = !! values.dmca; // The inbox chip and the dialog choice follow without a page reload.
 							toast( __( 'Settings saved.', 'takedown-desk' ) );
 						},
 						( err ) => {

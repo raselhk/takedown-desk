@@ -71,13 +71,17 @@ function tkdesk_minor_hold_until( array $request ): string {
  *
  * @param int   $id Request ID.
  * @param array $in minor (bool), or report and reported_on.
- * @return array|WP_Error Updated row.
+ * @return array|WP_Error Updated row, or tkdesk_not_ncii (409) for a copyright notice.
  */
 function tkdesk_update_minor( int $id, array $in ) {
 	global $wpdb;
 	$request = tkdesk_get_request( $id );
 	if ( ! $request ) {
 		return new WP_Error( 'tkdesk_not_found', __( 'This request does not exist.', 'takedown-desk' ), array( 'status' => 404 ) );
+	}
+	// The minors path belongs to intimate image requests; a copyright notice never carries the flag.
+	if ( 'ncii' !== $request['type'] ) {
+		return new WP_Error( 'tkdesk_not_ncii', __( 'This applies to intimate image requests only.', 'takedown-desk' ), array( 'status' => 409 ) );
 	}
 	$table = tkdesk_table( 'requests' );
 	$today = wp_date( 'Y-m-d', tkdesk_now() );

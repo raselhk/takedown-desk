@@ -41,18 +41,18 @@ function tkdesk_handle_submit( array $in, string $ip ) {
 		// Fake success with a plausible, not yet used ID and a link that leads nowhere; nothing is stored.
 		$yymm = wp_date( 'ym', tkdesk_now() );
 		$fake = sprintf( 'TD-%s-%04d', $yymm, (int) get_option( 'tkdesk_seq_' . $yymm, 0 ) + wp_rand( 1, 40 ) );
-		return tkdesk_submit_result( $fake, $clean['email'], tkdesk_now(), bin2hex( random_bytes( 32 ) ) );
+		return tkdesk_submit_result( $fake, $clean['email'], tkdesk_now(), bin2hex( random_bytes( 32 ) ), $clean['type'] );
 	}
 	$target = '' !== $clean['item'] ? tkdesk_parse_item_ref( $clean['item'] ) : null;
 	$target = $target ? $target : tkdesk_resolve_url( $clean['url'] );
 	if ( $target && '' !== $ip ) {
-		// Duplicate guard: same email, object and IP within 10 minutes returns the first request. The IP
+		// Duplicate guard: same email, type, object and IP within 10 minutes returns the first request. The IP
 		// keeps it from telling a stranger whether someone else reported that object with that email.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own table tkdesk_requests.
-		$first = $wpdb->get_row( $wpdb->prepare( 'SELECT public_id, received_at FROM %i WHERE email_hash = %s AND ip_hash = %s AND object_type = %s AND object_id = %d AND received_at >= %s ORDER BY id ASC LIMIT 1', tkdesk_table( 'requests' ), tkdesk_hash( strtolower( $clean['email'] ) ), tkdesk_hash( $ip ), $target['object_type'], $target['object_id'], tkdesk_mysql( tkdesk_now() - 10 * MINUTE_IN_SECONDS ) ), ARRAY_A );
+		$first = $wpdb->get_row( $wpdb->prepare( 'SELECT public_id, received_at FROM %i WHERE email_hash = %s AND ip_hash = %s AND type = %s AND object_type = %s AND object_id = %d AND received_at >= %s ORDER BY id ASC LIMIT 1', tkdesk_table( 'requests' ), tkdesk_hash( strtolower( $clean['email'] ) ), tkdesk_hash( $ip ), $clean['type'], $target['object_type'], $target['object_id'], tkdesk_mysql( tkdesk_now() - 10 * MINUTE_IN_SECONDS ) ), ARRAY_A );
 		if ( $first ) {
 			// The first request's link is not kept in clear, so the copy sent then is the way back to it.
-			return tkdesk_submit_result( $first['public_id'], $clean['email'], tkdesk_ts( $first['received_at'] ), '' );
+			return tkdesk_submit_result( $first['public_id'], $clean['email'], tkdesk_ts( $first['received_at'] ), '', $clean['type'] );
 		}
 	}
 	$locale  = isset( $in['locale'] ) && is_string( $in['locale'] ) && preg_match( '/^[a-z]{2,3}(_[A-Za-z0-9]+)*$/', $in['locale'] ) ? $in['locale'] : determine_locale();
@@ -68,8 +68,8 @@ function tkdesk_handle_submit( array $in, string $ip ) {
 	}
 	tkdesk_rate_count( $ip );
 	// Spam gets no confirmation email, so the page must not say a copy was sent.
-	$sent = 'spam' !== $verdict && tkdesk_email_saved( 'requester_received' )['active'];
-	return tkdesk_submit_result( $created['request']['public_id'], $sent ? $clean['email'] : '', tkdesk_ts( $created['request']['received_at'] ), $created['token'] );
+	$sent = 'spam' !== $verdict && tkdesk_email_saved( tkdesk_email_key( 'requester_received', $created['request'] ) )['active'];
+	return tkdesk_submit_result( $created['request']['public_id'], $sent ? $clean['email'] : '', tkdesk_ts( $created['request']['received_at'] ), $created['token'], $clean['type'] );
 }
 
 /**
@@ -79,18 +79,23 @@ function tkdesk_handle_submit( array $in, string $ip ) {
  * @param string $email     Address the confirmation went to, '' when none was sent. Only a masked form is returned.
  * @param int    $received  Time the request arrived.
  * @param string $token     Raw requester token for the status link, '' for none.
+ * @param string $type      Request type (ncii | dmca): sets the deadline and the status page.
  * @return array ok, public_id, email (masked), received and due (site time), status_url, message, done_token.
  */
-function tkdesk_submit_result( string $public_id, string $email, int $received, string $token ): array {
+function tkdesk_submit_result( string $public_id, string $email, int $received, string $token, string $type = 'ncii' ): array {
+	$request = array(
+		'public_id' => $public_id,
+		'type'      => $type,
+	);
 	return array(
 		'ok'         => true,
 		'public_id'  => $public_id,
 		'email'      => tkdesk_mask_email( $email ),
 		'received'   => tkdesk_format_deadline( $received ),
-		'due'        => tkdesk_format_deadline( tkdesk_due( $received ) ),
-		'status_url' => '' === $token ? '' : tkdesk_status_url( array( 'public_id' => $public_id ), $token ),
+		'due'        => tkdesk_format_deadline( tkdesk_due( $received, $type ) ),
+		'status_url' => '' === $token ? '' : tkdesk_status_url( $request, $token ),
 		/* translators: %s: request ID. */
-		'message'    => sprintf( __( 'We received your request. Your request ID is %s.', 'takedown-desk' ), $public_id ),
+		'message'    => sprintf( 'dmca' === $type ? __( 'We received your copyright notice. Its ID is %s.', 'takedown-desk' ) : __( 'We received your request. Your request ID is %s.', 'takedown-desk' ), $public_id ),
 		'done_token' => substr( tkdesk_hash( $public_id . '|done' ), 0, 12 ),
 	);
 }
@@ -277,6 +282,7 @@ function tkdesk_rest_admin_routes() {
 		'/admin/email-preview'     => array( array( 'GET', 'tkdesk_rest_admin_test_email', 'tkdesk_manage_settings' ) ),
 		'/admin/policy-page'       => array( array( 'POST', 'tkdesk_create_policy_page', 'tkdesk_manage_settings' ) ),
 		'/admin/recaptcha/test'    => array( array( 'POST', 'tkdesk_rest_recaptcha_test', 'tkdesk_manage_settings' ) ),
+		'/admin/dmca-page'         => array( array( 'POST', 'tkdesk_rest_admin_dmca_page', 'tkdesk_manage_settings' ) ),
 	);
 	foreach ( $routes as $route => $endpoints ) {
 		$args = array();
@@ -369,15 +375,20 @@ function tkdesk_rest_request( array $row, bool $detail = false ): array {
 		);
 	}
 	$assignee = $row['assigned_to'] ? get_userdata( (int) $row['assigned_to'] ) : false;
+	$type     = (string) $row['type'];
+	$rels     = tkdesk_form_fields( $type )['relationship']['options'] + array( 'site' => __( 'The site (filed by an administrator)', 'takedown-desk' ) );
 
 	$out = array(
 		'id'                   => (int) $row['id'],
 		'public_id'            => (string) $row['public_id'],
+		'type'                 => $type,
+		'type_label'           => tkdesk_request_types()[ $type ] ?? '',
 		'status'               => (string) $row['status'],
 		'status_label'         => $labels[ $row['status'] ] ?? (string) $row['status'],
 		'source'               => (string) $row['source'],
 		'is_test'              => (bool) $row['is_test'],
 		'relationship'         => (string) $row['relationship'],
+		'relationship_label'   => $rels[ $row['relationship'] ] ?? '',
 		'url_on_site'          => (bool) $row['url_on_site'],
 		'decline_reason'       => $reason,
 		'decline_reason_label' => tkdesk_decline_reason_labels()[ $reason ] ?? '',
@@ -406,6 +417,16 @@ function tkdesk_rest_request( array $row, bool $detail = false ): array {
 	);
 	if ( ! $detail ) {
 		return $out;
+	}
+	// The decline dialog's choices for this type; restored_after_review is only ever set by a restore.
+	$reasons = array();
+	foreach ( array_keys( tkdesk_decline_reasons( '', $type ) ) as $key ) {
+		if ( 'restored_after_review' !== $key ) {
+			$reasons[] = array(
+				'key'   => $key,
+				'label' => tkdesk_decline_reason_labels()[ $key ] ?? $key,
+			);
+		}
 	}
 
 	$text = tkdesk_request_text( $row );
@@ -463,21 +484,22 @@ function tkdesk_rest_request( array $row, bool $detail = false ): array {
 	// Minors path and safe previews: minors.php.
 	return tkdesk_minor_detail(
 		$out + array(
-			'text'         => is_wp_error( $text ) ? null : $text,
-			'text_error'   => is_wp_error( $text ) ? str_replace( 'tkdesk_', '', $text->get_error_code() ) : '',
-			'items'        => array_map( 'tkdesk_rest_item', $items ),
-			'images'       => $images,
-			'log'          => array_map( 'tkdesk_rest_log_row', $log ),
-			'reach'        => $reach,
-			'index'        => tkdesk_rest_index(),
-			'cdn'          => array(
+			'text'            => is_wp_error( $text ) ? null : $text,
+			'text_error'      => is_wp_error( $text ) ? str_replace( 'tkdesk_', '', $text->get_error_code() ) : '',
+			'items'           => array_map( 'tkdesk_rest_item', $items ),
+			'images'          => $images,
+			'log'             => array_map( 'tkdesk_rest_log_row', $log ),
+			'reach'           => $reach,
+			'index'           => tkdesk_rest_index(),
+			'cdn'             => array(
 				'show'   => $acted && ( tkdesk_setting( 'cdn_note' ) || '' !== $plugin ),
 				'plugin' => $plugin,
 				'urls'   => array_values( array_unique( array_filter( $urls ) ) ),
 			),
-			'restore_days' => (int) tkdesk_setting( 'purge_removed_days' ),
-			'moderators'   => tkdesk_rest_moderators(),
-			'poster'       => tkdesk_poster_detail( $row ),
+			'restore_days'    => (int) tkdesk_setting( 'purge_removed_days' ),
+			'moderators'      => tkdesk_rest_moderators(),
+			'poster'          => tkdesk_poster_detail( $row ),
+			'decline_reasons' => $reasons,
 		),
 		$row
 	);
@@ -525,6 +547,10 @@ function tkdesk_decline_reason_labels(): array {
 		'duplicate'             => __( 'Already handled in another request', 'takedown-desk' ),
 		'bad_faith'             => __( 'Not made in good faith', 'takedown-desk' ),
 		'restored_after_review' => __( 'Restored after review', 'takedown-desk' ),
+		// Copyright notices.
+		'dmca_incomplete'       => __( 'A required part of the notice is missing', 'takedown-desk' ),
+		'dmca_not_found'        => __( 'Material not on this site or not found', 'takedown-desk' ),
+		'dmca_not_infringing'   => __( 'Not removed after review', 'takedown-desk' ),
 	);
 }
 
@@ -577,6 +603,17 @@ function tkdesk_rest_log_row( array $row ): array {
 	$key    = $event . ( empty( $detail['skipped'] ) ? '' : '_skipped' );
 	$a      = (string) ( $detail['label'] ?? '' );
 	$b      = '';
+	if ( ! empty( $detail['dmca'] ) ) {
+		// Reminders of a copyright notice carry dmca: its target is business days, not 48 hours (cron.php).
+		$key = strtr(
+			$key,
+			array(
+				'reminder_24' => 'dmca_half',
+				'reminder_40' => 'dmca_near',
+				'overdue'     => 'dmca_passed',
+			)
+		);
+	}
 	if ( '' === $a && ! empty( $detail['item_id'] ) ) {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own table tkdesk_items.
@@ -597,6 +634,14 @@ function tkdesk_rest_log_row( array $row ): array {
 		'requester_update'     => __( 'Status update to the requester', 'takedown-desk' ),
 		'poster_removed'       => __( 'Removal notice to the person who posted it', 'takedown-desk' ),
 		'mod_review'           => __( 'Review request alert to moderators', 'takedown-desk' ),
+		'dmca_received'        => __( 'Confirmation to the sender of the copyright notice', 'takedown-desk' ),
+		'dmca_needs_info'      => __( 'Question to the sender of the copyright notice', 'takedown-desk' ),
+		'dmca_removed'         => __( 'Outcome to the sender of the copyright notice', 'takedown-desk' ),
+		'dmca_declined'        => __( 'Outcome to the sender of the copyright notice', 'takedown-desk' ),
+		'dmca_poster_removed'  => __( 'Removal notice to the person who posted it (copyright notice)', 'takedown-desk' ),
+		'mod_dmca_new'         => __( 'New copyright notice alert to moderators', 'takedown-desk' ),
+		'mod_dmca_reminder'    => __( 'Copyright notice reminder to moderators', 'takedown-desk' ),
+		'mod_dmca_overdue'     => __( 'Past-the-target alert to moderators', 'takedown-desk' ),
 	);
 	$causes = array(
 		'tkdesk_purged'       => __( 'The contact details were deleted.', 'takedown-desk' ),
@@ -761,6 +806,11 @@ function tkdesk_rest_log_row( array $row ): array {
 		'reminder_40'            => __( 'Reminder sent: 8 hours left', 'takedown-desk' ),
 		'reminder_40_skipped'    => __( 'Reminder skipped: 8 hours left (a later reminder went out)', 'takedown-desk' ),
 		'overdue'                => __( 'Overdue alert sent: the 48-hour deadline passed', 'takedown-desk' ),
+		'dmca_half'              => __( 'Reminder sent: halfway to the target', 'takedown-desk' ),
+		'dmca_half_skipped'      => __( 'Reminder skipped: halfway to the target (a later reminder went out)', 'takedown-desk' ),
+		'dmca_near'              => __( 'Reminder sent: the target is near', 'takedown-desk' ),
+		'dmca_near_skipped'      => __( 'Reminder skipped: the target is near (a later reminder went out)', 'takedown-desk' ),
+		'dmca_passed'            => __( 'Overdue alert sent: the target passed', 'takedown-desk' ),
 		/* translators: %s: item label. */
 		'purged_file'            => __( 'Removed file deleted for good: %s', 'takedown-desk' ),
 		'purged_request_data'    => __( 'Contact details and request text deleted under the retention setting', 'takedown-desk' ),
@@ -819,6 +869,7 @@ function tkdesk_rest_admin_list( WP_REST_Request $request ): array {
 			'per_page' => min( 100, max( 1, absint( tkdesk_rest_str( $request, 'per_page' ) ) ) ),
 			'orderby'  => $orderby,
 			'order'    => in_array( $order, array( 'asc', 'desc' ), true ) ? $order : ( 'received' === $orderby ? 'desc' : 'asc' ),
+			'type'     => tkdesk_rest_str( $request, 'type' ),
 		)
 	);
 	return array(
@@ -928,6 +979,7 @@ function tkdesk_rest_admin_contact( WP_REST_Request $request ) {
 		'signature' => (string) $contact['signature'],
 		'email'     => (string) $contact['email'],
 		'phone'     => (string) $contact['phone'],
+		'address'   => (string) $contact['address'],
 	);
 }
 
@@ -1197,7 +1249,8 @@ function tkdesk_rest_admin_log( WP_REST_Request $request ): array {
 /**
  * Summary numbers for a range (the Record tiles and the public summary block): requests received in
  * the range, removed and declined (resolved in the range), how many of those closed within 48 hours,
- * and the median time from receipt to removal. Test and spam requests are left out.
+ * and the median time from receipt to removal. Test and spam requests are left out, and so are copyright
+ * notices: these numbers are about intimate image requests.
  *
  * @param string $from GMT mysql datetime, '' for no lower bound.
  * @param string $to   GMT mysql datetime, '' for no upper bound.
@@ -1208,7 +1261,7 @@ function tkdesk_summary_stats( string $from = '', string $to = '' ): array {
 	$lo = '' !== $from ? $from : '1970-01-01 00:00:00';
 	$hi = '' !== $to ? $to : '9999-12-31 23:59:59';
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own table tkdesk_requests.
-	$reqs    = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT status, received_at, due_at, resolved_at FROM %i WHERE is_test = 0 AND status <> %s AND ( received_at BETWEEN %s AND %s OR resolved_at BETWEEN %s AND %s )', tkdesk_table( 'requests' ), 'spam', $lo, $hi, $lo, $hi ), ARRAY_A );
+	$reqs    = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT status, received_at, due_at, resolved_at FROM %i WHERE type = %s AND is_test = 0 AND status <> %s AND ( received_at BETWEEN %s AND %s OR resolved_at BETWEEN %s AND %s )', tkdesk_table( 'requests' ), 'ncii', 'spam', $lo, $hi, $lo, $hi ), ARRAY_A );
 	$summary = array(
 		'received'       => 0,
 		'removed'        => 0,
@@ -1276,12 +1329,14 @@ function tkdesk_rest_admin_settings( WP_REST_Request $request ) {
 				}
 			} elseif ( 'email' === $def['type'] && '' !== $raw && ! is_email( $raw ) ) {
 				$error = __( 'Enter a valid email address.', 'takedown-desk' );
+			} elseif ( 'date' === $def['type'] && tkdesk_sanitize_settings( array( $key => $raw ) )[ $key ] !== $raw ) {
+				$error = __( 'Enter a date such as 2026-01-31, or leave this empty.', 'takedown-desk' );
 			} elseif ( isset( $def['max'] ) && mb_strlen( $raw ) > $def['max'] ) {
 				/* translators: %d: maximum number of characters. */
 				$error = sprintf( __( 'Use %d characters or fewer.', 'takedown-desk' ), $def['max'] );
 			} elseif ( isset( $def['enum'] ) && ! in_array( 'int' === $def['type'] && is_numeric( $raw ) ? (int) $raw : $raw, $def['enum'], true ) ) {
 				$error = __( 'Choose one of the listed options.', 'takedown-desk' );
-			} elseif ( 'notice_page_id' === $key && $raw && 'page' !== get_post_type( (int) $raw ) ) {
+			} elseif ( in_array( $key, array( 'notice_page_id', 'dmca_page_id' ), true ) && $raw && 'page' !== get_post_type( (int) $raw ) ) {
 				$error = __( 'Choose a page.', 'takedown-desk' );
 			}
 			if ( '' !== $error ) {
@@ -1416,6 +1471,24 @@ function tkdesk_rest_admin_settings( WP_REST_Request $request ) {
 		'cloudflare'   => array( 'token_saved' => (bool) get_option( 'tkdesk_cf_token' ) ), // Never the token itself.
 		'recaptcha'    => array( 'secret_saved' => (bool) get_option( 'tkdesk_recaptcha_secret' ) ), // Never the key itself.
 		'hide_limit'   => tkdesk_auto_hide_limit(), // Shown with the "Hide reported items" switch.
+		'dmca'         => tkdesk_dmca_setup(), // Settings card "Copyright notices (DMCA)": the page and the agent renewal date.
+	);
+}
+
+/**
+ * POST /admin/dmca-page: create the copyright notice page, or return the one already made (frontend.php).
+ *
+ * @return array|WP_Error { page_id, url, edit_url }
+ */
+function tkdesk_rest_admin_dmca_page() {
+	$id = function_exists( 'tkdesk_create_copyright_page' ) ? tkdesk_create_copyright_page() : new WP_Error( 'tkdesk_bad_action', __( 'This action is not available.', 'takedown-desk' ), array( 'status' => 400 ) );
+	if ( is_wp_error( $id ) ) {
+		return $id;
+	}
+	return array(
+		'page_id'  => (int) $id,
+		'url'      => (string) get_permalink( (int) $id ),
+		'edit_url' => (string) get_edit_post_link( (int) $id, 'raw' ),
 	);
 }
 
@@ -1587,6 +1660,11 @@ function tkdesk_rest_admin_test_email( WP_REST_Request $request ) {
 		return new WP_Error( 'tkdesk_bad_email', __( 'Choose one of the listed emails.', 'takedown-desk' ), array( 'status' => 400 ) );
 	}
 	$sample = tkdesk_email_sample();
+	if ( 'dmca' === ( tkdesk_email_templates()[ $key ]['type'] ?? '' ) ) {
+		// A copyright notice email shows a sample notice: its own reason sentences and links.
+		$sample['request']['type']           = 'dmca';
+		$sample['request']['decline_reason'] = 'dmca_not_found';
+	}
 	if ( 'GET' === $request->get_method() ) {
 		$email          = tkdesk_email_template( $key, $sample['request'], $sample['vars'] );
 		$footer         = (string) tkdesk_setting( 'email_footer' );

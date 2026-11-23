@@ -123,27 +123,30 @@ function tkdesk_view_captcha(): string {
 function tkdesk_view_steps( array $request ): string {
 	$status = (string) $request['status'];
 	$closed = in_array( $status, array( 'removed', 'declined' ), true );
-	$due    = tkdesk_ts( $request['due_at'] );
 	$fill   = function ( string $key, string $text ): string {
 		return '<span data-tkd-fill="' . $key . '">' . esc_html( $text ) . '</span>';
 	};
+	$due    = $fill( 'due', tkdesk_format_deadline( tkdesk_ts( $request['due_at'] ) ) );
+	// A copyright notice has a target time, not the 48-hour promise.
+	$dmca = 'dmca' === ( $request['type'] ?? '' );
 	/* translators: %s: date and time the decision is due, with timezone. */
-	$by     = sprintf( esc_html__( 'We will decide by %s.', 'takedown-desk' ), $fill( 'due', tkdesk_format_deadline( $due ) ) );
+	$by     = $dmca ? sprintf( esc_html__( 'Our target for a decision is %s.', 'takedown-desk' ), $due ) : sprintf( esc_html__( 'We will decide by %s.', 'takedown-desk' ), $due );
 	$review = array( 'now', __( 'Being reviewed', 'takedown-desk' ), $by );
 	$end    = array( 'next', __( 'Decision', 'takedown-desk' ), esc_html__( 'We will email you, so you do not need to do anything else.', 'takedown-desk' ) );
 	if ( $closed ) {
 		$review = array( 'done', __( 'Reviewed', 'takedown-desk' ), '' );
 	} elseif ( 'needs_info' === $status ) {
 		/* translators: %s: date and time the decision is due, with timezone. */
-		$review = array( 'now', __( 'We need more details from you', 'takedown-desk' ), sprintf( esc_html__( 'Please answer the question below. We will still decide by %s.', 'takedown-desk' ), $fill( 'due', tkdesk_format_deadline( $due ) ) ) );
-	} elseif ( $due < tkdesk_now() ) {
+		$still  = $dmca ? sprintf( esc_html__( 'Please answer the question below. Our target for a decision is still %s.', 'takedown-desk' ), $due ) : sprintf( esc_html__( 'Please answer the question below. We will still decide by %s.', 'takedown-desk' ), $due );
+		$review = array( 'now', __( 'We need more details from you', 'takedown-desk' ), $still );
+	} elseif ( tkdesk_ts( $request['due_at'] ) < tkdesk_now() ) {
 		$review[2] = esc_html__( 'This is taking longer than we planned. We are still working on it.', 'takedown-desk' );
 	}
 	if ( 'removed' === $status ) {
 		/* translators: %s: date the image was removed. */
 		$end = array( 'done', __( 'Removed', 'takedown-desk' ), esc_html( sprintf( __( 'We removed it on %s.', 'takedown-desk' ), wp_date( (string) get_option( 'date_format' ), tkdesk_ts( $request['resolved_at'] ) ) ) ) );
 	} elseif ( 'declined' === $status ) {
-		$reasons = tkdesk_decline_reasons();
+		$reasons = tkdesk_decline_reasons( '', $dmca ? 'dmca' : 'ncii' );
 		$end     = array( 'done', __( 'Not removed', 'takedown-desk' ), esc_html( $reasons[ (string) $request['decline_reason'] ] ?? '' ) );
 	}
 	$steps = array( array( 'done', __( 'Received', 'takedown-desk' ), $fill( 'received', tkdesk_format_deadline( tkdesk_ts( $request['received_at'] ) ) ) ), $review, $end );
@@ -213,12 +216,13 @@ function tkdesk_view_field( string $name, array $field, $value, string $error ):
 }
 
 /**
- * The request form. Posts to admin-post.php; form.js swaps in REST.
+ * The request form, or the copyright notice form (type dmca). Posts to admin-post.php; form.js swaps in REST.
  *
- * @param array $state values, errors (field => message), item (ref), notice (message).
+ * @param array $state values, errors (field => message), item (ref), notice (message), type (ncii|dmca).
  * @return string
  */
 function tkdesk_view_form( array $state = array() ): string {
+	$dmca   = 'dmca' === ( $state['type'] ?? '' );
 	$values = isset( $state['values'] ) ? (array) $state['values'] : array();
 	$errors = isset( $state['errors'] ) ? (array) $state['errors'] : array();
 	$notice = isset( $state['notice'] ) ? (string) $state['notice'] : '';
@@ -237,7 +241,14 @@ function tkdesk_view_form( array $state = array() ): string {
 	}
 
 	$fields = '';
-	foreach ( tkdesk_form_fields() as $name => $field ) {
+	$defs   = $dmca ? tkdesk_form_fields( 'dmca' ) : tkdesk_form_fields();
+	if ( $dmca && isset( $defs['signature'] ) ) {
+		// The two statements come before the signature that signs them.
+		$sign = $defs['signature'];
+		unset( $defs['signature'] );
+		$defs['signature'] = $sign;
+	}
+	foreach ( $defs as $name => $field ) {
 		$html = tkdesk_view_field( $name, $field, $values[ $name ] ?? '', (string) ( $errors[ $name ] ?? '' ) );
 		if ( 'url' === $name && $about ) {
 			// The reported item already gives the link, so the field waits behind a toggle.
@@ -285,20 +296,22 @@ function tkdesk_view_form( array $state = array() ): string {
 		'sig' => $values['tkdesk_sig'],
 	);
 	$tab   = '<span class="tkd-sr"> ' . esc_html__( '(opens in a new tab)', 'takedown-desk' ) . '</span>';
-	$note  = sprintf(
+	$note  = $dmca ? '' : '<p class="tkd-box tkd-note">' . tkdesk_icon( 'info' ) . '<span>' . sprintf(
 		/* translators: 1: link to NCMEC's Take It Down service, 2: link to StopNCII.org. */
 		esc_html__( 'If the person in the image was under 18, you can also use %1$s. Adults can also use %2$s.', 'takedown-desk' ),
 		'<a href="https://takeitdown.ncmec.org/" target="_blank" rel="noopener">' . esc_html__( 'NCMEC\'s Take It Down service', 'takedown-desk' ) . $tab . '</a>',
 		'<a href="https://stopncii.org/" target="_blank" rel="noopener">StopNCII.org' . $tab . '</a>'
-	);
+	) . '</span></p>';
 
 	// On the notice page the page title and text already say what this is and that no account is needed,
 	// so the default intro (setting form_intro left as shipped) keeps only the "do not upload" line there.
 	$nid      = (int) tkdesk_setting( 'notice_page_id' );
-	$on_page  = $nid && get_queried_object_id() === $nid;
+	$on_page  = ! $dmca && $nid && get_queried_object_id() === $nid;
 	$fallback = (string) tkdesk_setting( 'fallback_email' );
 	$lead     = (string) tkdesk_setting( 'form_intro' );
-	if ( '' === $lead || 'You do not need an account. Do not upload or attach the image.' === $lead ) {
+	if ( $dmca ) {
+		$lead = __( 'Tell us which copyrighted work this is about and where the material is on this site.', 'takedown-desk' );
+	} elseif ( '' === $lead || 'You do not need an account. Do not upload or attach the image.' === $lead ) {
 		$lead = $on_page ? __( 'Do not upload or attach the image.', 'takedown-desk' ) : __( 'You do not need an account. Do not upload or attach the image.', 'takedown-desk' );
 	}
 	$lead = esc_html( $lead );
@@ -307,8 +320,14 @@ function tkdesk_view_form( array $state = array() ): string {
 		$lead .= ' ' . sprintf( esc_html__( 'If you cannot use this form, email %s.', 'takedown-desk' ), '<a href="mailto:' . esc_attr( $fallback ) . '">' . esc_html( $fallback ) . '</a>' );
 	}
 
+	if ( $dmca ) {
+		$title = esc_html__( 'Send a copyright notice', 'takedown-desk' );
+	} else {
+		$title = $on_page ? esc_html__( 'Your request', 'takedown-desk' ) : esc_html__( 'Request removal of an intimate image', 'takedown-desk' );
+	}
+
 	return '<form class="tkd-form" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" novalidate data-tkd-rest aria-labelledby="tkd-form-title">'
-		. '<header class="tkd-head"><h2 class="tkd-title" id="tkd-form-title">' . ( $on_page ? esc_html__( 'Your request', 'takedown-desk' ) : esc_html__( 'Request removal of an intimate image', 'takedown-desk' ) ) . '</h2>'
+		. '<header class="tkd-head"><h2 class="tkd-title" id="tkd-form-title">' . $title . '</h2>'
 		. '<p class="tkd-intro">' . $lead . '</p></header>'
 		. '<div class="tkd-notice" role="alert" tabindex="-1"' . ( '' === $notice ? ' hidden' : ' autofocus' ) . '>' . tkdesk_icon( 'error' ) . '<span>' . esc_html( $notice ) . '</span></div>'
 		. '<div class="tkd-summary" role="alert" tabindex="-1" aria-labelledby="tkd-summary-title"' . ( '' === $list ? ' hidden' : ' autofocus' ) . '>'
@@ -321,11 +340,12 @@ function tkdesk_view_form( array $state = array() ): string {
 		. '<input type="hidden" name="tkdesk_sig" value="' . esc_attr( $stamp['sig'] ) . '">'
 		. '<input type="hidden" name="item" value="' . esc_attr( $item ) . '">'
 		. '<input type="hidden" name="tkdesk_nonce" value="' . esc_attr( wp_create_nonce( 'tkdesk_submit' ) ) . '">'
-		. '<p class="tkd-box tkd-note">' . tkdesk_icon( 'info' ) . '<span>' . $note . '</span></p>'
-		. '<button type="submit" class="tkd-button wp-element-button">' . esc_html__( 'Send request', 'takedown-desk' ) . '</button>'
+		. ( $dmca ? '<input type="hidden" name="type" value="dmca">' : '' )
+		. $note
+		. '<button type="submit" class="tkd-button wp-element-button">' . ( $dmca ? esc_html__( 'Send notice', 'takedown-desk' ) : esc_html__( 'Send request', 'takedown-desk' ) ) . '</button>'
 		. '</form>'
 		// Placeholders so every optional part is there; form.js fills them from the response or drops them.
-		. '<template class="tkd-done-tpl">' . tkdesk_view_confirmation( 'TD-0000-0000', 'x', tkdesk_now(), '#' ) . '</template>';
+		. '<template class="tkd-done-tpl">' . tkdesk_view_confirmation( 'TD-0000-0000', 'x', tkdesk_now(), '#', $dmca ? 'dmca' : 'ncii' ) . '</template>';
 }
 
 /**
@@ -336,9 +356,11 @@ function tkdesk_view_form( array $state = array() ): string {
  * @param string $email      Masked address the copy went to, '' when no copy was sent.
  * @param int    $received   Time the request arrived.
  * @param string $status_url Private status link, '' when unknown.
+ * @param string $type       ncii | dmca (copyright notice: target time, no copies line, no support links).
  * @return string
  */
-function tkdesk_view_confirmation( string $public_id, string $email, int $received, string $status_url = '' ): string {
+function tkdesk_view_confirmation( string $public_id, string $email, int $received, string $status_url = '', string $type = 'ncii' ): string {
+	$dmca = 'dmca' === $type;
 	$id   = '<span data-tkd-fill="public_id">' . esc_html( $public_id ) . '</span>';
 	$copy = '';
 	if ( '' !== $email ) {
@@ -347,24 +369,25 @@ function tkdesk_view_confirmation( string $public_id, string $email, int $receiv
 	}
 	$link = '';
 	if ( '' !== $status_url ) {
-		$link = '<p class="tkd-statuslink" data-tkd-need="status_url"><a data-tkd-href="status_url" href="' . esc_url( $status_url ) . '">' . esc_html__( 'Check the status of this request', 'takedown-desk' ) . '</a>'
+		$link = '<p class="tkd-statuslink" data-tkd-need="status_url"><a data-tkd-href="status_url" href="' . esc_url( $status_url ) . '">' . ( $dmca ? esc_html__( 'Check the status of this notice', 'takedown-desk' ) : esc_html__( 'Check the status of this request', 'takedown-desk' ) ) . '</a>'
 			. '<span class="tkd-help">' . esc_html__( 'Bookmark the status page to check back later. The link is also in our email.', 'takedown-desk' ) . '</span></p>';
 	}
 	$steps = array(
 		'status'      => 'new',
+		'type'        => $type,
 		'received_at' => tkdesk_mysql( $received ),
-		'due_at'      => tkdesk_mysql( tkdesk_due( $received ) ),
+		'due_at'      => tkdesk_mysql( tkdesk_due( $received, $type ) ),
 	);
 	/* translators: %s: request ID, for example TD-2611-0047. */
-	$heading = sprintf( esc_html__( 'Request %s received', 'takedown-desk' ), $id );
+	$heading = $dmca ? sprintf( esc_html__( 'Notice %s received', 'takedown-desk' ), $id ) : sprintf( esc_html__( 'Request %s received', 'takedown-desk' ), $id );
 
 	return '<div class="tkd-done">'
 		. '<header class="tkd-head"><h2 class="tkd-title" tabindex="-1" autofocus>' . tkdesk_icon( 'check' ) . '<span>' . $heading . '</span></h2>'
-		. '<p class="tkd-intro">' . $copy . esc_html__( 'Keep the request ID for your records.', 'takedown-desk' ) . '</p></header>'
+		. '<p class="tkd-intro">' . $copy . ( $dmca ? esc_html__( 'Keep the notice ID for your records.', 'takedown-desk' ) : esc_html__( 'Keep the request ID for your records.', 'takedown-desk' ) ) . '</p></header>'
 		. tkdesk_view_steps( $steps )
-		. '<p>' . esc_html__( 'You do not need to send another request for copies of the same image on this site. We look for them.', 'takedown-desk' ) . '</p>'
+		. ( $dmca ? '' : '<p>' . esc_html__( 'You do not need to send another request for copies of the same image on this site. We look for them.', 'takedown-desk' ) . '</p>' )
 		. $link
-		. tkdesk_view_support()
+		. ( $dmca ? '' : tkdesk_view_support() )
 		. '</div>';
 }
 
@@ -379,6 +402,7 @@ function tkdesk_view_confirmation( string $public_id, string $email, int $receiv
  */
 function tkdesk_view_status( array $request, string $token, array $state = array() ): string {
 	$status = (string) $request['status'];
+	$dmca   = 'dmca' === ( $request['type'] ?? '' );
 	$html   = '';
 	if ( ! empty( $state['sent'] ) ) {
 		$html .= '<div class="tkd-notice tkd-notice--ok" role="status">' . tkdesk_icon( 'check' ) . '<span>' . esc_html__( 'Thanks. We added your reply to the request.', 'takedown-desk' ) . '</span></div>';
@@ -407,8 +431,11 @@ function tkdesk_view_status( array $request, string $token, array $state = array
 			'type'     => 'textarea',
 			'label'    => __( 'Your reply', 'takedown-desk' ),
 			'help'     => sprintf(
-				/* translators: %s: date and time the decision is due, with timezone. */
-				__( 'Your reply goes straight to the reviewer. We will still decide by %s.', 'takedown-desk' ),
+				$dmca
+					/* translators: %s: date and time the decision is due, with timezone. */
+					? __( 'Your reply goes straight to the reviewer. Our target for a decision is still %s.', 'takedown-desk' )
+					/* translators: %s: date and time the decision is due, with timezone. */
+					: __( 'Your reply goes straight to the reviewer. We will still decide by %s.', 'takedown-desk' ),
 				tkdesk_format_deadline( tkdesk_ts( $request['due_at'] ) )
 			),
 			'required' => true,
@@ -422,32 +449,40 @@ function tkdesk_view_status( array $request, string $token, array $state = array
 			. '</form>';
 	}
 
-	$url = tkdesk_notice_url();
+	$url = $dmca ? tkdesk_copyright_url() : tkdesk_notice_url();
 	if ( '' !== $url && in_array( $status, array( 'removed', 'declined' ), true ) ) {
-		$again = 'removed' === $status ? __( 'If you see the image on this site again, send a new request.', 'takedown-desk' ) : __( 'If you think this is a mistake, or you have more details, reply to our email or send a new request.', 'takedown-desk' );
-		$html .= '<p class="tkd-next">' . esc_html( $again ) . ' <a class="tkd-chiplink" href="' . esc_url( $url ) . '">' . esc_html__( 'Send a new request', 'takedown-desk' ) . '</a></p>';
+		if ( $dmca ) {
+			$again = 'removed' === $status ? __( 'If you see the material on this site again, send a new notice.', 'takedown-desk' ) : __( 'If you think this is a mistake, or you have more details, reply to our email or send a new notice.', 'takedown-desk' );
+		} else {
+			$again = 'removed' === $status ? __( 'If you see the image on this site again, send a new request.', 'takedown-desk' ) : __( 'If you think this is a mistake, or you have more details, reply to our email or send a new request.', 'takedown-desk' );
+		}
+		$html .= '<p class="tkd-next">' . esc_html( $again ) . ' <a class="tkd-chiplink" href="' . esc_url( $url ) . '">' . ( $dmca ? esc_html__( 'Send a new notice', 'takedown-desk' ) : esc_html__( 'Send a new request', 'takedown-desk' ) ) . '</a></p>';
 	}
 
 	/* translators: %s: request ID, for example TD-2611-0047. */
-	$heading = sprintf( __( 'Request %s', 'takedown-desk' ), $request['public_id'] );
+	$heading = $dmca ? sprintf( __( 'Notice %s', 'takedown-desk' ), $request['public_id'] ) : sprintf( __( 'Request %s', 'takedown-desk' ), $request['public_id'] );
 
 	return '<div class="tkd-status">'
 		. '<header class="tkd-head"><h2 class="tkd-title" tabindex="-1">' . esc_html( $heading ) . '</h2></header>'
 		. $html
-		. tkdesk_view_support()
+		. ( $dmca ? '' : tkdesk_view_support() )
 		. '</div>';
 }
 
 /**
  * Bad or expired status link: a calm way forward, never a dead end.
  *
+ * @param string $type ncii | dmca (on the copyright notice page: its own link, no support links).
  * @return string
  */
-function tkdesk_view_bad_token(): string {
-	$url      = tkdesk_notice_url();
+function tkdesk_view_bad_token( string $type = 'ncii' ): string {
+	$dmca     = 'dmca' === $type;
+	$url      = $dmca ? tkdesk_copyright_url() : tkdesk_notice_url();
 	$fallback = (string) tkdesk_setting( 'fallback_email' );
 	$html     = '<p>' . esc_html__( 'We send a new link each time we email you, so open our most recent email about your request.', 'takedown-desk' ) . '</p>';
-	if ( '' !== $url ) {
+	if ( '' !== $url && $dmca ) {
+		$html .= '<p class="tkd-next">' . esc_html__( 'Lost the email? Send a new notice, and add your notice ID to the details if you know it.', 'takedown-desk' ) . ' <a class="tkd-chiplink" href="' . esc_url( $url ) . '">' . esc_html__( 'Send a new notice', 'takedown-desk' ) . '</a></p>';
+	} elseif ( '' !== $url ) {
 		$html .= '<p class="tkd-next">' . esc_html__( 'Lost the email? Send a new request, and add your request ID to the details if you know it.', 'takedown-desk' ) . ' <a class="tkd-chiplink" href="' . esc_url( $url ) . '">' . esc_html__( 'Send a new request', 'takedown-desk' ) . '</a></p>';
 	}
 	if ( is_email( $fallback ) ) {
@@ -457,6 +492,6 @@ function tkdesk_view_bad_token(): string {
 	return '<div class="tkd-status tkd-badlink">'
 		. '<header class="tkd-head"><h2 class="tkd-title" tabindex="-1">' . tkdesk_icon( 'info' ) . '<span>' . esc_html__( 'This link no longer works', 'takedown-desk' ) . '</span></h2></header>'
 		. '<div class="tkd-box"><div>' . $html . '</div></div>'
-		. tkdesk_view_support()
+		. ( $dmca ? '' : tkdesk_view_support() )
 		. '</div>';
 }

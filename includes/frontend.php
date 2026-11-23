@@ -23,11 +23,12 @@ add_action( 'admin_post_nopriv_tkdesk_details', 'tkdesk_post_details' );
 /**
  * Notice page URL (translated page under WPML or Polylang) plus query args.
  *
- * @param array $args Query args to add.
+ * @param array  $args    Query args to add.
+ * @param string $setting Setting that holds the page ID: notice_page_id, or dmca_page_id for the copyright page.
  * @return string Empty when no published notice page exists.
  */
-function tkdesk_notice_url( array $args = array() ): string {
-	$id = (int) tkdesk_setting( 'notice_page_id' );
+function tkdesk_notice_url( array $args = array(), string $setting = 'notice_page_id' ): string {
+	$id = (int) tkdesk_setting( $setting );
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WPML's own filter (plan 3.12).
 	$id = (int) apply_filters( 'wpml_object_id', $id, 'page', true );
 	if ( $id && function_exists( 'pll_get_post' ) && pll_get_post( $id ) ) {
@@ -40,19 +41,29 @@ function tkdesk_notice_url( array $args = array() ): string {
 }
 
 /**
- * Requester status page URL.
+ * Copyright notice page URL plus query args.
+ *
+ * @param array $args Query args to add.
+ * @return string Empty when no published copyright page exists.
+ */
+function tkdesk_copyright_url( array $args = array() ): string {
+	return tkdesk_notice_url( $args, 'dmca_page_id' );
+}
+
+/**
+ * Requester status page URL: the copyright page for a copyright notice, else (or without one) the notice page.
  *
  * @param array  $request Request row.
  * @param string $token   Raw requester token.
  * @return string
  */
 function tkdesk_status_url( array $request, string $token ): string {
-	return tkdesk_notice_url(
-		array(
-			'tkdesk_request' => $request['public_id'],
-			'token'          => $token,
-		)
+	$args = array(
+		'tkdesk_request' => $request['public_id'],
+		'token'          => $token,
 	);
+	$url  = 'dmca' === ( $request['type'] ?? '' ) ? tkdesk_copyright_url( $args ) : '';
+	return '' !== $url ? $url : tkdesk_notice_url( $args );
 }
 
 /**
@@ -97,12 +108,53 @@ function tkdesk_notice_paragraphs(): array {
  * @return int|WP_Error Page ID.
  */
 function tkdesk_create_notice_page() {
-	$id = (int) tkdesk_setting( 'notice_page_id' );
+	return tkdesk_create_form_page( 'notice_page_id', __( 'Request removal of intimate images', 'takedown-desk' ), 'request-removal', tkdesk_notice_paragraphs(), 'request-form' );
+}
+
+/**
+ * Create the copyright notice page, or return the existing one: who can send a notice, its six parts, the
+ * liability for knowingly false notices and that the poster may be told, then the copyright notice form.
+ *
+ * @return int|WP_Error Page ID.
+ */
+function tkdesk_create_copyright_page() {
+	$texts = array(
+		__( 'If you own the copyright in a work and material on this site uses it without your permission, you can send us a copyright notice. You can also send one if you are authorized to act for the copyright owner. You do not need an account.', 'takedown-desk' ),
+		implode(
+			"\n",
+			array(
+				__( 'Your notice needs six parts:', 'takedown-desk' ),
+				__( '1. The copyrighted work: a short description, and a link to the original if there is one.', 'takedown-desk' ),
+				__( '2. Where the material is on this site, such as a link to the page.', 'takedown-desk' ),
+				__( '3. A way to reach you, such as an email address.', 'takedown-desk' ),
+				__( '4. A statement that you believe in good faith that the use is not authorized by the copyright owner, its agent or the law.', 'takedown-desk' ),
+				__( '5. A statement that the information in your notice is accurate and, under penalty of perjury, that you are the copyright owner or authorized to act for the owner.', 'takedown-desk' ),
+				__( '6. Your name, typed as a signature.', 'takedown-desk' ),
+			)
+		),
+		__( 'Please only send a notice in good faith. Under US copyright law (17 U.S.C. 512(f)), a person who knowingly misrepresents that material is infringing can be liable for damages.', 'takedown-desk' ),
+		__( 'We review every notice. You get a notice ID right away, and we email you when we decide. If we remove the material, we may tell the person who posted it.', 'takedown-desk' ),
+	);
+	return tkdesk_create_form_page( 'dmca_page_id', __( 'Copyright notices', 'takedown-desk' ), 'copyright-notice', $texts, 'copyright-form' );
+}
+
+/**
+ * Create a published page with intro text and a form block, or return the page the setting already points to.
+ *
+ * @param string   $setting Setting that keeps the page ID.
+ * @param string   $title   Page title.
+ * @param string   $slug    Page slug.
+ * @param string[] $texts   One paragraph each; a "\n" is a line break.
+ * @param string   $form    Form block name without the takedown-desk/ prefix.
+ * @return int|WP_Error Page ID.
+ */
+function tkdesk_create_form_page( string $setting, string $title, string $slug, array $texts, string $form ) {
+	$id = (int) tkdesk_setting( $setting );
 	if ( $id && 'page' === get_post_type( $id ) && 'trash' !== get_post_status( $id ) ) {
 		return $id;
 	}
 	$content = '';
-	foreach ( tkdesk_notice_paragraphs() as $text ) {
+	foreach ( $texts as $text ) {
 		$content .= "<!-- wp:paragraph -->\n<p>" . str_replace( "\n", '<br>', htmlspecialchars( $text, ENT_NOQUOTES, 'UTF-8' ) ) . "</p>\n<!-- /wp:paragraph -->\n\n";
 	}
 	$id = wp_insert_post(
@@ -110,9 +162,9 @@ function tkdesk_create_notice_page() {
 			array(
 				'post_type'      => 'page',
 				'post_status'    => 'publish',
-				'post_title'     => __( 'Request removal of intimate images', 'takedown-desk' ),
-				'post_name'      => 'request-removal',
-				'post_content'   => tkdesk_styled_group( 'tkdesk-notice', $content ) . '<!-- wp:takedown-desk/request-form /-->',
+				'post_title'     => $title,
+				'post_name'      => $slug,
+				'post_content'   => tkdesk_styled_group( 'tkdesk-notice', $content ) . '<!-- wp:takedown-desk/' . $form . ' /-->',
 				'comment_status' => 'closed',
 				'ping_status'    => 'closed',
 			)
@@ -122,7 +174,7 @@ function tkdesk_create_notice_page() {
 	if ( is_wp_error( $id ) ) {
 		return $id;
 	}
-	tkdesk_update_settings( array( 'notice_page_id' => (int) $id ) );
+	tkdesk_update_settings( array( $setting => (int) $id ) );
 	return (int) $id;
 }
 
@@ -160,6 +212,7 @@ function tkdesk_link_css() {
 		'.tkdesk-footer-link{margin:0;padding:0 1rem;text-align:center}'
 		. $foot . '{display:inline-flex;align-items:center;min-height:44px;font-size:max(14px,.875em);color:inherit;text-decoration:underline;text-decoration-thickness:1.5px;text-decoration-color:color-mix(in srgb,currentColor 30%,transparent);text-underline-offset:.3em}'
 		. $foot . ':hover{text-decoration-color:currentColor}'
+		. $foot . '+a{margin-inline-start:1rem}'
 		. '.tkdesk-request{margin-block:.75rem 0}'
 		. $chip . '{display:inline-flex;align-items:center;gap:.4em;min-height:40px;padding:0 .9rem;font-size:max(14px,.8125em);font-weight:600;line-height:1.2;color:inherit;text-decoration:none;background:none;border:1px solid color-mix(in srgb,currentColor 28%,transparent);border-radius:999px;transition:background-color .12s,border-color .12s}'
 		. $chip . '::before{content:"";flex:none;width:1em;height:1em;background:currentColor;-webkit-mask:url("' . $flag . '") center/contain no-repeat;mask:url("' . $flag . '") center/contain no-repeat;opacity:.75}'
@@ -187,12 +240,19 @@ function tkdesk_notice_link_html(): string {
 }
 
 /**
- * Print the footer link when the setting is auto.
+ * Print the footer link when the setting is auto, and beside it "Copyright notices" while copyright notices
+ * and their footer link are on (also on its own when the first link is placed by hand).
  */
 function tkdesk_footer_link() {
-	if ( 'auto' === tkdesk_setting( 'footer_link' ) ) {
-		echo wp_kses_post( tkdesk_notice_link_html() );
+	$html = 'auto' === tkdesk_setting( 'footer_link' ) ? tkdesk_notice_link_html() : '';
+	$url  = tkdesk_setting( 'dmca' ) && tkdesk_setting( 'dmca_footer_link' ) ? tkdesk_copyright_url() : '';
+	if ( '' !== $url ) {
+		tkdesk_link_css();
+		$link = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Copyright notices', 'takedown-desk' ) . '</a></p>';
+		// In the same line as the first link: its closing </p> makes way for the second one.
+		$html = '' === $html ? '<p class="tkdesk-footer-link">' . $link : substr( $html, 0, -4 ) . ' ' . $link;
 	}
+	echo wp_kses_post( $html );
 }
 
 /**
@@ -223,7 +283,7 @@ function tkdesk_content_link( $content ) {
 		return $content;
 	}
 	$post = get_post();
-	if ( ! $post || (int) tkdesk_setting( 'notice_page_id' ) === $post->ID ) {
+	if ( ! $post || in_array( $post->ID, array( (int) tkdesk_setting( 'notice_page_id' ), (int) tkdesk_setting( 'dmca_page_id' ) ), true ) ) {
 		return $content;
 	}
 	if ( is_attachment() ) {
@@ -245,15 +305,29 @@ function tkdesk_content_link( $content ) {
  */
 function tkdesk_view_first( $content ) {
 	$post = get_post();
-	if ( ! $post || ! is_singular() || ! in_the_loop() || ! is_main_query() || ! ( has_block( 'takedown-desk/request-form', $post ) || has_shortcode( $post->post_content, 'takedown_desk_form' ) ) ) {
+	$form = $post && is_singular() && in_the_loop() && is_main_query() ? tkdesk_post_form( $post ) : '';
+	if ( '' === $form ) {
 		return $content;
 	}
 	foreach ( array( 'tkdesk_request', 'tkdesk_done', 'tkdesk_e', 'tkdesk_review' ) as $key ) {
 		if ( '' !== tkdesk_query_arg( $key ) ) {
-			return tkdesk_render_form_block();
+			return 'dmca' === $form ? tkdesk_render_copyright_block() : tkdesk_render_form_block();
 		}
 	}
 	return $content;
+}
+
+/**
+ * Which form a post holds: dmca (the copyright notice form, while copyright notices are on), ncii or ''.
+ *
+ * @param WP_Post $post Post.
+ * @return string
+ */
+function tkdesk_post_form( WP_Post $post ): string {
+	if ( tkdesk_setting( 'dmca' ) && ( has_block( 'takedown-desk/copyright-form', $post ) || has_shortcode( $post->post_content, 'takedown_desk_copyright_form' ) ) ) {
+		return 'dmca';
+	}
+	return has_block( 'takedown-desk/request-form', $post ) || has_shortcode( $post->post_content, 'takedown_desk_form' ) ? 'ncii' : '';
 }
 
 /**
@@ -319,15 +393,23 @@ function tkdesk_enqueue_form_assets() {
 	}
 	$copy = tkdesk_form_messages();
 	// The server's own messages for empty required fields and a malformed email, for checks before sending.
-	$none    = tkdesk_validate_request( array() );
-	$bad     = tkdesk_validate_request( array( 'email' => 'x' ) );
-	$i18n    = array(
+	$msgs = static function ( array $in ): array {
+		$none = tkdesk_validate_request( $in );
+		$bad  = tkdesk_validate_request( array( 'email' => 'x' ) + $in );
+		return array(
+			'fields' => is_wp_error( $none ) ? (array) ( $none->get_error_data()['fields'] ?? array() ) : array(),
+			'email'  => is_wp_error( $bad ) ? (string) ( $bad->get_error_data()['fields']['email'] ?? '' ) : '',
+		);
+	};
+	$i18n = array(
 		'sending' => __( 'Sending...', 'takedown-desk' ),
 		'rate'    => $copy['rate'],
 		'server'  => $copy['server'],
-		'fields'  => is_wp_error( $none ) ? (array) ( $none->get_error_data()['fields'] ?? array() ) : array(),
-		'email'   => is_wp_error( $bad ) ? (string) ( $bad->get_error_data()['fields']['email'] ?? '' ) : '',
-	);
+	) + $msgs( array() );
+	if ( tkdesk_setting( 'dmca' ) ) {
+		// The copyright notice form words some of the same fields differently.
+		$i18n['dmca'] = $msgs( array( 'type' => 'dmca' ) );
+	}
 	$mode    = tkdesk_bot_mode();
 	$captcha = null;
 	if ( 'recaptcha' === $mode ) {
@@ -380,7 +462,7 @@ function tkdesk_enqueue_form_assets() {
  */
 function tkdesk_maybe_enqueue_form_assets() {
 	$post = get_queried_object();
-	if ( $post instanceof WP_Post && ( has_block( 'takedown-desk/request-form', $post ) || has_shortcode( $post->post_content, 'takedown_desk_form' ) ) ) {
+	if ( $post instanceof WP_Post && '' !== tkdesk_post_form( $post ) ) {
 		tkdesk_enqueue_form_assets();
 	} elseif ( $post instanceof WP_Post && preg_match( '/\btkdesk-(notice|policy)\b/', $post->post_content ) ) {
 		wp_enqueue_style( 'tkdesk-form' ); // A policy page (or notice text) on its own: styles only, no script.
@@ -400,9 +482,9 @@ function tkdesk_posted( array $keys ): array {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce-free public forms by design (signed time stamp, honeypot, bot check); the logged-in nonce is checked by the caller.
 		if ( ! isset( $_POST[ $key ] ) || ! is_string( $_POST[ $key ] ) ) {
 			$out[ $key ] = '';
-		} elseif ( 'url' === $key ) {
+		} elseif ( in_array( $key, array( 'url', 'work_url' ), true ) ) {
 			$out[ $key ] = esc_url_raw( wp_unslash( $_POST[ $key ] ), array( 'http', 'https' ) );
-		} elseif ( in_array( $key, array( 'details', 'statement', 'message' ), true ) ) {
+		} elseif ( in_array( $key, array( 'details', 'statement', 'message', 'work', 'address' ), true ) ) {
 			$out[ $key ] = sanitize_textarea_field( wp_unslash( $_POST[ $key ] ) );
 		} else {
 			$out[ $key ] = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
@@ -429,18 +511,19 @@ function tkdesk_form_state(): array {
 }
 
 /**
- * Redirect back to the notice page (or the referring page) and stop.
+ * Redirect back to the notice page, or the copyright page for a copyright notice (else the referring page), and stop.
  *
- * @param array $args  Query args.
- * @param array $state View state to carry; never put in the URL itself.
+ * @param array  $args  Query args.
+ * @param array  $state View state to carry; never put in the URL itself.
+ * @param string $type  ncii | dmca.
  */
-function tkdesk_redirect_back( array $args, array $state = array() ) {
+function tkdesk_redirect_back( array $args, array $state = array(), string $type = 'ncii' ) {
 	if ( $state ) {
 		$key = bin2hex( random_bytes( 12 ) );
 		set_transient( 'tkdesk_fe_' . $key, tkdesk_encrypt( (string) wp_json_encode( $state ) ), 5 * MINUTE_IN_SECONDS );
 		$args['tkdesk_e'] = $key;
 	}
-	$url = tkdesk_notice_url( $args );
+	$url = 'dmca' === $type ? tkdesk_copyright_url( $args ) : tkdesk_notice_url( $args );
 	if ( '' === $url ) {
 		$url = add_query_arg( array_map( 'rawurlencode', $args ), wp_get_referer() ? wp_get_referer() : home_url( '/' ) );
 	}
@@ -457,7 +540,12 @@ function tkdesk_post_submit() {
 	if ( is_user_logged_in() && ! wp_verify_nonce( sanitize_text_field( tkdesk_posted( array( 'tkdesk_nonce' ) )['tkdesk_nonce'] ), 'tkdesk_submit' ) ) {
 		wp_set_current_user( 0 );
 	}
-	$in     = tkdesk_posted( array_merge( array_keys( tkdesk_form_fields() ), array( 'tkdesk_website', 'tkdesk_ts', 'tkdesk_sig', 'item', 'tkdesk_pow', 'tkdesk_q', 'tkdesk_answer', 'g-recaptcha-response' ) ) );
+	$type = 'dmca' === tkdesk_posted( array( 'type' ) )['type'] ? 'dmca' : 'ncii';
+	$defs = 'dmca' === $type ? tkdesk_form_fields( 'dmca' ) : tkdesk_form_fields();
+	$in   = tkdesk_posted( array_merge( array_keys( $defs ), array( 'tkdesk_website', 'tkdesk_ts', 'tkdesk_sig', 'item', 'tkdesk_pow', 'tkdesk_q', 'tkdesk_answer', 'g-recaptcha-response' ) ) );
+	if ( 'dmca' === $type ) {
+		$in['type'] = 'dmca';
+	}
 	$result = tkdesk_handle_submit( $in, tkdesk_client_ip() );
 	if ( is_wp_error( $result ) ) {
 		$data   = (array) $result->get_error_data();
@@ -485,7 +573,8 @@ function tkdesk_post_submit() {
 				'errors' => $fields,
 				'notice' => $notice,
 				'item'   => $in['item'],
-			)
+			),
+			$type
 		);
 	}
 	tkdesk_redirect_back(
@@ -496,7 +585,8 @@ function tkdesk_post_submit() {
 		array(
 			'email'      => $result['email'],
 			'status_url' => $result['status_url'],
-		)
+		),
+		$type
 	);
 }
 

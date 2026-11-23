@@ -115,6 +115,22 @@ function tkdesk_status(): array {
 		);
 	}
 
+	// Copyright notices (setting dmca): the form page and the designated agent registration, which runs 3 years.
+	if ( tkdesk_setting( 'dmca' ) ) {
+		$dmca      = tkdesk_dmca_setup();
+		$directory = 'https://www.copyright.gov/dmca-directory/';
+		if ( 'publish' !== $dmca['page']['status'] || ! $dmca['page']['has_form'] ) {
+			$add( 'tkdesk_dmca_no_page', 'warning', __( 'Copyright notices are on, but no published page holds the copyright notice form.', 'takedown-desk' ), __( 'Create the copyright page', 'takedown-desk' ), $settings, 'create_copyright_page' );
+		}
+		if ( ! $dmca['agent_renew_by'] ) {
+			$add( 'tkdesk_dmca_no_agent', 'warning', __( 'Copyright notices are on, but no designated agent date is saved. Register an agent with the US Copyright Office, then enter the date in the copyright settings.', 'takedown-desk' ), __( 'Open the Copyright Office agent directory', 'takedown-desk' ), $directory );
+		} elseif ( tkdesk_now() >= $dmca['agent_renew_by'] - 60 * DAY_IN_SECONDS ) {
+			/* translators: %s: date. */
+			$message = tkdesk_now() >= $dmca['agent_renew_by'] ? __( 'Your designated agent registration with the US Copyright Office ran out on %s. Renew it, then update the date in the copyright settings.', 'takedown-desk' ) : __( 'Your designated agent registration with the US Copyright Office runs out on %s. Renew it, then update the date in the copyright settings.', 'takedown-desk' );
+			$add( 'tkdesk_dmca_agent_renewal', 'warning', sprintf( $message, wp_date( get_option( 'date_format' ), $dmca['agent_renew_by'] ) ), __( 'Open the Copyright Office agent directory', 'takedown-desk' ), $directory );
+		}
+	}
+
 	$protected = tkdesk_quarantine_protected();
 	if ( false === $protected ) {
 		$add( 'tkdesk_quarantine_open', 'warning', __( 'Files taken offline are hidden by a random folder name only. Add this rule to your server or switch the default to Delete permanently.', 'takedown-desk' ), __( 'Open the removal settings', 'takedown-desk' ), $settings );
@@ -151,6 +167,30 @@ function tkdesk_status(): array {
 	$status         = apply_filters( 'tkdesk_status', $status );
 	$status['live'] = ! in_array( 'error', array_column( (array) $status['problems'], 'severity' ), true );
 	return $status;
+}
+
+/**
+ * Copyright notice setup (the `dmca` block of GET /admin/settings): the page of setting dmca_page_id and when
+ * the designated agent registration runs out, 3 years after the saved dmca_agent_date.
+ *
+ * @return array { page: { id, status, url, edit_url, has_form }, agent_renew_by (unix, 0 without a date) }
+ */
+function tkdesk_dmca_setup(): array {
+	$id    = (int) tkdesk_setting( 'dmca_page_id' );
+	$page  = $id ? get_post( $id ) : null;
+	$page  = $page && 'page' === $page->post_type ? $page : null;
+	$date  = (string) tkdesk_setting( 'dmca_agent_date' );
+	$renew = '' !== $date ? date_create_immutable( $date . ' 00:00:00', wp_timezone() ) : false;
+	return array(
+		'page'           => array(
+			'id'       => $page ? $page->ID : 0,
+			'status'   => $page ? $page->post_status : '',
+			'url'      => $page ? (string) get_permalink( $page ) : '',
+			'edit_url' => $page ? (string) get_edit_post_link( $page->ID, 'raw' ) : '',
+			'has_form' => $page && ( has_block( 'takedown-desk/copyright-form', $page ) || has_shortcode( $page->post_content, 'takedown_desk_copyright_form' ) ),
+		),
+		'agent_renew_by' => $renew ? $renew->modify( '+3 years' )->getTimestamp() : 0,
+	);
 }
 
 /**

@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Settings schema: key => array( 'type', 'default', optional 'enum', 'max', 'items', 'max_items' ).
  *
- * Types: int, bool, string, email, array (items: key, host or email), emails (tkdesk_sanitize_emails()).
+ * Types: int, bool, string, email, date (Y-m-d or ''), array (items: key, host or email), emails (tkdesk_sanitize_emails()).
  *
  * @return array
  */
@@ -178,6 +178,30 @@ function tkdesk_settings_schema(): array {
 				'type'    => 'bool',
 				'default' => false,
 			),
+			// Copyright (DMCA) notices: a second request type, off until the owner turns it on.
+			'dmca'                 => array(
+				'type'    => 'bool',
+				'default' => false,
+			),
+			// Target time in business days (clock.php).
+			'dmca_days'            => array(
+				'type'    => 'int',
+				'default' => 2,
+				'enum'    => range( 1, 10 ),
+			),
+			'dmca_page_id'         => array(
+				'type'    => 'int',
+				'default' => 0,
+			),
+			'dmca_footer_link'     => array(
+				'type'    => 'bool',
+				'default' => true,
+			),
+			// When the designated agent was registered or last renewed with the US Copyright Office (status.php).
+			'dmca_agent_date'      => array(
+				'type'    => 'date',
+				'default' => '',
+			),
 			// key => array( active, subject, body ); only emails changed from their defaults are stored.
 			'emails'               => array(
 				'type'    => 'emails',
@@ -251,6 +275,11 @@ function tkdesk_sanitize_settings( array $in ): array {
 				break;
 			case 'emails':
 				$value = tkdesk_sanitize_emails( $value );
+				break;
+			case 'date':
+				$value = is_string( $value ) ? trim( $value ) : '';
+				$date  = DateTime::createFromFormat( '!Y-m-d', $value );
+				$value = $date && $date->format( 'Y-m-d' ) === $value ? $value : '';
 				break;
 			case 'array':
 				$list = array();

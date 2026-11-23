@@ -75,6 +75,7 @@ function tkdesk_admin_assets( $hook ) {
 		'tz'            => wp_timezone_string(),
 		'tzAbbr'        => wp_date( 'T', tkdesk_now() ),
 		'setupDone'     => (bool) get_option( 'tkdesk_setup_done' ),
+		'dmca'          => (bool) tkdesk_setting( 'dmca' ),
 		'siteUrl'       => home_url( '/' ),
 		'userId'        => get_current_user_id(),
 		// Where "I will place it myself" sends people: the footer in the Site Editor, or Widgets.

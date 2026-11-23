@@ -154,21 +154,22 @@ function tkdesk_poster_notify( $request_id ): void {
 				$lines[] = '- ' . ( isset( $labels[ $id ] ) ? $labels[ $id ]->label : '' );
 			}
 			$token = bin2hex( random_bytes( 32 ) );
-			$vars  = array(
+			$args  = array(
+				'tkdesk_review' => $request['public_id'],
+				'token'         => $token,
+			);
+			// The review page of a copyright notice is the copyright page, when there is one.
+			$link = 'dmca' === $request['type'] && function_exists( 'tkdesk_copyright_url' ) ? tkdesk_copyright_url( $args ) : '';
+			$vars = array(
 				'poster_email' => $email,
 				'poster_items' => implode( "\n", $lines ),
-				'review_link'  => tkdesk_notice_url(
-					array(
-						'tkdesk_review' => $request['public_id'],
-						'token'         => $token,
-					)
-				),
+				'review_link'  => '' !== $link ? $link : tkdesk_notice_url( $args ),
 			);
 			if ( tkdesk_send_email( 'poster_removed', $request, $vars ) ) {
 				tkdesk_log( (int) $request['id'], 'poster_notified', $detail + array( 'token' => hash( 'sha256', $token ) ) );
 				continue;
 			}
-			$cause = tkdesk_email_saved( 'poster_removed' )['active'] ? 'email_failed' : 'email_off';
+			$cause = tkdesk_email_saved( tkdesk_email_key( 'poster_removed', $request ) )['active'] ? 'email_failed' : 'email_off';
 		}
 		tkdesk_log( (int) $request['id'], 'poster_not_notified', $detail + array( 'cause' => $cause ) );
 	}
@@ -430,7 +431,8 @@ function tkdesk_rest_admin_review( WP_REST_Request $request ) {
 /**
  * Once per request: a status update to the requester while the request is still open 6 days after it arrived,
  * with a fresh status link (the raw token is never stored; the old link keeps working if the email is not sent).
- * Logs status_update { sent }. Test requests and requests filed by the site are skipped. Runs from tkdesk_tick().
+ * Logs status_update { sent }. Test requests, requests filed by the site and copyright notices are skipped. Runs
+ * from tkdesk_tick().
  */
 function tkdesk_status_updates(): void {
 	global $wpdb;
@@ -439,7 +441,7 @@ function tkdesk_status_updates(): void {
 	}
 	$table = tkdesk_table( 'requests' );
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- own tables tkdesk_requests and tkdesk_log.
-	$rows = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i r WHERE r.status IN (%s, %s, %s) AND r.is_test = 0 AND r.relationship <> %s AND r.contact_enc IS NOT NULL AND r.received_at <= %s AND NOT EXISTS ( SELECT 1 FROM %i l WHERE l.request_id = r.id AND l.event = %s )', $table, 'new', 'in_review', 'needs_info', 'site', tkdesk_mysql( tkdesk_now() - 6 * DAY_IN_SECONDS ), tkdesk_table( 'log' ), 'status_update' ), ARRAY_A );
+	$rows = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i r WHERE r.type = %s AND r.status IN (%s, %s, %s) AND r.is_test = 0 AND r.relationship <> %s AND r.contact_enc IS NOT NULL AND r.received_at <= %s AND NOT EXISTS ( SELECT 1 FROM %i l WHERE l.request_id = r.id AND l.event = %s )', $table, 'ncii', 'new', 'in_review', 'needs_info', 'site', tkdesk_mysql( tkdesk_now() - 6 * DAY_IN_SECONDS ), tkdesk_table( 'log' ), 'status_update' ), ARRAY_A );
 	foreach ( $rows as $row ) {
 		$request = tkdesk_request_row( $row );
 		$token   = bin2hex( random_bytes( 32 ) );
@@ -542,7 +544,7 @@ function tkdesk_view_review( string $public_id, string $token, array $state = ar
 
 	return '<form class="tkd-form tkd-review" method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" novalidate aria-labelledby="tkd-review-title">'
 		. '<header class="tkd-head"><h2 class="tkd-title" id="tkd-review-title">' . esc_html__( 'Ask for a review', 'takedown-desk' ) . '</h2>'
-		. '<p class="tkd-intro">' . esc_html__( 'We removed the content below after a request under the Take It Down Act. If you think this was a mistake, tell us why and a moderator will look at it again. The content stays offline while they review it.', 'takedown-desk' ) . '</p></header>'
+		. '<p class="tkd-intro">' . esc_html( 'dmca' === $found['request']['type'] ? __( 'We removed the content below after a copyright notice. If you think this was a mistake, tell us why and a moderator will look at it again. The content stays offline while they review it.', 'takedown-desk' ) : __( 'We removed the content below after a request under the Take It Down Act. If you think this was a mistake, tell us why and a moderator will look at it again. The content stays offline while they review it.', 'takedown-desk' ) ) . '</p></header>'
 		. '<div class="tkd-notice" role="alert" tabindex="-1"' . ( '' === $notice ? ' hidden' : ' autofocus' ) . '>' . tkdesk_icon( 'error' ) . '<span>' . esc_html( $notice ) . '</span></div>'
 		. '<div class="tkd-summary" role="alert" tabindex="-1" aria-labelledby="tkd-summary-title"' . ( '' === $list ? ' hidden' : ' autofocus' ) . '>'
 		. '<h3 id="tkd-summary-title">' . esc_html__( 'Check these fields', 'takedown-desk' ) . '</h3><ul>' . $list . '</ul></div>'

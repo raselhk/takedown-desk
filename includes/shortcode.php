@@ -29,25 +29,56 @@ function tkdesk_register_blocks() {
 	wp_register_script( 'tkdesk-block', TKDESK_URL . 'assets/js/block.js', array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-server-side-render', 'wp-i18n' ), tkdesk_asset_ver( 'assets/js/block.js' ), true );
 	wp_set_script_translations( 'tkdesk-block', 'takedown-desk' );
 	register_block_type( TKDESK_PATH . 'blocks/request-form', array( 'render_callback' => 'tkdesk_render_form_block' ) );
+	register_block_type( TKDESK_PATH . 'blocks/copyright-form', array( 'render_callback' => 'tkdesk_render_copyright_block' ) );
 	register_block_type( TKDESK_PATH . 'blocks/notice-link', array( 'render_callback' => 'tkdesk_notice_link_html' ) );
 	register_block_type( TKDESK_PATH . 'blocks/summary', array( 'render_callback' => 'tkdesk_render_summary_block' ) );
 	add_shortcode( 'takedown_desk_form', 'tkdesk_render_form_block' );
+	add_shortcode( 'takedown_desk_copyright_form', 'tkdesk_render_copyright_block' );
 	add_shortcode( 'takedown_desk_link', 'tkdesk_notice_link_html' );
 	add_shortcode( 'takedown_desk_summary', 'tkdesk_render_summary_block' );
 }
 
 /**
- * Router: review page for the person who posted removed content (tkdesk_review + token, poster.php),
- * status view (tkdesk_request + token), confirmation (tkdesk_done + t) or the form.
+ * The removal request form: block takedown-desk/request-form and shortcode [takedown_desk_form].
  *
  * @return string
  */
 function tkdesk_render_form_block(): string {
+	return tkdesk_form_router( 'ncii' );
+}
+
+/**
+ * The copyright notice form: block takedown-desk/copyright-form and shortcode [takedown_desk_copyright_form].
+ * While copyright notices are off, visitors get nothing and site administrators one line saying so.
+ *
+ * @return string
+ */
+function tkdesk_render_copyright_block(): string {
+	if ( tkdesk_setting( 'dmca' ) ) {
+		return tkdesk_form_router( 'dmca' );
+	}
+	if ( ! tkdesk_can( 'tkdesk_manage_settings' ) ) {
+		return '';
+	}
+	wp_enqueue_style( 'tkdesk-form' );
+	return '<div class="tkdesk"><p class="tkd-box tkd-note">' . tkdesk_icon( 'info' ) . '<span>' . esc_html__( 'Copyright notices are turned off, so visitors do not see this form. You can turn them on in the Takedown Desk settings.', 'takedown-desk' ) . '</span></p></div>';
+}
+
+/**
+ * Router: review page for the person who posted removed content (tkdesk_review + token, poster.php),
+ * status view (tkdesk_request + token), confirmation (tkdesk_done + t) or the form. "Leave this page"
+ * is for intimate image requests only, never on a copyright notice.
+ *
+ * @param string $type ncii | dmca.
+ * @return string
+ */
+function tkdesk_form_router( string $type ): string {
 	tkdesk_enqueue_form_assets();
+	$exit = 'dmca' === $type ? '' : tkdesk_quick_exit_html();
 
 	$review = tkdesk_query_arg( 'tkdesk_review' );
 	if ( '' !== $review ) {
-		return '<div class="tkdesk">' . tkdesk_quick_exit_html() . tkdesk_view_review( $review, tkdesk_query_arg( 'token' ), tkdesk_form_state() ) . '</div>';
+		return '<div class="tkdesk">' . $exit . tkdesk_view_review( $review, tkdesk_query_arg( 'token' ), tkdesk_form_state() ) . '</div>';
 	}
 
 	$public_id = tkdesk_query_arg( 'tkdesk_request' );
@@ -55,10 +86,10 @@ function tkdesk_render_form_block(): string {
 		$token   = tkdesk_query_arg( 'token' );
 		$request = tkdesk_get_request_by_public_id( $public_id );
 		if ( ! $request || '' === $token || ! tkdesk_verify_token( $request, $token ) ) {
-			return '<div class="tkdesk">' . tkdesk_quick_exit_html() . tkdesk_view_bad_token() . '</div>';
+			return '<div class="tkdesk">' . $exit . tkdesk_view_bad_token( $type ) . '</div>';
 		}
 		$switched = ! empty( $request['locale'] ) && switch_to_locale( (string) $request['locale'] );
-		$html     = tkdesk_quick_exit_html() . tkdesk_view_status( $request, $token, tkdesk_form_state() );
+		$html     = ( 'dmca' === ( $request['type'] ?? '' ) ? '' : tkdesk_quick_exit_html() ) . tkdesk_view_status( $request, $token, tkdesk_form_state() );
 		if ( $switched ) {
 			restore_previous_locale();
 		}
@@ -70,14 +101,15 @@ function tkdesk_render_form_block(): string {
 		// The masked email and status link come from the no-JS submit (5-minute encrypted state).
 		$state = tkdesk_form_state();
 		$row   = tkdesk_get_request_by_public_id( $done );
-		return '<div class="tkdesk">' . tkdesk_quick_exit_html() . tkdesk_view_confirmation( $done, (string) ( $state['email'] ?? '' ), $row ? tkdesk_ts( $row['received_at'] ) : tkdesk_now(), (string) ( $state['status_url'] ?? '' ) ) . '</div>';
+		return '<div class="tkdesk">' . $exit . tkdesk_view_confirmation( $done, (string) ( $state['email'] ?? '' ), $row ? tkdesk_ts( $row['received_at'] ) : tkdesk_now(), (string) ( $state['status_url'] ?? '' ), $type ) . '</div>';
 	}
 
-	$state = tkdesk_form_state();
+	$state         = tkdesk_form_state();
+	$state['type'] = $type;
 	if ( empty( $state['item'] ) ) {
 		$state['item'] = tkdesk_query_arg( 'tkdesk_item' );
 	}
-	return '<div class="tkdesk">' . tkdesk_quick_exit_html() . tkdesk_view_form( $state ) . '</div>';
+	return '<div class="tkdesk">' . $exit . tkdesk_view_form( $state ) . '</div>';
 }
 
 /**

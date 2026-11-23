@@ -187,13 +187,15 @@
 		box.focus();
 	}
 
-	// Empty required fields and a malformed email are caught before sending, with the server's own messages.
+	// Empty required fields and a malformed email are caught before sending, with the server's own messages
+	// (the copyright notice form has its own set).
 	function check( form ) {
 		var fields = {};
+		var m = t.dmca && form.elements.type && 'dmca' === form.elements.type.value ? t.dmca : t;
 		form.querySelectorAll( '[required]' ).forEach( function ( el ) {
 			var v = el.validity;
-			if ( t.fields && t.fields[ el.name ] && ( v.valueMissing || ( 'email' === el.type && v.typeMismatch ) ) ) {
-				fields[ el.name ] = v.valueMissing ? t.fields[ el.name ] : t.email || t.fields[ el.name ];
+			if ( m.fields && m.fields[ el.name ] && ( v.valueMissing || ( 'email' === el.type && v.typeMismatch ) ) ) {
+				fields[ el.name ] = v.valueMissing ? m.fields[ el.name ] : m.email || m.fields[ el.name ];
 			}
 		} );
 		return fields;

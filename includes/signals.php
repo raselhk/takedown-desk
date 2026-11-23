@@ -28,14 +28,15 @@ function tkdesk_auto_hide_limit(): int {
  * Hide reported items as soon as a request arrives (setting `auto_hide`, off by default). Only a new request
  * from the form or a content link whose item is matched; never a spam verdict, a test, a manual entry, content
  * written or uploaded by an administrator, or a requester past the daily limit. The item is hidden as with
- * "Hide while reviewing", by the System, so the request stays open for a moderator to decide.
+ * "Hide while reviewing", by the System, so the request stays open for a moderator to decide. Intimate image
+ * requests only: a copyright notice is never acted on before a moderator reviews it.
  *
  * @param int $id Request ID.
  */
 function tkdesk_auto_hide( $id ): void {
 	global $wpdb;
 	$request = tkdesk_get_request( (int) $id );
-	if ( ! $request || ! tkdesk_setting( 'auto_hide' ) || 'new' !== $request['status'] || 'manual' === $request['source'] || $request['is_test'] || ! $request['object_type'] ) {
+	if ( ! $request || ! tkdesk_setting( 'auto_hide' ) || 'ncii' !== $request['type'] || 'new' !== $request['status'] || 'manual' === $request['source'] || $request['is_test'] || ! $request['object_type'] ) {
 		return;
 	}
 	$id   = (int) $request['id'];

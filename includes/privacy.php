@@ -37,6 +37,9 @@ add_action(
 		$text = sprintf( __( 'When you send a removal request, this site stores what you enter in the form: the link you report, your description and statement, your name as a signature, your email address and, if you give it, your phone number. These details are encrypted. Your IP address is not stored; a one-way code made from it is kept to limit abuse of the form. The people who handle removal requests on this site can read your request to act on it. Your contact details and the request text are deleted %d days after the request is closed. A record of what was done, such as when the request arrived and what was removed, is kept without your contact details. When a request says the person in the image was under 18, the request and the removed files are kept for at least 1 year.', 'takedown-desk' ), (int) tkdesk_setting( 'retention_days' ) );
 		// Poster notices and review requests (poster.php).
 		$text .= "\n\n" . __( 'If we remove content you posted, we may email you the reason and a link to ask for a review. We do not store your email address for this. If you ask for a review, we store what you write and the name you sign with, encrypted, and delete them together with the removal request.', 'takedown-desk' );
+		if ( tkdesk_setting( 'dmca' ) ) {
+			$text .= "\n\n" . __( 'When you send a copyright notice, this site stores the same kinds of details, plus your description of the copyrighted work, the link to the original if you give it, and your mailing address if you give it. They are encrypted, handled and deleted in the same way as a removal request.', 'takedown-desk' );
+		}
 		if ( 'recaptcha' === tkdesk_bot_mode() ) {
 			$text .= PHP_EOL . PHP_EOL . __( 'The removal request form and the review form use Google reCAPTCHA to check that a person is sending them. Google reCAPTCHA collects information about your device and how you use the page and sends it to Google. Google\'s Privacy Policy (https://policies.google.com/privacy) and Terms of Service (https://policies.google.com/terms) apply.', 'takedown-desk' );
 		}
@@ -77,16 +80,20 @@ function tkdesk_privacy_export( $email ): array {
 			}
 		}
 		$fields = array(
-			__( 'Request ID', 'takedown-desk' )          => $row['public_id'],
-			__( 'Received', 'takedown-desk' )            => tkdesk_format_deadline( tkdesk_ts( $row['received_at'] ) ),
-			__( 'Status', 'takedown-desk' )              => tkdesk_rest_request( $row )['status_label'],
-			__( 'Link reported', 'takedown-desk' )       => $text['url'] ?? '',
-			__( 'Details', 'takedown-desk' )             => $text['details'] ?? '',
-			__( 'Statement', 'takedown-desk' )           => $text['statement'] ?? '',
-			__( 'Details added later', 'takedown-desk' ) => implode( "\n\n", $replies ),
-			__( 'Signature', 'takedown-desk' )           => $contact['signature'] ?? '',
-			__( 'Email', 'takedown-desk' )               => $contact['email'] ?? '',
-			__( 'Phone', 'takedown-desk' )               => $contact['phone'] ?? '',
+			__( 'Request ID', 'takedown-desk' )            => $row['public_id'],
+			__( 'Received', 'takedown-desk' )              => tkdesk_format_deadline( tkdesk_ts( $row['received_at'] ) ),
+			__( 'Status', 'takedown-desk' )                => tkdesk_rest_request( $row )['status_label'],
+			__( 'Link reported', 'takedown-desk' )         => $text['url'] ?? '',
+			__( 'Details', 'takedown-desk' )               => $text['details'] ?? '',
+			__( 'Statement', 'takedown-desk' )             => $text['statement'] ?? '',
+			// Copyright notices only; empty fields are left out below.
+			__( 'Copyrighted work', 'takedown-desk' )      => $text['work'] ?? '',
+			__( 'Where the original is', 'takedown-desk' ) => $text['work_url'] ?? '',
+			__( 'Details added later', 'takedown-desk' )   => implode( "\n\n", $replies ),
+			__( 'Signature', 'takedown-desk' )             => $contact['signature'] ?? '',
+			__( 'Email', 'takedown-desk' )                 => $contact['email'] ?? '',
+			__( 'Phone', 'takedown-desk' )                 => $contact['phone'] ?? '',
+			__( 'Mailing address', 'takedown-desk' )       => $contact['address'] ?? '',
 		);
 		$data   = array();
 		foreach ( array_filter( $fields, 'strlen' ) as $name => $value ) {
