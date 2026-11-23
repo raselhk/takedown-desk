@@ -1,0 +1,17 @@
+{
+	"apiVersion": 3,
+	"name": "takedown-desk/request-form",
+	"title": "Removal request form",
+	"category": "widgets",
+	"icon": "shield",
+	"description": "The form people use to ask you to remove an intimate image. Works without JavaScript.",
+	"keywords": [ "takedown", "removal", "report" ],
+	"textdomain": "takedown-desk",
+	"supports": {
+		"html": false,
+		"customClassName": false,
+		"multiple": false
+	},
+	"editorScript": "tkdesk-block",
+	"editorStyle": "tkdesk-form"
+}

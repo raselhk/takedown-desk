@@ -1,0 +1,99 @@
+/* Takedown Desk summary block: the plugin's card and stat tiles (tokens.css loads first). */
+.tkdesk.tkd-stats {
+	box-sizing: border-box;
+	display: grid;
+	gap: 16px;
+	padding: clamp(20px, 3vw, 28px);
+	font-size: 16px;
+	line-height: 1.6;
+	color: var(--tkd-text);
+	background: var(--tkd-card);
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-card);
+	box-shadow: var(--tkd-shadow-card);
+}
+
+/* Zero weight, so a block theme's content width wins. */
+:where(.tkdesk.tkd-stats) {
+	max-inline-size: 46rem;
+}
+
+.tkd-stats .tkd-stats__title,
+.tkd-stats .tkd-stats__note {
+	margin: 0;
+}
+
+.tkd-stats .tkd-stats__title {
+	font-family: var(--tkd-font);
+	font-size: 19px;
+	font-weight: 800;
+	line-height: 1.3;
+	letter-spacing: -0.015em;
+	color: var(--tkd-text);
+	text-transform: none;
+}
+
+.tkd-stats .tkd-stats__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+}
+
+/* The value is shown above its label; screen readers still read the label first. */
+.tkd-stats .tkd-stats__item {
+	display: flex;
+	flex-direction: column-reverse;
+	justify-content: flex-end;
+	gap: 4px;
+	margin: 0;
+	padding: 16px;
+	background: var(--tkd-bg);
+	border-radius: var(--tkd-radius-tile);
+}
+
+/* A short brand-colored bar on top of each tile (last in the DOM, first on screen). */
+.tkd-stats .tkd-stats__item::after {
+	inline-size: 24px;
+	block-size: 4px;
+	margin-block-end: 8px;
+	content: "";
+	background: var(--tkd-primary);
+	border-radius: 2px;
+}
+
+.tkd-stats .tkd-stats__item:nth-child(2)::after { background: var(--tkd-green); }
+.tkd-stats .tkd-stats__item:nth-child(3)::after { background: var(--tkd-orange); }
+.tkd-stats .tkd-stats__item:nth-child(4)::after { background: #f2c23a; }
+.tkd-stats .tkd-stats__item:nth-child(5)::after { background: var(--tkd-purple-ink); }
+
+.tkd-stats .tkd-stats__item dt {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--tkd-text-2);
+}
+
+.tkd-stats .tkd-stats__item dd {
+	margin: 0;
+	font-size: 28px;
+	font-weight: 800;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+	color: var(--tkd-text);
+	font-variant-numeric: tabular-nums;
+}
+
+.tkd-stats .tkd-stats__item dd.is-masked {
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.4;
+	letter-spacing: 0;
+	color: var(--tkd-text-2);
+}
+
+.tkd-stats .tkd-stats__note {
+	font-size: 13px;
+	color: var(--tkd-text-2);
+}

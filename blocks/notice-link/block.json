@@ -1,0 +1,15 @@
+{
+	"apiVersion": 3,
+	"name": "takedown-desk/notice-link",
+	"title": "Removal request link",
+	"category": "widgets",
+	"icon": "admin-links",
+	"description": "A link to your notice page, for when the automatic footer link is turned off.",
+	"keywords": [ "takedown", "removal", "footer" ],
+	"textdomain": "takedown-desk",
+	"supports": {
+		"html": false,
+		"customClassName": false
+	},
+	"editorScript": "tkdesk-block"
+}

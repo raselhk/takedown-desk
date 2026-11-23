@@ -1,0 +1,1006 @@
+/*
+ * Takedown Desk public views: request form, confirmation, status page, review page, and the notice and
+ * policy text the plugin writes. Same design as the admin (tokens.css loads first): Plus Jakarta Sans,
+ * white cards under a dark header band, blue actions, tinted alerts. Everything is scoped to .tkdesk and
+ * carries enough selector weight to win over theme styles, so it looks the same on every theme.
+ */
+
+/* ---------- Root ---------- */
+.tkdesk {
+	/* Public pages read at 16px; 16px inputs also stop phones from zooming in. */
+	--tkd-fs-body: 16px;
+	--tkd-fs-label: 15px;
+	--tkd-fs-small: 14px;
+	--tkd-pad: 32px;
+	--tkd-i-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+	--tkd-i-plus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E");
+	--tkd-i-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	--tkd-i-send: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z'/%3E%3C/svg%3E");
+	--tkd-i-help: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M14.8 9.2l3.6-3.6M5.6 18.4l3.6-3.6'/%3E%3C/svg%3E");
+
+	box-sizing: border-box;
+	font-size: var(--tkd-fs-body);
+	font-weight: 400; /* Some themes set a light body weight. */
+	line-height: 1.6;
+	overflow-wrap: break-word;
+	-webkit-font-smoothing: antialiased;
+}
+
+.tkdesk *,
+.tkdesk *::before,
+.tkdesk *::after {
+	box-sizing: inherit;
+}
+
+/* Zero weight, so a block theme's content width wins; classic themes get this one. */
+:where(.tkdesk) {
+	max-inline-size: 46rem;
+	margin-block: 1.5rem;
+}
+
+.tkdesk [hidden] {
+	display: none !important;
+}
+
+.tkdesk :is(.tkd-form, .tkd-done, .tkd-status) :is(h2, h3, p, ul, ol) {
+	margin: 0;
+}
+
+/* Themes size paragraphs and list items directly; ours follow the card's scale. */
+.tkdesk p,
+.tkdesk li {
+	font-size: inherit;
+	line-height: inherit;
+}
+
+.tkdesk :is(h2, h3) {
+	font-family: var(--tkd-font);
+	color: var(--tkd-text);
+	letter-spacing: -0.01em;
+	text-transform: none;
+}
+
+/* Links inside sentences: a soft underline that turns solid on hover. */
+.tkdesk a:not([class]) {
+	font-weight: 600;
+	color: var(--tkd-primary-ink);
+	text-decoration: underline;
+	text-decoration-thickness: 1.5px;
+	text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+	text-underline-offset: 0.3em;
+	transition: text-decoration-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk a:not([class]):hover {
+	text-decoration-color: currentColor;
+}
+
+.tkdesk :focus-visible {
+	outline: var(--tkd-focus) solid var(--tkd-primary);
+	outline-offset: 2px;
+}
+
+/* Headings take focus only so screen readers start there; no ring on them. */
+.tkdesk .tkd-title[tabindex="-1"]:focus {
+	outline: none;
+}
+
+.tkdesk .tkd-icon {
+	flex: none;
+	inline-size: 20px;
+	block-size: 20px;
+}
+
+/* ---------- Cards ---------- */
+.tkdesk :is(.tkd-form, .tkd-done, .tkd-status) {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: var(--tkd-pad);
+	color: var(--tkd-text);
+	background: var(--tkd-card);
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-card);
+	box-shadow: var(--tkd-shadow-card);
+	scroll-margin-block-start: 2rem;
+	animation: tkd-rise var(--tkd-dur-enter) var(--tkd-ease) both;
+}
+
+/* The reply form on the status page sits inside the status card, not as a second card. */
+.tkdesk .tkd-status .tkd-form {
+	padding: 20px 0 0;
+	background: none;
+	border: 0;
+	border-block-start: 1px solid var(--tkd-border);
+	border-radius: 0;
+	box-shadow: none;
+	animation: none;
+}
+
+.tkdesk :is(.tkd-done, .tkd-status) > p {
+	color: var(--tkd-text-2);
+}
+
+/* ---------- Header band (the admin hero) ---------- */
+.tkdesk .tkd-head {
+	position: relative;
+	isolation: isolate;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: calc(-1 * var(--tkd-pad)) calc(-1 * var(--tkd-pad)) 4px;
+	padding: calc(var(--tkd-pad) + 2px) var(--tkd-pad) var(--tkd-pad);
+	overflow: hidden;
+	color: #fff;
+	border-radius: calc(var(--tkd-radius-card) - 1px) calc(var(--tkd-radius-card) - 1px) 0 0;
+
+	/* Brand glows stay at the right edge behind a dark fade, so text keeps its contrast. */
+	background:
+		linear-gradient(90deg, var(--tkd-frame) 0 52%, rgba(26, 26, 29, 0) 96%),
+		radial-gradient(250px 190px at 106% -14%, rgba(79, 91, 255, 0.95), transparent 70%),
+		radial-gradient(230px 150px at 102% 128%, rgba(46, 158, 76, 0.85), transparent 70%),
+		radial-gradient(180px 110px at 80% -38%, rgba(232, 103, 43, 0.9), transparent 70%),
+		radial-gradient(130px 80px at 68% 140%, rgba(242, 194, 58, 0.55), transparent 70%),
+		var(--tkd-frame);
+}
+
+/* Faint dot grid fading out from the top corner. */
+.tkdesk .tkd-head::after {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	content: "";
+	background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1.5px);
+	background-size: 18px 18px;
+	mask-image: radial-gradient(70% 140% at 100% 0, #000, transparent);
+	pointer-events: none;
+}
+
+.tkdesk .tkd-head .tkd-title {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 0;
+	font-size: clamp(22px, 1.4vw + 16px, 28px);
+	font-weight: 800;
+	line-height: 1.2;
+	letter-spacing: -0.025em;
+	color: #fff;
+	text-wrap: balance;
+}
+
+.tkdesk .tkd-head .tkd-title .tkd-icon {
+	box-sizing: content-box;
+	inline-size: 22px;
+	block-size: 22px;
+	padding: 6px;
+	margin-block-start: -2px;
+	color: #fff;
+	background: rgba(255, 255, 255, 0.12);
+	border-radius: 11px;
+}
+
+.tkdesk .tkd-done .tkd-head .tkd-title .tkd-icon {
+	color: var(--tkd-dark-green);
+	animation: tkd-pop 0.6s var(--tkd-spring) 0.18s both;
+}
+
+.tkdesk .tkd-head .tkd-intro {
+	max-inline-size: 56ch;
+	margin: 0;
+	font-size: var(--tkd-fs-label);
+	line-height: 1.6;
+	color: var(--tkd-frame-text);
+}
+
+.tkdesk .tkd-head a:not([class]) {
+	color: #fff;
+}
+
+/* ---------- Steps: received, review, decision ---------- */
+.tkdesk .tkd-steps {
+	display: grid;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tkdesk .tkd-step {
+	position: relative;
+	display: flex;
+	gap: 14px;
+	margin: 0;
+	padding-block-end: 18px;
+	animation: tkd-rise var(--tkd-dur-enter) var(--tkd-ease) both;
+}
+
+.tkdesk .tkd-step:nth-child(2) { animation-delay: 60ms; }
+.tkdesk .tkd-step:nth-child(3) { animation-delay: 120ms; }
+
+.tkdesk .tkd-step:last-child {
+	padding-block-end: 0;
+}
+
+/* The line between steps: green where the path is done. */
+.tkdesk .tkd-step:not(:last-child)::before {
+	position: absolute;
+	inset: 40px auto 2px 17px;
+	inline-size: 2px;
+	content: "";
+	background: var(--tkd-border);
+	border-radius: 2px;
+}
+
+.tkdesk .tkd-step.is-done:not(:last-child)::before {
+	background: var(--tkd-green);
+}
+
+.tkdesk .tkd-step .tkd-icon {
+	box-sizing: content-box;
+	inline-size: 20px;
+	block-size: 20px;
+	padding: 8px;
+	color: var(--tkd-text-2);
+	background: var(--tkd-neutral-tile);
+	border-radius: 12px;
+}
+
+.tkdesk .tkd-step.is-done .tkd-icon {
+	color: var(--tkd-green-ink);
+	background: var(--tkd-green-tile);
+}
+
+.tkdesk .tkd-step.is-now .tkd-icon {
+	color: var(--tkd-primary-ink);
+	background: var(--tkd-blue-tile);
+	animation: tkd-ping 2.4s var(--tkd-ease) 0.6s infinite;
+}
+
+.tkdesk .tkd-step > div {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding-block-start: 6px;
+}
+
+.tkdesk .tkd-step strong {
+	font-weight: 700;
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-step.is-next strong {
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-step > div > span {
+	font-size: var(--tkd-fs-small);
+	color: var(--tkd-text-2);
+}
+
+/* ---------- Fields ---------- */
+.tkdesk .tkd-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-field > label {
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	line-height: 1.4;
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-help {
+	margin: 0;
+	font-size: var(--tkd-fs-small);
+	line-height: 1.5;
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-error {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	margin: 0;
+	font-size: var(--tkd-fs-small);
+	font-weight: 700;
+	color: var(--tkd-red-ink);
+}
+
+.tkdesk .tkd-error .tkd-icon {
+	inline-size: 18px;
+	block-size: 18px;
+	margin-block-start: 1px;
+}
+
+.tkdesk :is(input:not([type="checkbox"]):not([type="hidden"]), select, textarea) {
+	inline-size: 100%;
+	max-inline-size: none;
+	min-block-size: 48px;
+	margin: 0;
+	padding: 12px 14px;
+	font-family: var(--tkd-font);
+	font-size: 16px;
+	line-height: 1.4;
+	color: var(--tkd-text);
+	background-color: var(--tkd-card);
+	border: 1px solid var(--tkd-border-strong);
+	border-radius: var(--tkd-radius-control);
+	box-shadow: none;
+	transition: border-color var(--tkd-dur-fast) var(--tkd-ease), background-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk :is(input:not([type="checkbox"]):not([type="hidden"]), select, textarea):hover {
+	border-color: var(--tkd-text-2);
+}
+
+.tkdesk :is(input:not([type="checkbox"]):not([type="hidden"]), select, textarea):focus {
+	border-color: var(--tkd-primary);
+	outline: var(--tkd-focus) solid var(--tkd-primary);
+	outline-offset: 1px;
+	box-shadow: none;
+}
+
+.tkdesk :is(input, select, textarea)::placeholder {
+	color: var(--tkd-placeholder);
+	opacity: 1;
+}
+
+.tkdesk :is(input:not([type="checkbox"]), select, textarea)[aria-invalid="true"] {
+	background-color: var(--tkd-red-50);
+	border-color: var(--tkd-red);
+}
+
+.tkdesk textarea {
+	min-block-size: 120px;
+	resize: vertical;
+}
+
+.tkdesk select {
+	padding-inline-end: 44px;
+	cursor: pointer;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f6072' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 14px center;
+	background-size: 18px;
+	appearance: none;
+}
+
+.tkdesk option {
+	color: var(--tkd-text);
+	background: var(--tkd-card);
+}
+
+/* Checkboxes sit in a tile; the label row is the 44px target. */
+.tkdesk .tkd-check {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 4px 12px;
+	align-items: start;
+	padding: 14px 16px;
+	background: var(--tkd-card);
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+	transition: border-color var(--tkd-dur-fast) var(--tkd-ease), background-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-check:hover {
+	border-color: var(--tkd-border-strong);
+}
+
+.tkdesk .tkd-check:has(input:checked) {
+	background: var(--tkd-blue-50);
+	border-color: color-mix(in srgb, var(--tkd-primary) 45%, transparent);
+}
+
+.tkdesk .tkd-check:has([aria-invalid="true"]) {
+	background: var(--tkd-red-50);
+	border-color: var(--tkd-red);
+}
+
+.tkdesk .tkd-check .tkd-error {
+	grid-column: 1 / -1;
+}
+
+.tkdesk .tkd-check .tkd-help {
+	grid-column: 2;
+}
+
+.tkdesk .tkd-check input[type="checkbox"] {
+	inline-size: 22px;
+	block-size: 22px;
+	margin: 11px 0 0;
+	accent-color: var(--tkd-primary);
+	cursor: pointer;
+}
+
+.tkdesk .tkd-check > label {
+	padding-block: 10px;
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--tkd-text);
+	cursor: pointer;
+}
+
+/* "Change the link" when the reported item already gives it. */
+.tkdesk .tkd-change > summary {
+	list-style: none;
+}
+
+.tkdesk .tkd-change > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tkdesk .tkd-change[open] > summary {
+	margin-block-end: 14px;
+}
+
+.tkdesk .tkd-change[open] > summary::after {
+	rotate: 180deg;
+}
+
+/* ---------- Boxes: privacy, item, notes ---------- */
+.tkdesk .tkd-box {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 0;
+	padding: 14px 16px;
+	font-size: var(--tkd-fs-small);
+	line-height: 1.55;
+	color: var(--tkd-text-2);
+	background: var(--tkd-bg);
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+}
+
+.tkdesk .tkd-box > .tkd-icon {
+	box-sizing: content-box;
+	inline-size: 18px;
+	block-size: 18px;
+	padding: 7px;
+	color: var(--tkd-primary-ink);
+	background: rgba(255, 255, 255, 0.85);
+	border-radius: 10px;
+}
+
+.tkdesk .tkd-box > :is(p, div, span) {
+	padding-block-start: 5px;
+}
+
+.tkdesk .tkd-box > :is(p, div) {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+}
+
+.tkdesk .tkd-box strong {
+	font-weight: 700;
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-privacy {
+	background: var(--tkd-blue-50);
+	border-color: var(--tkd-blue-tile);
+}
+
+.tkdesk .tkd-item {
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	color: var(--tkd-primary-ink);
+	background: var(--tkd-blue-50);
+	border-color: color-mix(in srgb, var(--tkd-primary) 35%, transparent);
+}
+
+.tkdesk .tkd-review__items {
+	margin: 0;
+	padding-inline-start: 1.25rem;
+	font-weight: 600;
+	color: var(--tkd-text);
+}
+
+/* ---------- Alerts: form problem, error summary, success ---------- */
+.tkdesk :is(.tkd-notice, .tkd-summary) {
+	padding: 14px 16px;
+	font-weight: 600;
+	color: var(--tkd-red-ink);
+	background: var(--tkd-red-50);
+	border: 1px solid var(--tkd-red-tile);
+	border-radius: var(--tkd-radius-tile);
+	animation: tkd-rise var(--tkd-dur) var(--tkd-ease) both;
+}
+
+.tkdesk :is(.tkd-notice, .tkd-summary):focus {
+	outline: var(--tkd-focus) solid var(--tkd-red);
+	outline-offset: 2px;
+}
+
+.tkdesk .tkd-notice {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.tkdesk .tkd-notice .tkd-icon {
+	box-sizing: content-box;
+	inline-size: 18px;
+	block-size: 18px;
+	padding: 7px;
+	background: rgba(255, 255, 255, 0.85);
+	border-radius: 10px;
+}
+
+.tkdesk .tkd-notice > span {
+	padding-block-start: 5px;
+}
+
+.tkdesk .tkd-notice--ok {
+	color: var(--tkd-green-ink);
+	background: var(--tkd-green-50);
+	border-color: var(--tkd-green-tile);
+}
+
+.tkdesk .tkd-summary h3 {
+	margin: 0 0 6px;
+	font-size: 16px;
+	font-weight: 800;
+	color: var(--tkd-red-ink);
+}
+
+.tkdesk .tkd-summary ul {
+	display: grid;
+	gap: 4px;
+	margin: 0;
+	padding-inline-start: 1.25rem;
+}
+
+.tkdesk .tkd-summary a:not([class]) {
+	font-weight: 700;
+	color: var(--tkd-red-ink);
+}
+
+/* ---------- Chips and secondary links ---------- */
+.tkdesk .tkd-chip {
+	display: inline-flex;
+	align-self: flex-start;
+	align-items: center;
+	gap: 8px;
+	min-block-size: 44px;
+	margin: -8px 0 0;
+	padding: 8px 16px 8px 12px;
+	font-family: var(--tkd-font);
+	font-size: var(--tkd-fs-small);
+	font-weight: 600;
+	line-height: 1.35;
+	color: var(--tkd-primary-ink);
+	text-align: start;
+	text-transform: none;
+	letter-spacing: 0;
+	background: var(--tkd-blue-50);
+	border: 1px solid var(--tkd-blue-tile);
+	border-radius: var(--tkd-radius-tile);
+	box-shadow: none;
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease), border-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-chip::before {
+	flex: none;
+	inline-size: 16px;
+	block-size: 16px;
+	content: "";
+	background: currentColor;
+	mask: var(--tkd-i-plus) center / contain no-repeat;
+}
+
+.tkdesk .tkd-chip:hover {
+	color: var(--tkd-primary-ink);
+	background: var(--tkd-blue-tile);
+	border-color: var(--tkd-primary);
+}
+
+.tkdesk :is(.tkd-chiplink, .tkd-statuslink > a, .tkd-change > summary) {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	min-block-size: 44px;
+	padding: 0 16px 0 18px;
+	font-family: var(--tkd-font);
+	font-size: var(--tkd-fs-small);
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--tkd-text);
+	text-decoration: none;
+	background: var(--tkd-card);
+	border: 1px solid var(--tkd-border-strong);
+	border-radius: 12px;
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease), border-color var(--tkd-dur-fast) var(--tkd-ease), color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk :is(.tkd-chiplink, .tkd-statuslink > a, .tkd-change > summary)::after {
+	flex: none;
+	inline-size: 16px;
+	block-size: 16px;
+	content: "";
+	background: currentColor;
+	mask: var(--tkd-i-arrow) center / contain no-repeat;
+	transition: translate var(--tkd-dur) var(--tkd-ease), rotate var(--tkd-dur) var(--tkd-ease);
+}
+
+.tkdesk .tkd-change > summary::after {
+	mask-image: var(--tkd-i-chevron);
+}
+
+.tkdesk :is(.tkd-chiplink, .tkd-statuslink > a, .tkd-change > summary):hover {
+	color: var(--tkd-primary-ink);
+	background: var(--tkd-blue-50);
+	border-color: var(--tkd-primary);
+}
+
+.tkdesk :is(.tkd-chiplink, .tkd-statuslink > a):hover::after {
+	translate: 3px 0;
+}
+
+.tkdesk :is(.tkd-statuslink, .tkd-next) {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-statuslink {
+	gap: 6px;
+}
+
+/* ---------- Messages on the status page ---------- */
+.tkdesk .tkd-thread {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.tkdesk :is(.tkd-thread, .tkd-support) h3 {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 800;
+}
+
+.tkdesk .tkd-thread ul {
+	display: grid;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tkdesk .tkd-msg {
+	max-inline-size: 88%;
+	margin: 0;
+	padding: 12px 16px;
+	color: var(--tkd-text);
+	background: var(--tkd-bg);
+	border-radius: 16px 16px 16px 4px;
+}
+
+.tkdesk .tkd-msg.is-mine {
+	justify-self: end;
+	background: var(--tkd-blue-50);
+	border-radius: 16px 16px 4px 16px;
+}
+
+.tkdesk .tkd-msg strong {
+	display: block;
+	margin-block-end: 2px;
+	font-size: 13px;
+	font-weight: 800;
+	color: var(--tkd-text-2);
+}
+
+/* ---------- Support links ---------- */
+.tkdesk .tkd-support {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding-block-start: 20px;
+	border-block-start: 1px solid var(--tkd-border);
+}
+
+.tkdesk .tkd-support ul {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+	gap: 8px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tkdesk .tkd-support li {
+	position: relative;
+	margin: 0;
+	padding: 12px 14px 12px 44px;
+	font-size: var(--tkd-fs-small);
+	line-height: 1.5;
+	color: var(--tkd-text-2);
+	background: var(--tkd-bg);
+	border-radius: 12px;
+}
+
+.tkdesk .tkd-support li::before {
+	position: absolute;
+	inset: 14px auto auto 14px;
+	inline-size: 18px;
+	block-size: 18px;
+	content: "";
+	background: var(--tkd-primary);
+	mask: var(--tkd-i-help) center / contain no-repeat;
+}
+
+/* ---------- Primary button ---------- */
+.tkdesk .tkd-button,
+.tkdesk .tkd-button.wp-element-button {
+	display: inline-flex;
+	align-self: flex-start;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	min-block-size: 52px;
+	margin: 4px 0 0;
+	padding: 0 26px 0 28px;
+	font-family: var(--tkd-font);
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #fff;
+	text-transform: none;
+	letter-spacing: 0;
+	text-decoration: none;
+	background: var(--tkd-primary);
+	border: 0;
+	border-radius: 14px;
+	box-shadow: var(--tkd-shadow-btn);
+	cursor: pointer;
+	touch-action: manipulation;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease), translate var(--tkd-dur-fast) var(--tkd-ease), box-shadow var(--tkd-dur) var(--tkd-ease);
+}
+
+.tkdesk .tkd-button::after {
+	flex: none;
+	inline-size: 18px;
+	block-size: 18px;
+	content: "";
+	background: currentColor;
+	mask: var(--tkd-i-send) center / contain no-repeat;
+}
+
+.tkdesk .tkd-button:hover:not(:disabled) {
+	color: #fff;
+	background: var(--tkd-primary-hover);
+	translate: 0 -1px;
+	box-shadow: 0 12px 30px rgba(79, 91, 255, 0.38);
+}
+
+.tkdesk .tkd-button:active:not(:disabled) {
+	translate: 0 1px;
+}
+
+.tkdesk .tkd-button:focus-visible {
+	outline: var(--tkd-focus) solid var(--tkd-primary);
+	outline-offset: 3px;
+}
+
+.tkdesk .tkd-button:disabled {
+	cursor: progress;
+	opacity: 0.75;
+}
+
+/* Sending: a spinner takes the icon's place; the label stays so the button keeps its name. */
+.tkd-form[aria-busy="true"] .tkd-button::after {
+	mask: none;
+	background: none;
+	border: 2px solid;
+	border-inline-end-color: transparent;
+	border-radius: 50%;
+	animation: tkd-spin 0.8s linear infinite;
+}
+
+/* ---------- Google reCAPTCHA (when the site owner chose it) ---------- */
+.tkdesk .tkd-captcha {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+/* Google's v2 checkbox is 78 px tall: keep the room so the page does not jump when it loads. */
+.tkdesk .tkd-captcha__widget {
+	min-block-size: 78px;
+}
+
+.tkdesk .tkd-captcha__legal {
+	font-size: 13px;
+}
+
+/* v3's floating badge would cover "Leave this page"; the notice in the form replaces it (allowed by Google). */
+.grecaptcha-badge {
+	visibility: hidden;
+}
+
+/* ---------- Notice and policy text the plugin writes (Group blocks) ---------- */
+.tkdesk.tkdesk-notice,
+.tkdesk.tkdesk-policy {
+	padding: var(--tkd-pad);
+	color: var(--tkd-text-2);
+	background: var(--tkd-card);
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-card);
+	box-shadow: var(--tkd-shadow-card);
+}
+
+.tkdesk.tkdesk-notice > *,
+.tkdesk.tkdesk-policy > * {
+	margin-block: 0;
+	font-family: var(--tkd-font);
+}
+
+.tkdesk.tkdesk-notice > * + *,
+.tkdesk.tkdesk-policy > * + * {
+	margin-block-start: 14px;
+}
+
+.tkdesk.tkdesk-notice > :first-child {
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.55;
+	color: var(--tkd-text);
+}
+
+.tkdesk.tkdesk-policy > :is(h2, h3) {
+	margin-block-start: 26px;
+	font-size: 19px;
+	font-weight: 800;
+	line-height: 1.3;
+	color: var(--tkd-text);
+}
+
+.tkdesk.tkdesk-policy > :first-child {
+	margin-block-start: 0;
+}
+
+/* ---------- Utilities ---------- */
+.tkd-sr,
+.tkd-hp {
+	position: absolute !important;
+	inline-size: 1px;
+	block-size: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* ---------- Motion ---------- */
+@keyframes tkd-rise {
+	from {
+		opacity: 0;
+		translate: 0 10px;
+	}
+}
+
+@keyframes tkd-pop {
+	from {
+		opacity: 0;
+		scale: 0.4;
+	}
+}
+
+@keyframes tkd-ping {
+	0% {
+		box-shadow: 0 0 0 0 rgba(79, 91, 255, 0.35);
+	}
+
+	70%,
+	100% {
+		box-shadow: 0 0 0 10px rgba(79, 91, 255, 0);
+	}
+}
+
+@keyframes tkd-spin {
+	to {
+		rotate: 1turn;
+	}
+}
+
+/* ---------- Small screens ---------- */
+@media (width <= 600px) {
+
+	.tkdesk {
+		--tkd-pad: 20px;
+	}
+
+	.tkdesk .tkd-head {
+		background:
+			linear-gradient(90deg, var(--tkd-frame) 0 62%, rgba(26, 26, 29, 0.55) 100%),
+			radial-gradient(170px 130px at 108% -18%, rgba(79, 91, 255, 0.95), transparent 70%),
+			radial-gradient(150px 110px at 104% 130%, rgba(46, 158, 76, 0.85), transparent 70%),
+			var(--tkd-frame);
+	}
+
+	.tkdesk .tkd-button,
+	.tkdesk .tkd-button.wp-element-button {
+		align-self: stretch;
+	}
+
+	.tkdesk .tkd-msg {
+		max-inline-size: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.tkdesk *,
+	.tkdesk *::before,
+	.tkdesk *::after {
+		animation: none !important;
+		transition: none !important;
+	}
+}
+
+/* ---------- Quick exit ---------- */
+
+/* Fixed at the bottom right, where theme menus never sit and a thumb reaches it on a phone. form.js moves it
+   to the start of the page (first in keyboard order), outside .tkdesk, so these rules stand alone. */
+a.tkd-exit[data-tkd-exit] {
+	position: fixed;
+	z-index: 100000;
+	inset-block-end: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+	inset-inline-end: 1rem;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-block-size: 44px;
+	padding: 0 18px 0 14px;
+	font-family: "Plus Jakarta Sans", -apple-system, blinkmacsystemfont, "Segoe UI", roboto, sans-serif;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #fff;
+	text-decoration: none;
+	background: #1a1a1d;
+	border: 2px solid rgba(255, 255, 255, 0.9);
+	border-radius: 999px;
+	box-shadow: 0 12px 40px rgba(27, 27, 47, 0.28);
+	touch-action: manipulation;
+	transition: background-color 120ms, translate 120ms;
+}
+
+a.tkd-exit[data-tkd-exit]::before {
+	flex: none;
+	inline-size: 16px;
+	block-size: 16px;
+	content: "";
+	background: currentColor;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+a.tkd-exit[data-tkd-exit]:hover {
+	color: #fff;
+	background: #000;
+	translate: 0 -1px;
+}
+
+a.tkd-exit[data-tkd-exit]:focus-visible {
+	outline: 3px solid #4f5bff;
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	a.tkd-exit[data-tkd-exit] {
+		transition: none;
+	}
+}

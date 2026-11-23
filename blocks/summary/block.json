@@ -1,0 +1,22 @@
+{
+	"apiVersion": 3,
+	"name": "takedown-desk/summary",
+	"title": "Takedown Desk summary",
+	"category": "widgets",
+	"icon": "chart-bar",
+	"description": "Public numbers for your removal requests: received, removed, not removed, median time to removal and the share closed within 48 hours. Counts under 5 are not shown exactly.",
+	"keywords": [ "takedown", "transparency", "report" ],
+	"textdomain": "takedown-desk",
+	"attributes": {
+		"months": {
+			"type": "number",
+			"default": 12
+		}
+	},
+	"supports": {
+		"html": false,
+		"customClassName": false
+	},
+	"editorScript": "tkdesk-block",
+	"style": [ "tkdesk-tokens", "file:./style.css" ]
+}

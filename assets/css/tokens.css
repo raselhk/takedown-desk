@@ -1,0 +1,152 @@
+/*
+ * Takedown Desk admin design tokens (SwiftWebDev house system, shared with SourceSay).
+ * Enqueue before admin.css. Scoped to the app root (.tkdesk) so nothing leaks into other wp-admin screens.
+ */
+
+/* Plus Jakarta Sans, SIL Open Font License 1.1 (see ../fonts/OFL.txt). Bundled, no CDN. */
+@font-face {
+	font-family: "Plus Jakarta Sans";
+	font-style: normal;
+	font-weight: 200 800;
+	font-display: swap;
+	src: url("../fonts/PlusJakartaSans-normal-latin-ext.woff2") format("woff2");
+	unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+	font-family: "Plus Jakarta Sans";
+	font-style: normal;
+	font-weight: 200 800;
+	font-display: swap;
+	src: url("../fonts/PlusJakartaSans-normal-latin.woff2") format("woff2");
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+.tkdesk {
+	/* Brand: blue is the only action color. */
+	--tkd-primary: #4f5bff;
+	--tkd-primary-hover: #3f49e0;
+	--tkd-primary-ink: #3a44d6; /* Blue text on tints and white (AA). */
+	--tkd-primary-soft: #dfe1fb;
+	--tkd-frame: #1a1a1d;
+	--tkd-frame-2: #26262b;
+	--tkd-frame-text: #c9c9d6;
+	--tkd-bg: #eef0fa;
+	--tkd-card: #fff;
+	--tkd-text: #1b1b2f;
+	--tkd-text-2: #5f6072; /* 4.8:1 or better on every tint below. */
+	--tkd-border: #e4e6f2;
+	--tkd-border-strong: #868aa3; /* 3.4:1 on white: input and option borders (WCAG 1.4.11). */
+	--tkd-placeholder: #6b6c7f;
+
+	/*
+	 * Status families. "ink" is text on its tile and on white (4.5:1 or better);
+	 * the solid color is for rings, dots and fills (3:1 or better on white).
+	 */
+	--tkd-green: #2e9e4c;
+	--tkd-green-ink: #1a6b31;
+	--tkd-green-tile: #d6eedd;
+	--tkd-green-50: #e8f6ec;
+	--tkd-amber: #b98200;
+	--tkd-amber-ink: #6e5200;
+	--tkd-amber-tile: #fff3c4;
+	--tkd-amber-50: #fff9e1;
+	--tkd-orange: #e8672b;
+	--tkd-orange-ink: #a03c14;
+	--tkd-orange-tile: #fbe3d8;
+	--tkd-red: #d23b3b;
+	--tkd-red-hover: #b8302f;
+	--tkd-red-ink: #b42318;
+	--tkd-red-tile: #fbdcdc;
+	--tkd-red-50: #fdeceb;
+	--tkd-blue-tile: #dfe1fb;
+	--tkd-blue-50: #eef0ff;
+	--tkd-purple-ink: #5b21b6;
+	--tkd-purple-tile: #ece4fd;
+	--tkd-cream-tile: #f1e9cc;
+	--tkd-cream-ink: #7a5b00;
+	--tkd-neutral-tile: #eceef7;
+
+	/* State colors on the dark header panel. */
+	--tkd-dark-green: #74e08f;
+	--tkd-dark-amber: #f6c544;
+	--tkd-dark-orange: #ff9a62;
+	--tkd-dark-red: #ff8a8a;
+
+	/* Type */
+	--tkd-font: "Plus Jakarta Sans", -apple-system, blinkmacsystemfont, "Segoe UI", roboto, sans-serif;
+	--tkd-mono: ui-monospace, sfmono-regular, menlo, consolas, "Liberation Mono", monospace;
+	--tkd-fs-page: 28px;
+	--tkd-fs-section: 19px;
+	--tkd-fs-card: 17px;
+	--tkd-fs-lead: 15px;
+	--tkd-fs-body: 14px;
+	--tkd-fs-label: 13px;
+	--tkd-fs-small: 12px;
+	--tkd-lh: 1.5;
+
+	/* Spacing, 4px scale */
+	--tkd-space-1: 4px;
+	--tkd-space-2: 8px;
+	--tkd-space-3: 12px;
+	--tkd-space-4: 16px;
+	--tkd-space-5: 20px;
+	--tkd-space-6: 24px;
+	--tkd-space-8: 32px;
+
+	/* Layout */
+	--tkd-header-h: 64px;
+	--tkd-content-pad: 24px;
+	--tkd-card-pad: 24px;
+	--tkd-touch: 44px; /* Minimum target size. */
+	--tkd-focus: 3px; /* Focus ring width. */
+
+	/* Shape + elevation */
+	--tkd-radius-frame: 24px;
+	--tkd-radius-card: 18px;
+	--tkd-radius-tile: 14px;
+	--tkd-radius-control: 10px;
+	--tkd-radius-pill: 999px;
+	--tkd-shadow-card: 0 1px 2px rgba(27, 27, 47, 0.03), 0 10px 30px rgba(79, 91, 255, 0.06);
+	--tkd-shadow-pop: 0 12px 40px rgba(27, 27, 47, 0.16);
+	--tkd-shadow-btn: 0 8px 24px rgba(79, 91, 255, 0.32);
+	--tkd-shadow-danger: 0 8px 22px rgba(210, 59, 59, 0.28);
+
+	/* Motion */
+	--tkd-ease: cubic-bezier(0.16, 1, 0.3, 1);
+	--tkd-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--tkd-dur-fast: 120ms;
+	--tkd-dur: 200ms;
+	--tkd-dur-enter: 480ms;
+
+	font-family: var(--tkd-font);
+	font-size: var(--tkd-fs-body);
+	line-height: var(--tkd-lh);
+	color: var(--tkd-text);
+}
+
+@media (width <= 1024px) {
+
+	.tkdesk {
+		--tkd-content-pad: 16px;
+		--tkd-card-pad: 20px;
+	}
+}
+
+@media (width <= 600px) {
+
+	.tkdesk {
+		--tkd-content-pad: 12px;
+		--tkd-card-pad: 16px;
+		--tkd-fs-page: 24px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.tkdesk {
+		--tkd-dur-fast: 0ms;
+		--tkd-dur: 0ms;
+		--tkd-dur-enter: 0ms;
+	}
+}

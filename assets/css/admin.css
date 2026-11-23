@@ -1,0 +1,4258 @@
+/*
+ * Takedown Desk admin app: inbox, request detail, dialogs, toasts.
+ * Every value comes from tokens.css (enqueue it before this file). Scoped to .tkdesk; logical properties only.
+ */
+
+/* ---------- Base (beats wp-admin element styles inside the app only) ---------- */
+.tkdesk *,
+.tkdesk *::before,
+.tkdesk *::after {
+	box-sizing: border-box;
+}
+
+.tkdesk :where(h1, h2, h3, p, ul, ol, li, dl, dt, dd, figure, fieldset, legend) {
+	margin: 0;
+	padding: 0;
+	color: inherit;
+	font-size: inherit;
+	line-height: inherit;
+}
+
+.tkdesk :where(ul, ol) {
+	list-style: none;
+}
+
+.tkdesk :where(fieldset) {
+	min-inline-size: 0;
+	border: 0;
+}
+
+.tkdesk :where(button) {
+	font: inherit;
+}
+
+.tkdesk a {
+	color: var(--tkd-primary-ink);
+	text-decoration: none;
+	transition: color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk a:hover {
+	color: var(--tkd-primary-hover);
+}
+
+.tkdesk a:focus {
+	box-shadow: none;
+}
+
+.tkdesk :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+	outline: var(--tkd-focus) solid var(--tkd-primary);
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+/* Headings and regions focused by script after navigation are for screen readers; no ring. */
+.tkdesk :where(h1, h2, p, div, section)[tabindex="-1"]:focus {
+	outline: none;
+}
+
+.tkdesk [hidden] {
+	display: none !important;
+}
+
+.tkdesk .tkd-sr {
+	position: absolute !important;
+	inline-size: 1px;
+	block-size: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.tkdesk .tkd-ico {
+	flex: none;
+	inline-size: 20px;
+	block-size: 20px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.tkdesk:dir(rtl) .tkd-ico--flip {
+	scale: -1 1;
+}
+
+.tkdesk .tkd-muted {
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-strong {
+	font-weight: 700;
+}
+
+.tkdesk .tkd-mono {
+	font-family: var(--tkd-mono);
+}
+
+.tkdesk .tkd-break {
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-pre {
+	inline-size: 100%;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-lead {
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-lead);
+}
+
+.tkdesk .tkd-inline {
+	text-decoration: underline;
+	text-decoration-color: color-mix(in srgb, var(--tkd-primary) 35%, transparent);
+	text-decoration-thickness: 1.5px;
+	text-underline-offset: 3px;
+}
+
+/* ---------- App shell (full bleed inside wp-admin) ---------- */
+.tkdesk.tkd-app {
+	display: flex;
+	flex-direction: column;
+	min-block-size: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
+	margin-inline-start: -20px;
+	background: var(--tkd-bg);
+}
+
+#wpbody-content:has(.tkd-app) {
+	padding-block-end: 0;
+}
+
+body:has(.tkd-app) #wpfooter {
+	display: none;
+}
+
+@media (width <= 782px) {
+
+	.tkdesk.tkd-app {
+		margin-inline-start: -10px;
+	}
+}
+
+/* Focus and in-page jumps never land under the sticky header (WCAG 2.4.11); 64px is --tkd-header-h. */
+html:has(.tkdesk.tkd-app) {
+	scroll-padding-block-start: calc(var(--wp-admin--admin-bar--height, 32px) + 64px + 16px);
+}
+
+/* Settings: its section links stick under the header too. */
+html:has(.tkdesk .tkd-secnav) {
+	scroll-padding-block-start: calc(var(--wp-admin--admin-bar--height, 32px) + 64px + 72px);
+}
+
+@media (width <= 600px) {
+
+	/* The admin bar and the app header scroll away here; only the section links stay. */
+	html:has(.tkdesk.tkd-app) {
+		scroll-padding-block-start: 16px;
+	}
+
+	html:has(.tkdesk .tkd-secnav) {
+		scroll-padding-block-start: 72px;
+	}
+}
+
+.tkdesk .tkd-header {
+	position: sticky;
+	inset-block-start: var(--wp-admin--admin-bar--height, 32px);
+	z-index: 40;
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-6);
+	min-block-size: var(--tkd-header-h);
+	padding-inline: var(--tkd-content-pad);
+	background: color-mix(in srgb, var(--tkd-card) 90%, transparent);
+	border-block-end: 1px solid var(--tkd-border);
+	backdrop-filter: saturate(1.4) blur(10px);
+}
+
+@media (width <= 600px) {
+
+	.tkdesk .tkd-header {
+		position: static;
+	}
+}
+
+.tkdesk .tkd-brand {
+	display: flex;
+	flex: none;
+	align-items: center;
+	gap: var(--tkd-space-3);
+}
+
+.tkdesk .tkd-brand__mark {
+	display: grid;
+	place-items: center;
+	inline-size: 38px;
+	block-size: 38px;
+	border-radius: 12px;
+	background: var(--tkd-frame);
+}
+
+.tkdesk .tkd-brand__svg {
+	inline-size: 28px;
+	block-size: 28px;
+}
+
+.tkdesk .tkd-brand__name {
+	color: var(--tkd-text);
+	font-size: var(--tkd-fs-card);
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
+
+.tkdesk .tkd-tabs {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-1);
+	min-inline-size: 0;
+	padding-block: 4px;
+	overflow: auto;
+	scrollbar-width: none;
+}
+
+.tkdesk .tkd-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	min-block-size: var(--tkd-touch);
+	padding-inline: 14px;
+	border: 0;
+	border-radius: 12px;
+	background: transparent;
+	color: var(--tkd-text-2);
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease), color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-tab .tkd-ico {
+	inline-size: 18px;
+	block-size: 18px;
+}
+
+.tkdesk .tkd-tab:hover {
+	background: var(--tkd-bg);
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-tab[aria-selected="true"] {
+	background: var(--tkd-primary-soft);
+	color: var(--tkd-primary-ink);
+}
+
+.tkdesk .tkd-tab:focus-visible {
+	outline-offset: -3px;
+}
+
+/* Phones: the mark alone, and every tab in view as an icon over a short label. */
+@media (width <= 600px) {
+
+	.tkdesk .tkd-header {
+		gap: var(--tkd-space-3);
+	}
+
+	.tkdesk .tkd-brand__name {
+		display: none;
+	}
+
+	.tkdesk .tkd-brand__mark {
+		inline-size: 34px;
+		block-size: 34px;
+	}
+
+	.tkdesk .tkd-tabs {
+		flex: 1;
+		justify-content: space-around;
+	}
+
+	.tkdesk .tkd-tab {
+		flex-direction: column;
+		gap: 2px;
+		min-block-size: 52px;
+		padding-inline: 10px;
+		font-size: var(--tkd-fs-small);
+	}
+}
+
+.tkdesk .tkd-content {
+	flex: 1;
+	padding-block: var(--tkd-content-pad) var(--tkd-space-8);
+	padding-inline: var(--tkd-content-pad);
+}
+
+.tkdesk .tkd-wrap {
+	max-inline-size: 1360px;
+	margin-inline: auto;
+}
+
+.tkdesk .tkd-view {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-5);
+}
+
+.tkdesk .tkd-view.is-enter > * {
+	animation: tkd-rise var(--tkd-dur-enter) var(--tkd-ease) both;
+}
+
+.tkdesk .tkd-view.is-enter > :nth-child(2) { animation-delay: 40ms; }
+.tkdesk .tkd-view.is-enter > :nth-child(3) { animation-delay: 80ms; }
+.tkdesk .tkd-view.is-enter > :nth-child(4) { animation-delay: 120ms; }
+.tkdesk .tkd-view.is-enter > :nth-child(n + 5) { animation-delay: 160ms; }
+
+.tkdesk .tkd-status-slot:empty {
+	display: none;
+}
+
+.tkdesk .tkd-footer {
+	padding-block: var(--tkd-space-4) var(--tkd-space-6);
+	padding-inline: var(--tkd-content-pad);
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	text-align: center;
+}
+
+/* ---------- Hero panel: the one bold moment per screen ---------- */
+.tkdesk .tkd-hero {
+	position: relative;
+	isolation: isolate;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--tkd-space-4) var(--tkd-space-6);
+	padding-block: 28px;
+	padding-inline: var(--tkd-space-8);
+	border-radius: var(--tkd-radius-frame);
+	background:
+		radial-gradient(440px 240px at 96% -30%, rgba(79, 91, 255, 0.95), transparent 70%),
+		radial-gradient(420px 220px at 74% 150%, rgba(46, 158, 76, 0.85), transparent 70%),
+		radial-gradient(380px 220px at -4% -60%, rgba(232, 103, 43, 0.95), transparent 70%),
+		radial-gradient(160px 120px at 55% 140%, rgba(242, 194, 58, 0.55), transparent 70%),
+		var(--tkd-frame);
+	color: #fff;
+}
+
+/* Faint dot grid fading out from the top corner. */
+.tkdesk .tkd-hero::after {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	content: "";
+	border-radius: inherit;
+	background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1.5px);
+	background-size: 18px 18px;
+	mask-image: radial-gradient(70% 140% at 100% 0, #000, transparent);
+	pointer-events: none;
+}
+
+@media (width <= 600px) {
+
+	.tkdesk .tkd-hero {
+		padding-block: 22px;
+		padding-inline: var(--tkd-space-5);
+		border-radius: var(--tkd-radius-card);
+	}
+
+	/* Compact on phones: the title and one action, so the work starts near the top. */
+	.tkdesk .tkd-hero:not(.tkd-hero--detail) {
+		align-items: center;
+		padding-block: 16px;
+	}
+
+	.tkdesk .tkd-hero:not(.tkd-hero--detail) .tkd-hero__desc {
+		display: none;
+	}
+
+	.tkdesk .tkd-hero:not(.tkd-hero--detail) .tkd-hero__title {
+		font-size: 20px;
+	}
+}
+
+.tkdesk .tkd-hero__main {
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-hero__title {
+	color: #fff;
+	font-size: var(--tkd-fs-page);
+	font-weight: 800;
+	line-height: 1.15;
+	letter-spacing: -0.025em;
+	text-wrap: balance;
+}
+
+.tkdesk .tkd-hero__desc {
+	max-inline-size: 64ch;
+	margin-block-start: var(--tkd-space-2);
+	color: var(--tkd-frame-text);
+	font-size: var(--tkd-fs-lead);
+	line-height: 1.6;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-hero__eyebrow {
+	margin-block-end: 6px;
+	color: var(--tkd-frame-text);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	letter-spacing: 0.02em;
+}
+
+.tkdesk .tkd-hero__actions,
+.tkdesk .tkd-hero__chips {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-hero__chips {
+	margin-block-start: var(--tkd-space-3);
+}
+
+.tkdesk .tkd-hero--detail {
+	align-items: center;
+}
+
+.tkdesk .tkd-hero--detail .tkd-hero__title {
+	font-family: var(--tkd-mono);
+	font-size: 30px;
+	letter-spacing: -0.01em;
+}
+
+.tkdesk .tkd-hero__side {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-5) var(--tkd-space-6);
+}
+
+.tkdesk .tkd-hero__clock {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+	padding-block: var(--tkd-space-4);
+	padding-inline: var(--tkd-space-5);
+	border-radius: var(--tkd-radius-tile);
+	background: rgba(255, 255, 255, 0.06);
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+	backdrop-filter: blur(6px);
+}
+
+.tkdesk .tkd-hero__deadline {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--tkd-frame-text);
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+}
+
+.tkdesk .tkd-hero__deadline .tkd-ico {
+	inline-size: 16px;
+	block-size: 16px;
+}
+
+.tkdesk .tkd-hero .tkd-label {
+	color: var(--tkd-frame-text);
+}
+
+.tkdesk .tkd-hero :focus-visible {
+	outline-color: #fff;
+}
+
+.tkdesk .tkd-assign {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-inline-size: 220px;
+}
+
+/* ---------- Cards ---------- */
+.tkdesk .tkd-card {
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+	background: var(--tkd-card);
+	border: 1px solid transparent;
+	border-radius: var(--tkd-radius-card);
+	box-shadow: var(--tkd-shadow-card);
+}
+
+.tkdesk .tkd-card__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2) var(--tkd-space-3);
+	padding-block-start: var(--tkd-card-pad);
+	padding-inline: var(--tkd-card-pad);
+}
+
+.tkdesk .tkd-card__title {
+	flex: 1 1 auto;
+	font-size: var(--tkd-fs-card);
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+
+.tkdesk .tkd-card__extra {
+	margin-inline-start: auto;
+}
+
+.tkdesk .tkd-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-4);
+	padding: var(--tkd-card-pad);
+}
+
+.tkdesk .tkd-card--decision {
+	border-color: color-mix(in srgb, var(--tkd-primary) 22%, transparent);
+	box-shadow: var(--tkd-shadow-card), 0 0 0 4px color-mix(in srgb, var(--tkd-primary) 6%, transparent);
+}
+
+.tkdesk .tkd-card--warn {
+	border-color: var(--tkd-orange-tile);
+}
+
+.tkdesk .tkd-card--neutral {
+	background: color-mix(in srgb, var(--tkd-card) 65%, var(--tkd-neutral-tile));
+}
+
+/* Colored icon chip in card heads. Tones rotate lavender, mint, peach, cream. */
+.tkdesk .tkd-chip-ico {
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 40px;
+	block-size: 40px;
+	border-radius: 12px;
+	background: var(--tkd-blue-tile);
+	color: var(--tkd-primary-ink);
+}
+
+.tkdesk .tkd-chip-ico--green { background: var(--tkd-green-tile); color: var(--tkd-green-ink); }
+.tkdesk .tkd-chip-ico--orange { background: var(--tkd-orange-tile); color: var(--tkd-orange-ink); }
+.tkdesk .tkd-chip-ico--cream { background: var(--tkd-cream-tile); color: var(--tkd-cream-ink); }
+.tkdesk .tkd-chip-ico--neutral { background: var(--tkd-neutral-tile); color: var(--tkd-text-2); }
+
+/* ---------- Buttons ---------- */
+.tkdesk .tkd-btn {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--tkd-space-2);
+	min-block-size: var(--tkd-touch);
+	padding-inline: 18px;
+	border: 1px solid transparent;
+	border-radius: 12px;
+	font-size: var(--tkd-fs-body);
+	font-weight: 700;
+	line-height: 1.2;
+	white-space: nowrap;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background-color var(--tkd-dur-fast) var(--tkd-ease),
+		border-color var(--tkd-dur-fast) var(--tkd-ease),
+		color var(--tkd-dur-fast) var(--tkd-ease),
+		translate var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-btn .tkd-ico {
+	inline-size: 18px;
+	block-size: 18px;
+}
+
+.tkdesk .tkd-btn:active:not(:disabled) {
+	translate: 0 1px;
+}
+
+.tkdesk .tkd-btn:disabled {
+	box-shadow: none;
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+.tkdesk .tkd-btn--primary {
+	background: var(--tkd-primary);
+	color: #fff;
+	box-shadow: var(--tkd-shadow-btn);
+}
+
+.tkdesk .tkd-btn--primary:hover:not(:disabled) {
+	background: var(--tkd-primary-hover);
+	color: #fff;
+}
+
+.tkdesk .tkd-btn--secondary {
+	background: var(--tkd-card);
+	border-color: var(--tkd-border-strong);
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-btn--secondary:hover:not(:disabled) {
+	background: var(--tkd-blue-50);
+	border-color: var(--tkd-primary);
+	color: var(--tkd-primary-ink);
+}
+
+.tkdesk .tkd-btn--danger {
+	background: var(--tkd-red);
+	color: #fff;
+	box-shadow: var(--tkd-shadow-danger);
+}
+
+.tkdesk .tkd-btn--danger:hover:not(:disabled) {
+	background: var(--tkd-red-hover);
+	color: #fff;
+}
+
+.tkdesk .tkd-btn--ghost {
+	background: transparent;
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-btn--ghost:hover,
+.tkdesk .tkd-btn--ghost[aria-expanded="true"] {
+	background: var(--tkd-bg);
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-btn--icon {
+	inline-size: var(--tkd-touch);
+	padding: 0;
+}
+
+/* Busy: a spinner takes the icon's place; the label stays so the button keeps its name. */
+.tkdesk .tkd-btn.is-busy {
+	cursor: progress;
+	opacity: 0.85;
+}
+
+.tkdesk .tkd-btn.is-busy .tkd-ico {
+	display: none;
+}
+
+.tkdesk .tkd-btn.is-busy::before {
+	inline-size: 16px;
+	block-size: 16px;
+	content: "";
+	border: 2px solid currentColor;
+	border-inline-end-color: transparent;
+	border-radius: 50%;
+	animation: tkd-spin 0.7s linear infinite;
+}
+
+.tkdesk .tkd-iconbtn {
+	display: inline-grid;
+	flex: none;
+	place-items: center;
+	inline-size: var(--tkd-touch);
+	block-size: var(--tkd-touch);
+	padding: 0;
+	border: 0;
+	border-radius: 12px;
+	background: transparent;
+	color: var(--tkd-text-2);
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease), color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-iconbtn:hover {
+	background: var(--tkd-bg);
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-3);
+}
+
+/* ---------- Link chips (stand-alone links): 32px pill, 44px hit area ---------- */
+.tkdesk .tkd-linkchip {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-block-size: 32px;
+	padding-inline: 12px;
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-blue-50);
+	color: var(--tkd-primary-ink);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	white-space: nowrap;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-linkchip::after {
+	position: absolute;
+	inset-block: -6px;
+	inset-inline: 0;
+	content: "";
+}
+
+.tkdesk .tkd-linkchip:hover {
+	background: var(--tkd-primary-soft);
+	color: var(--tkd-primary-ink);
+}
+
+.tkdesk .tkd-linkchip .tkd-ico {
+	inline-size: 15px;
+	block-size: 15px;
+	transition: translate var(--tkd-dur) var(--tkd-ease);
+}
+
+.tkdesk .tkd-linkchip:hover .tkd-ico:last-child {
+	translate: 2px 0;
+}
+
+.tkdesk:dir(rtl) .tkd-linkchip:hover .tkd-ico:last-child {
+	translate: -2px 0;
+}
+
+/* Touch screens: the chip itself is the full 44px target (WCAG 2.5.8). */
+@media (pointer: coarse) {
+
+	.tkdesk .tkd-linkchip {
+		min-block-size: var(--tkd-touch);
+	}
+}
+
+.tkdesk .tkd-chips {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-backbar {
+	display: flex;
+}
+
+.tkdesk .tkd-backbar .tkd-linkchip {
+	background: var(--tkd-card);
+	box-shadow: var(--tkd-shadow-card);
+}
+
+/* ---------- Status chips (text + dot; never color alone) ---------- */
+.tkdesk .tkd-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-block-size: 26px;
+	padding-inline: 10px;
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-neutral-tile);
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	line-height: 1.2;
+	white-space: nowrap;
+}
+
+.tkdesk .tkd-chip .tkd-ico {
+	inline-size: 14px;
+	block-size: 14px;
+	stroke-width: 2.5;
+}
+
+.tkdesk .tkd-chip__dot {
+	flex: none;
+	inline-size: 7px;
+	block-size: 7px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.tkdesk .tkd-chip--blue { background: var(--tkd-blue-tile); color: var(--tkd-primary-ink); }
+.tkdesk .tkd-chip--amber { background: var(--tkd-amber-tile); color: var(--tkd-amber-ink); }
+.tkdesk .tkd-chip--green { background: var(--tkd-green-tile); color: var(--tkd-green-ink); }
+.tkdesk .tkd-chip--red { background: var(--tkd-red-tile); color: var(--tkd-red-ink); }
+.tkdesk .tkd-chip--orange { background: var(--tkd-orange-tile); color: var(--tkd-orange-ink); }
+.tkdesk .tkd-chip--purple { background: var(--tkd-purple-tile); color: var(--tkd-purple-ink); }
+.tkdesk .tkd-chip--new { background: var(--tkd-primary); color: #fff; } /* Unopened: filled, 5.2:1. */
+
+.tkdesk .tkd-chip--red .tkd-chip__dot {
+	animation: tkd-pulse 1.6s ease-in-out infinite;
+}
+
+.tkdesk .tkd-who {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	font-weight: 600;
+}
+
+.tkdesk .tkd-avatar {
+	position: relative;
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 28px;
+	block-size: 28px;
+	overflow: hidden;
+	border-radius: 50%;
+	background: var(--tkd-purple-tile);
+	color: var(--tkd-purple-ink);
+	font-size: var(--tkd-fs-small);
+	font-weight: 800;
+	line-height: 1;
+}
+
+.tkdesk .tkd-avatar::before {
+	content: attr(data-initial);
+}
+
+.tkdesk .tkd-avatar--blue { background: var(--tkd-blue-tile); color: var(--tkd-primary-ink); }
+.tkdesk .tkd-avatar--green { background: var(--tkd-green-tile); color: var(--tkd-green-ink); }
+.tkdesk .tkd-avatar--amber { background: var(--tkd-amber-tile); color: var(--tkd-amber-ink); }
+.tkdesk .tkd-avatar--orange { background: var(--tkd-orange-tile); color: var(--tkd-orange-ink); }
+
+.tkdesk .tkd-avatar--none {
+	background: transparent;
+	border: 1.5px dashed var(--tkd-border-strong);
+}
+
+/* ---------- Assign menu: trigger button + listbox popover (fixed, in the app root) ---------- */
+.tkdesk .tkd-pick {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	inline-size: 100%;
+	min-block-size: var(--tkd-touch);
+	margin: 0;
+	padding-block: 6px;
+	padding-inline: 8px 12px;
+	border: 1px solid var(--tkd-border-strong);
+	border-radius: var(--tkd-radius-control);
+	background: var(--tkd-card);
+	color: var(--tkd-text);
+	font-size: var(--tkd-fs-body);
+	font-weight: 600;
+	text-align: start;
+	cursor: pointer;
+	transition: border-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-pick:hover {
+	border-color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-pick[aria-expanded="true"] {
+	border-color: var(--tkd-primary);
+}
+
+.tkdesk .tkd-pick__name {
+	flex: 1;
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tkdesk .tkd-avatar--none + .tkd-pick__name {
+	color: var(--tkd-text-2);
+	font-weight: 500;
+}
+
+.tkdesk .tkd-pick > .tkd-ico {
+	inline-size: 16px;
+	block-size: 16px;
+	color: var(--tkd-text-2);
+	transition: rotate var(--tkd-dur) var(--tkd-ease);
+}
+
+.tkdesk .tkd-pick[aria-expanded="true"] > .tkd-ico {
+	rotate: 180deg;
+}
+
+/* Saving: a spinner takes the chevron's place. */
+.tkdesk .tkd-pick.is-busy {
+	cursor: progress;
+}
+
+.tkdesk .tkd-pick.is-busy > .tkd-ico {
+	display: none;
+}
+
+.tkdesk .tkd-pick.is-busy::after {
+	flex: none;
+	inline-size: 14px;
+	block-size: 14px;
+	content: "";
+	border: 2px solid var(--tkd-primary);
+	border-inline-end-color: transparent;
+	border-radius: 50%;
+	animation: tkd-spin 0.7s linear infinite;
+}
+
+/* In a table row: compact, never wider than its cell. */
+.tkdesk .tkd-pick--compact {
+	inline-size: auto;
+	min-inline-size: 150px;
+	max-inline-size: 100%;
+	min-block-size: 36px;
+	padding-block: 4px;
+	padding-inline: 6px 10px;
+	font-size: var(--tkd-fs-label);
+}
+
+.tkdesk .tkd-pick--compact .tkd-avatar {
+	inline-size: 24px;
+	block-size: 24px;
+	font-size: 11px;
+}
+
+.tkdesk .tkd-pop {
+	position: fixed;
+	z-index: 100000; /* Above the wp-admin toolbar. */
+	min-inline-size: 200px;
+	max-inline-size: calc(100vw - 12px);
+	max-block-size: 320px;
+	margin: 0;
+	padding: 6px;
+	overflow-y: auto;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+	background: var(--tkd-card);
+	box-shadow: var(--tkd-shadow-pop);
+	user-select: none;
+	animation: tkd-pop var(--tkd-dur) var(--tkd-ease) both;
+}
+
+.tkdesk .tkd-pop:focus-visible {
+	outline: none;
+}
+
+.tkdesk .tkd-pop__opt {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-block-size: var(--tkd-touch);
+	padding-inline: 10px;
+	border-radius: 10px;
+	color: var(--tkd-text);
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.tkdesk .tkd-pop__opt.is-active {
+	background: var(--tkd-blue-50);
+}
+
+/* Keyboard users see the active option ringed; the list itself takes focus, so it draws no ring. */
+.tkdesk .tkd-pop:focus-visible .tkd-pop__opt.is-active {
+	outline: 2px solid var(--tkd-primary);
+	outline-offset: -2px;
+}
+
+.tkdesk .tkd-pop__opt[aria-selected="true"] {
+	color: var(--tkd-primary-ink);
+}
+
+.tkdesk .tkd-pop__name {
+	flex: 1;
+	min-inline-size: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tkdesk .tkd-pop__opt > .tkd-ico {
+	inline-size: 18px;
+	block-size: 18px;
+	color: var(--tkd-primary);
+}
+
+/* ---------- Clock: ring + HH:MM:SS + labeled state ---------- */
+.tkdesk .tkd-clock {
+	--tkd-clock: var(--tkd-green);
+	--tkd-clock-ink: var(--tkd-green-ink);
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.tkdesk .tkd-clock[data-state="warn"] { --tkd-clock: var(--tkd-amber); --tkd-clock-ink: var(--tkd-amber-ink); }
+.tkdesk .tkd-clock[data-state="urgent"] { --tkd-clock: var(--tkd-orange); --tkd-clock-ink: var(--tkd-orange-ink); }
+.tkdesk .tkd-clock[data-state="overdue"] { --tkd-clock: var(--tkd-red); --tkd-clock-ink: var(--tkd-red-ink); }
+.tkdesk .tkd-clock[data-state="closed"] { --tkd-clock: var(--tkd-border-strong); --tkd-clock-ink: var(--tkd-text-2); }
+
+.tkdesk .tkd-ring {
+	flex: none;
+	inline-size: 36px;
+	block-size: 36px;
+	rotate: -90deg;
+}
+
+.tkdesk .tkd-ring circle {
+	fill: none;
+	stroke-width: 4;
+}
+
+.tkdesk .tkd-ring__track {
+	stroke: color-mix(in srgb, var(--tkd-clock) 18%, transparent);
+}
+
+.tkdesk .tkd-ring__bar {
+	stroke: var(--tkd-clock);
+	stroke-linecap: round;
+	transition: stroke-dashoffset 1s linear, stroke var(--tkd-dur) var(--tkd-ease);
+}
+
+/* Ring draws in on a fresh view. */
+.tkdesk .is-enter .tkd-ring__bar {
+	animation: tkd-ring-in 1.1s var(--tkd-ease) both;
+}
+
+.tkdesk .tkd-clock__text {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-clock__time {
+	color: var(--tkd-text);
+	font-size: 15px;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.2;
+	letter-spacing: 0.01em;
+	white-space: nowrap;
+}
+
+.tkdesk .tkd-clock[data-state="overdue"] .tkd-clock__time {
+	color: var(--tkd-red-ink);
+}
+
+.tkdesk .tkd-clock__label {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--tkd-clock-ink);
+	font-size: var(--tkd-fs-small);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-clock__label .tkd-ico {
+	inline-size: 14px;
+	block-size: 14px;
+	stroke-width: 2.5;
+}
+
+.tkdesk .tkd-clock--lg {
+	gap: var(--tkd-space-4);
+}
+
+.tkdesk .tkd-clock--lg .tkd-ring {
+	inline-size: 64px;
+	block-size: 64px;
+}
+
+.tkdesk .tkd-clock--lg .tkd-ring circle {
+	stroke-width: 3.5;
+}
+
+.tkdesk .tkd-clock--lg .tkd-clock__time {
+	font-size: 30px;
+	letter-spacing: -0.01em;
+}
+
+.tkdesk .tkd-clock--lg .tkd-clock__label {
+	font-size: var(--tkd-fs-label);
+}
+
+.tkdesk .tkd-clock--lg .tkd-clock__label .tkd-ico {
+	inline-size: 16px;
+	block-size: 16px;
+}
+
+/* On the dark panel. */
+.tkdesk .tkd-hero .tkd-clock[data-state] { --tkd-clock: var(--tkd-dark-green); --tkd-clock-ink: var(--tkd-dark-green); }
+.tkdesk .tkd-hero .tkd-clock[data-state="warn"] { --tkd-clock: var(--tkd-dark-amber); --tkd-clock-ink: var(--tkd-dark-amber); }
+.tkdesk .tkd-hero .tkd-clock[data-state="urgent"] { --tkd-clock: var(--tkd-dark-orange); --tkd-clock-ink: var(--tkd-dark-orange); }
+.tkdesk .tkd-hero .tkd-clock[data-state="overdue"] { --tkd-clock: var(--tkd-dark-red); --tkd-clock-ink: var(--tkd-dark-red); }
+.tkdesk .tkd-hero .tkd-clock[data-state="closed"] { --tkd-clock: #9a9aae; --tkd-clock-ink: var(--tkd-frame-text); }
+
+.tkdesk .tkd-hero .tkd-clock__time,
+.tkdesk .tkd-hero .tkd-clock[data-state="overdue"] .tkd-clock__time {
+	color: #fff;
+}
+
+.tkdesk .tkd-hero .tkd-ring__track {
+	stroke: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Inbox toolbar ---------- */
+/* Its own layer above the results card, so the search tip opens over the table, not under it. */
+.tkdesk .tkd-toolbar {
+	position: relative;
+	z-index: 2;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tkd-space-3) var(--tkd-space-5);
+	padding-block: var(--tkd-space-3);
+	padding-inline: var(--tkd-space-4);
+}
+
+.tkdesk .tkd-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.tkdesk .tkd-filter {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	min-block-size: var(--tkd-touch);
+	padding-inline: 16px;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-card);
+	color: var(--tkd-text-2);
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease), border-color var(--tkd-dur-fast) var(--tkd-ease), color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-filter:hover {
+	border-color: var(--tkd-border-strong);
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-filter[aria-pressed="true"] {
+	background: var(--tkd-frame);
+	border-color: var(--tkd-frame);
+	color: #fff;
+}
+
+.tkdesk .tkd-filter.has-alert::before {
+	inline-size: 8px;
+	block-size: 8px;
+	content: "";
+	border-radius: 50%;
+	background: var(--tkd-red);
+	box-shadow: 0 0 0 3px var(--tkd-red-tile);
+}
+
+/* Phones: the filters stay one row that scrolls sideways; the fade at the edges says there is more. */
+@media (width <= 600px) {
+
+	.tkdesk .tkd-filters {
+		flex: 1 1 100%;
+		flex-wrap: nowrap;
+		margin-inline: calc(var(--tkd-space-4) * -1);
+		padding-block: 4px;
+		padding-inline: var(--tkd-space-4);
+		overflow-x: auto;
+		scrollbar-width: none;
+		mask-image: linear-gradient(90deg, transparent, #000 var(--tkd-space-4), #000 calc(100% - 32px), transparent);
+	}
+
+	.tkdesk .tkd-filters::-webkit-scrollbar {
+		display: none;
+	}
+}
+
+.tkdesk .tkd-search {
+	position: relative;
+	display: flex;
+	flex: 1 1 280px;
+	align-items: center;
+	gap: 4px;
+	max-inline-size: 440px;
+}
+
+.tkdesk .tkd-search > .tkd-ico {
+	position: absolute;
+	inset-inline-start: 14px;
+	inline-size: 18px;
+	block-size: 18px;
+	color: var(--tkd-placeholder);
+	pointer-events: none;
+}
+
+.tkdesk .tkd-input.tkd-search__input {
+	padding-inline-start: 42px;
+}
+
+/* Sort select: narrow screens only, where the table headers are hidden. */
+.tkdesk .tkd-sortby {
+	display: none;
+	flex: 1 1 100%;
+	align-items: center;
+	gap: var(--tkd-space-3);
+}
+
+.tkdesk .tkd-sortby .tkd-label {
+	flex: none;
+}
+
+.tkdesk .tkd-tipwrap {
+	position: relative;
+	display: inline-flex;
+	flex: none;
+}
+
+.tkdesk .tkd-tip {
+	position: absolute;
+	inset-block-start: calc(100% + 4px);
+	inset-inline-end: 0;
+	z-index: 50;
+	inline-size: max-content;
+	max-inline-size: min(300px, 80vw);
+	font-weight: 500;
+	line-height: 1.5;
+	padding-block: 10px;
+	padding-inline: 14px;
+	border-radius: 12px;
+	background: var(--tkd-frame);
+	color: #fff;
+	font-size: var(--tkd-fs-label);
+	box-shadow: var(--tkd-shadow-pop);
+	animation: tkd-pop var(--tkd-dur) var(--tkd-ease) both;
+}
+
+/* ---------- Inbox table ---------- */
+.tkdesk .tkd-tablecard {
+	overflow: hidden;
+}
+
+.tkdesk .tkd-table {
+	inline-size: 100%;
+	border-collapse: collapse;
+}
+
+.tkdesk .tkd-table th {
+	padding-block: 12px;
+	padding-inline: 16px;
+	border-block-end: 1px solid var(--tkd-border);
+	background: color-mix(in srgb, var(--tkd-bg) 55%, var(--tkd-card));
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-small);
+	font-weight: 700;
+	text-align: start;
+	white-space: nowrap;
+}
+
+.tkdesk .tkd-sort {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-block: -6px;
+	margin-inline: -8px;
+	padding-block: 6px;
+	padding-inline: 8px;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease), color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-sort:hover {
+	background: var(--tkd-neutral-tile);
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-sort .tkd-ico {
+	inline-size: 14px;
+	block-size: 14px;
+	opacity: 0.5;
+}
+
+.tkdesk .tkd-sort.is-active {
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-sort.is-active .tkd-ico {
+	color: var(--tkd-primary-ink);
+	opacity: 1;
+}
+
+.tkdesk .tkd-table td {
+	padding-block: 14px;
+	padding-inline: 16px;
+	border-block-end: 1px solid var(--tkd-border);
+	vertical-align: middle;
+}
+
+.tkdesk .tkd-table :is(th, td):first-child {
+	padding-inline-start: var(--tkd-card-pad);
+}
+
+.tkdesk .tkd-table :is(th, td):last-child {
+	padding-inline-end: var(--tkd-card-pad);
+}
+
+.tkdesk .tkd-table tbody tr:last-child td {
+	border-block-end: 0;
+}
+
+.tkdesk .tkd-row {
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-table .tkd-row:hover,
+.tkdesk .tkd-table .tkd-row:focus-within {
+	background: var(--tkd-blue-50);
+}
+
+/* Urgency edge on the start side of the row. */
+.tkdesk .tkd-row:has([data-state="overdue"]) > td:first-child { box-shadow: inset 4px 0 0 var(--tkd-red); }
+.tkdesk .tkd-row:has([data-state="urgent"]) > td:first-child { box-shadow: inset 4px 0 0 var(--tkd-orange); }
+.tkdesk:dir(rtl) .tkd-row:has([data-state="overdue"]) > td:first-child { box-shadow: inset -4px 0 0 var(--tkd-red); }
+.tkdesk:dir(rtl) .tkd-row:has([data-state="urgent"]) > td:first-child { box-shadow: inset -4px 0 0 var(--tkd-orange); }
+
+.tkdesk .tkd-row:has([data-state="overdue"]) {
+	background: color-mix(in srgb, var(--tkd-red-50) 55%, var(--tkd-card));
+}
+
+/* Unopened requests read bold, like unread mail. */
+.tkdesk .tkd-row.is-new :is(.tkd-req__item, .tkd-id) {
+	font-weight: 800;
+}
+
+/* Arrived since the list loaded ("Show it"): a blue edge and tint until the next load. */
+.tkdesk .tkd-row.is-fresh {
+	background: var(--tkd-blue-50);
+}
+
+.tkdesk .tkd-row.is-fresh > td:first-child {
+	box-shadow: inset 4px 0 0 var(--tkd-primary);
+}
+
+.tkdesk:dir(rtl) .tkd-row.is-fresh > td:first-child {
+	box-shadow: inset -4px 0 0 var(--tkd-primary);
+}
+
+.tkdesk .tkd-newslot:empty {
+	margin-block-start: calc(var(--tkd-space-5) * -1); /* Takes no room (the view's gap) while empty. */
+}
+
+.tkdesk .tkd-newslot {
+	display: flex;
+	justify-content: center;
+}
+
+.tkdesk .tkd-newslot .tkd-btn {
+	border-radius: var(--tkd-radius-pill);
+	box-shadow: var(--tkd-shadow-btn);
+}
+
+.tkdesk .is-enter .tkd-row {
+	animation: tkd-rise 400ms var(--tkd-ease) both;
+	animation-delay: calc(var(--i, 0) * 30ms);
+}
+
+.tkdesk .tkd-req {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-req__top {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-id {
+	color: var(--tkd-text);
+	font-family: var(--tkd-mono);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-id:hover {
+	color: var(--tkd-primary-ink);
+	text-decoration: underline;
+	text-decoration-color: color-mix(in srgb, var(--tkd-primary) 40%, transparent);
+	text-underline-offset: 3px;
+}
+
+.tkdesk .tkd-req__item {
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-req__where {
+	color: var(--tkd-text-2);
+	font-family: var(--tkd-mono);
+	font-size: var(--tkd-fs-small);
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-pager {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tkd-space-3);
+	padding-block: var(--tkd-space-3);
+	padding-inline: var(--tkd-card-pad);
+	border-block-start: 1px solid var(--tkd-border);
+}
+
+.tkdesk .tkd-pager__text {
+	color: var(--tkd-text-2);
+	font-weight: 600;
+}
+
+@media (width <= 782px) {
+
+	/* Rows render as labeled cards; the sort select replaces the header buttons. */
+	.tkdesk .tkd-table thead {
+		display: none;
+	}
+
+	.tkdesk .tkd-sortby {
+		display: flex;
+	}
+
+	.tkdesk .tkd-table,
+	.tkdesk .tkd-table tbody,
+	.tkdesk .tkd-table td {
+		display: block;
+	}
+
+	.tkdesk .tkd-table tr {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--tkd-space-3) var(--tkd-space-5);
+		padding-block: var(--tkd-space-4);
+		padding-inline: var(--tkd-card-pad);
+		border-block-end: 1px solid var(--tkd-border);
+	}
+
+	.tkdesk .tkd-table td,
+	.tkdesk .tkd-table :is(th, td):first-child,
+	.tkdesk .tkd-table :is(th, td):last-child {
+		padding: 0;
+		border: 0;
+	}
+
+	.tkdesk .tkd-table td:nth-child(2) {
+		flex-basis: 100%;
+		order: -1;
+	}
+
+	.tkdesk .tkd-table td:not(:nth-child(2))::before {
+		display: block;
+		margin-block-end: 2px;
+		content: attr(data-label);
+		color: var(--tkd-text-2);
+		font-size: 11px;
+		font-weight: 700;
+	}
+
+	.tkdesk .tkd-row:has([data-state]) > td:first-child {
+		box-shadow: none;
+	}
+}
+
+/* ---------- Skeletons ---------- */
+.tkdesk .tkd-skel {
+	display: block;
+	block-size: 12px;
+	border-radius: 8px;
+	background: linear-gradient(90deg, var(--tkd-neutral-tile) 0%, #f7f8fd 50%, var(--tkd-neutral-tile) 100%) 0 0 / 200% 100%;
+	animation: tkd-shimmer 1.4s ease-in-out infinite;
+}
+
+.tkdesk .tkd-skel--ring {
+	flex: none;
+	inline-size: 36px;
+	block-size: 36px;
+	border-radius: 50%;
+}
+
+.tkdesk .tkd-skel--chip {
+	inline-size: 104px;
+	block-size: var(--tkd-touch);
+	border-radius: var(--tkd-radius-pill);
+}
+
+.tkdesk .tkd-skel-list {
+	display: flex;
+	flex-direction: column;
+}
+
+.tkdesk .tkd-skel-row {
+	display: grid;
+	grid-template-columns: 36px minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+	align-items: center;
+	gap: var(--tkd-space-6);
+	padding-block: 18px;
+	padding-inline: var(--tkd-card-pad);
+	border-block-end: 1px solid var(--tkd-border);
+}
+
+.tkdesk .tkd-skel-row:last-child {
+	border-block-end: 0;
+}
+
+.tkdesk .tkd-skel-stack {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-skel-detail {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-5);
+}
+
+.tkdesk .tkd-skel-hero {
+	block-size: 168px;
+	border-radius: var(--tkd-radius-frame);
+	background: linear-gradient(90deg, var(--tkd-frame) 0%, var(--tkd-frame-2) 50%, var(--tkd-frame) 100%) 0 0 / 200% 100%;
+	animation: tkd-shimmer 1.4s ease-in-out infinite;
+}
+
+.tkdesk .tkd-skel-card {
+	gap: 14px;
+	padding: var(--tkd-card-pad);
+}
+
+@media (width <= 782px) {
+
+	.tkdesk .tkd-skel-row {
+		grid-template-columns: 36px minmax(0, 1fr);
+	}
+
+	.tkdesk .tkd-skel-row > :nth-child(n + 3) {
+		display: none;
+	}
+}
+
+/* ---------- Empty, error and alert states ---------- */
+.tkdesk .tkd-empty {
+	align-items: center;
+	gap: var(--tkd-space-3);
+	padding-block: 48px;
+	padding-inline: var(--tkd-card-pad);
+	text-align: center;
+}
+
+.tkdesk .tkd-empty__title {
+	font-size: var(--tkd-fs-section);
+	font-weight: 800;
+	letter-spacing: -0.01em;
+	text-wrap: balance;
+}
+
+.tkdesk .tkd-empty__text {
+	max-inline-size: 52ch;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-lead);
+	line-height: 1.6;
+}
+
+.tkdesk .tkd-empty .tkd-actions {
+	justify-content: center;
+	margin-block-start: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-empty--first {
+	padding-block: 56px;
+}
+
+.tkdesk .tkd-art {
+	position: relative;
+	display: grid;
+	place-items: center;
+	inline-size: 120px;
+	block-size: 120px;
+	margin-block-end: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-art__halo {
+	position: absolute;
+	inset: 0;
+	border: 1.5px dashed var(--tkd-border-strong);
+	border-radius: 50%;
+	background:
+		radial-gradient(circle at 28% 30%, var(--tkd-blue-tile), transparent 58%),
+		radial-gradient(circle at 76% 72%, var(--tkd-green-tile), transparent 55%),
+		radial-gradient(circle at 74% 20%, var(--tkd-orange-tile), transparent 48%);
+	animation: tkd-spin 28s linear infinite;
+}
+
+.tkdesk .tkd-art__tile {
+	position: relative;
+	display: grid;
+	place-items: center;
+	inline-size: 68px;
+	block-size: 68px;
+	border-radius: 20px;
+	background: var(--tkd-card);
+	color: var(--tkd-primary-ink);
+	box-shadow: var(--tkd-shadow-pop);
+}
+
+.tkdesk .tkd-art__tile .tkd-ico {
+	inline-size: 32px;
+	block-size: 32px;
+}
+
+.tkdesk .tkd-art__badge {
+	position: absolute;
+	inset-block-end: 12px;
+	inset-inline-end: 10px;
+	display: grid;
+	place-items: center;
+	inline-size: 32px;
+	block-size: 32px;
+	border-radius: 50%;
+	background: var(--tkd-green);
+	color: #fff;
+	box-shadow: 0 0 0 4px var(--tkd-card);
+}
+
+.tkdesk .tkd-art__badge .tkd-ico {
+	inline-size: 16px;
+	block-size: 16px;
+	stroke-width: 2.5;
+}
+
+.tkdesk .tkd-alert {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-3);
+	padding: var(--tkd-space-4);
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+	background: var(--tkd-bg);
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-card.tkd-alert {
+	flex-direction: row;
+	padding: var(--tkd-card-pad);
+}
+
+.tkdesk .tkd-alert__ico {
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 36px;
+	block-size: 36px;
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.75);
+}
+
+.tkdesk .tkd-alert__msg {
+	display: flex;
+	flex: 1 1 220px;
+	flex-direction: column;
+	gap: 2px;
+	font-weight: 600;
+}
+
+.tkdesk .tkd-alert--error {
+	background: var(--tkd-red-50);
+	border-color: var(--tkd-red-tile);
+	color: var(--tkd-red-ink);
+}
+
+.tkdesk .tkd-alert--amber {
+	background: var(--tkd-amber-50);
+	border-color: var(--tkd-amber-tile);
+	color: var(--tkd-amber-ink);
+}
+
+.tkdesk .tkd-alert--amber .tkd-alert__msg p:last-child {
+	font-weight: 500;
+}
+
+/* ---------- Toasts (top right, errors stay until dismissed) ---------- */
+.tkdesk .tkd-toasts {
+	position: fixed;
+	inset-block-start: calc(var(--wp-admin--admin-bar--height, 32px) + 16px);
+	inset-inline-end: 16px;
+	z-index: 100000;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	inline-size: min(380px, calc(100vw - 32px));
+	pointer-events: none;
+}
+
+.tkdesk .tkd-toast {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--tkd-space-3);
+	min-block-size: 56px;
+	padding-inline: 14px 6px;
+	border-radius: 14px;
+	background: var(--tkd-frame);
+	color: #fff;
+	box-shadow: var(--tkd-shadow-pop);
+	pointer-events: auto;
+	animation: tkd-toast-in 320ms var(--tkd-spring) both;
+}
+
+.tkdesk .tkd-toast.is-leaving {
+	animation: tkd-toast-out 180ms var(--tkd-ease) forwards;
+}
+
+.tkdesk .tkd-toast--error {
+	background: var(--tkd-red-ink);
+}
+
+.tkdesk .tkd-toast__ico {
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 28px;
+	block-size: 28px;
+	margin-block-start: 14px;
+	border-radius: 50%;
+	background: var(--tkd-green);
+	color: #fff;
+}
+
+.tkdesk .tkd-toast__ico .tkd-ico {
+	inline-size: 18px;
+	block-size: 18px;
+}
+
+.tkdesk .tkd-toast--error .tkd-toast__ico {
+	background: rgba(255, 255, 255, 0.18);
+}
+
+.tkdesk .tkd-toast--info .tkd-toast__ico {
+	background: var(--tkd-primary);
+}
+
+.tkdesk .tkd-toast__msg {
+	flex: 1;
+	padding-block: 16px;
+	font-weight: 600;
+	line-height: 1.45;
+}
+
+.tkdesk .tkd-toast .tkd-iconbtn {
+	margin-block-start: 6px;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.tkdesk .tkd-toast .tkd-iconbtn:hover {
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+}
+
+.tkdesk .tkd-toast .tkd-iconbtn:focus-visible {
+	outline-color: #fff;
+}
+
+/* ---------- Dialogs ---------- */
+.tkdesk .tkd-dialog {
+	inline-size: min(560px, calc(100vw - 32px));
+	max-block-size: calc(100dvh - 48px);
+	padding: 0;
+	overflow: hidden;
+	border: 0;
+	border-radius: 20px;
+	background: var(--tkd-card);
+	color: var(--tkd-text);
+	box-shadow: 0 30px 80px rgba(27, 27, 47, 0.3);
+}
+
+.tkdesk .tkd-dialog--wide {
+	inline-size: min(760px, calc(100vw - 32px));
+}
+
+.tkdesk .tkd-dialog[open] {
+	display: flex;
+	flex-direction: column;
+	animation: tkd-dialog-in 280ms var(--tkd-spring) both;
+}
+
+.tkdesk .tkd-dialog::backdrop {
+	background: rgba(17, 17, 27, 0.55);
+	backdrop-filter: blur(3px);
+	animation: tkd-fade 200ms ease both;
+}
+
+.tkdesk .tkd-dialog__form {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-block-size: 0;
+}
+
+.tkdesk .tkd-dialog__head {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-3);
+	padding-block: 18px 8px;
+	padding-inline: 24px 12px;
+}
+
+.tkdesk .tkd-dialog__title {
+	flex: 1;
+	font-size: var(--tkd-fs-section);
+	font-weight: 800;
+	letter-spacing: -0.01em;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-dialog__body {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: var(--tkd-space-4);
+	min-block-size: 0;
+	padding-block: 6px 20px;
+	padding-inline: 24px;
+	overflow: auto;
+}
+
+.tkdesk .tkd-dialog__foot {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 10px;
+	padding-block: var(--tkd-space-4);
+	padding-inline: 24px;
+	border-block-start: 1px solid var(--tkd-border);
+	background: color-mix(in srgb, var(--tkd-bg) 50%, var(--tkd-card));
+}
+
+/* A secondary footer action (such as Reset to default) sits at the start, away from Cancel and Save. */
+.tkdesk .tkd-dialog__foot .tkd-dialog__start {
+	order: -1;
+	margin-inline-end: auto;
+}
+
+.tkdesk .tkd-danger-text {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--tkd-space-2);
+	color: var(--tkd-red-ink);
+	font-weight: 700;
+}
+
+/* ---------- Forms ---------- */
+.tkdesk .tkd-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-4);
+}
+
+.tkdesk .tkd-grid2 {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--tkd-space-4) var(--tkd-space-5);
+}
+
+.tkdesk .tkd-field--wide {
+	grid-column: 1 / -1;
+}
+
+@media (width <= 600px) {
+
+	.tkdesk .tkd-grid2 {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.tkdesk .tkd-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-label {
+	display: block;
+	color: var(--tkd-text);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-help {
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+}
+
+.tkdesk .tkd-error {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	color: var(--tkd-red-ink);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-error .tkd-ico {
+	inline-size: 16px;
+	block-size: 16px;
+	margin-block-start: 1px;
+}
+
+.tkdesk .tkd-input {
+	inline-size: 100%;
+	max-inline-size: none;
+	min-block-size: var(--tkd-touch);
+	margin: 0;
+	padding-block: 10px;
+	padding-inline: 14px;
+	border: 1px solid var(--tkd-border-strong);
+	border-radius: var(--tkd-radius-control);
+	background-color: var(--tkd-card);
+	color: var(--tkd-text);
+	font-family: inherit;
+	font-size: var(--tkd-fs-body);
+	line-height: 1.4;
+	box-shadow: none;
+	transition: border-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-input::placeholder {
+	color: var(--tkd-placeholder);
+	opacity: 1;
+}
+
+.tkdesk .tkd-input:hover {
+	border-color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-input:focus {
+	border-color: var(--tkd-primary);
+	outline: var(--tkd-focus) solid var(--tkd-primary);
+	outline-offset: 1px;
+	box-shadow: none;
+}
+
+.tkdesk .tkd-input[aria-invalid="true"] {
+	border-color: var(--tkd-red);
+	background-color: var(--tkd-red-50);
+}
+
+.tkdesk textarea.tkd-input {
+	min-block-size: 92px;
+	resize: block;
+}
+
+.tkdesk .tkd-select {
+	padding-inline-end: 34px;
+	cursor: pointer;
+}
+
+.tkdesk input[type="checkbox"],
+.tkdesk input[type="radio"] {
+	flex: none;
+	inline-size: 18px;
+	min-inline-size: 18px;
+	block-size: 18px;
+	margin: 0;
+	border: 0;
+	box-shadow: none;
+	accent-color: var(--tkd-primary);
+	cursor: pointer;
+	appearance: auto;
+}
+
+.tkdesk input[type="checkbox"]::before,
+.tkdesk input[type="radio"]::before,
+.tkdesk input[type="checkbox"]:checked::before,
+.tkdesk input[type="radio"]:checked::before {
+	content: none;
+}
+
+.tkdesk input[type="checkbox"]:focus-visible,
+.tkdesk input[type="radio"]:focus-visible {
+	outline: var(--tkd-focus) solid var(--tkd-primary);
+	outline-offset: 2px;
+}
+
+.tkdesk .tkd-check {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--tkd-space-3);
+	min-block-size: var(--tkd-touch);
+	padding-block: 12px;
+	padding-inline: 14px;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-control);
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.tkdesk .tkd-check input {
+	margin-block-start: 2px;
+}
+
+/* On/off setting row: title and description on the left, the switch and its state on the right. */
+.tkdesk .tkd-switchrow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tkd-space-4);
+	padding: 14px 16px;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-control);
+	cursor: pointer;
+	transition: background var(--tkd-dur-fast) var(--tkd-ease), border-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-switchrow:has(input:checked) {
+	background: var(--tkd-blue-50);
+	border-color: color-mix(in srgb, var(--tkd-primary) 45%, transparent);
+}
+
+.tkdesk .tkd-switchrow__text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-switchrow__title {
+	color: var(--tkd-text);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-switchrow__desc {
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+}
+
+.tkdesk .tkd-switchrow__ctl {
+	display: flex;
+	flex: none;
+	align-items: center;
+	gap: 10px;
+}
+
+.tkdesk .tkd-switchrow__state {
+	min-inline-size: 2.2em;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	text-align: end;
+}
+
+.tkdesk .tkd-switchrow:has(input:checked) .tkd-switchrow__state {
+	color: var(--tkd-primary-ink); /* 4.5:1 or better on the blue tint. */
+}
+
+/* A checkbox with role="switch" draws as an on/off switch (screen readers announce on or off). */
+.tkdesk input[type="checkbox"][role="switch"] {
+	position: relative;
+	flex: none;
+	inline-size: 36px;
+	block-size: 20px;
+	margin: 0;
+	border-radius: 10px;
+	background: var(--tkd-placeholder);
+	appearance: none;
+	cursor: pointer;
+	transition: background var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk input[type="checkbox"][role="switch"]::before {
+	position: absolute;
+	inset-block-start: 2px;
+	inset-inline-start: 2px;
+	margin: 0; /* WordPress core shifts checked checkbox ::before by -3px -4px. */
+	inline-size: 16px;
+	block-size: 16px;
+	border-radius: 50%;
+	background: #fff;
+	content: "";
+	transition: inset-inline-start var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk input[type="checkbox"][role="switch"]:checked {
+	background: var(--tkd-primary);
+}
+
+.tkdesk input[type="checkbox"][role="switch"]:checked::before {
+	inset-inline-start: 18px;
+}
+
+.tkdesk .tkd-check:has(input:checked) {
+	background: var(--tkd-blue-50);
+	border-color: color-mix(in srgb, var(--tkd-primary) 45%, transparent);
+}
+
+.tkdesk .tkd-check:has([aria-invalid="true"]) {
+	border-color: var(--tkd-red);
+}
+
+.tkdesk .tkd-radios {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-radios > legend {
+	margin-block-end: 6px;
+}
+
+.tkdesk .tkd-option {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-3);
+	min-block-size: var(--tkd-touch);
+	padding-block: 10px;
+	padding-inline: 14px;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-control);
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color var(--tkd-dur-fast) var(--tkd-ease), background-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-option:hover {
+	border-color: var(--tkd-border-strong);
+}
+
+.tkdesk .tkd-option:has(input:checked) {
+	background: var(--tkd-blue-50);
+	border-color: var(--tkd-primary);
+	box-shadow: inset 0 0 0 1px var(--tkd-primary);
+}
+
+.tkdesk .tkd-summary {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-block-end: var(--tkd-space-2);
+	padding-block: 14px;
+	padding-inline: 16px;
+	border: 1px solid var(--tkd-red-tile);
+	border-radius: 12px;
+	background: var(--tkd-red-50);
+	color: var(--tkd-red-ink);
+}
+
+.tkdesk .tkd-summary__title {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-summary ul {
+	padding-inline-start: 28px;
+	list-style: disc;
+}
+
+.tkdesk .tkd-summary a {
+	color: var(--tkd-red-ink);
+	font-weight: 600;
+	text-decoration: underline;
+	text-decoration-color: color-mix(in srgb, var(--tkd-red-ink) 40%, transparent);
+	text-underline-offset: 3px;
+}
+
+/* ---------- Request detail layout ---------- */
+.tkdesk .tkd-detail {
+	display: grid;
+	grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+	align-items: start;
+	gap: var(--tkd-space-5);
+}
+
+.tkdesk .tkd-col {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-5);
+	min-inline-size: 0;
+}
+
+@media (width <= 1100px) {
+
+	.tkdesk .tkd-detail {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* Decide bar: only where the columns stack and the Decision card sits far below. */
+.tkdesk .tkd-decidebar {
+	display: none;
+}
+
+@media (width <= 1100px) {
+
+	.tkdesk .tkd-decidebar {
+		position: sticky;
+		inset-block-end: 12px;
+		z-index: 30;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--tkd-space-3);
+		padding-block: 8px;
+		padding-inline: 14px 8px;
+		border: 1px solid var(--tkd-border);
+		border-radius: var(--tkd-radius-tile);
+		background: var(--tkd-card);
+		box-shadow: var(--tkd-shadow-pop);
+	}
+
+	/* Focus moved to a field never hides behind the bar (WCAG 2.4.11). */
+	html:has(.tkdesk .tkd-decidebar) {
+		scroll-padding-block-end: calc(64px + 24px);
+	}
+}
+
+.tkdesk .tkd-banner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-3) var(--tkd-space-4);
+	padding-block: var(--tkd-space-4);
+	padding-inline: var(--tkd-space-5);
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-card);
+	background: var(--tkd-card);
+	color: var(--tkd-text);
+	font-size: var(--tkd-fs-lead);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-banner__ico {
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 40px;
+	block-size: 40px;
+	border-radius: 50%;
+	background: var(--tkd-neutral-tile);
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-banner__msg {
+	display: flex;
+	flex: 1 1 260px;
+	flex-direction: column;
+	gap: 4px;
+}
+
+/* Outcome email not sent: always red, with an icon. */
+.tkdesk .tkd-banner__alert {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--tkd-red-ink);
+	font-size: var(--tkd-fs-body);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-banner__alert .tkd-ico {
+	inline-size: 16px;
+	block-size: 16px;
+}
+
+.tkdesk .tkd-banner--success {
+	background: var(--tkd-green-50);
+	border-color: var(--tkd-green-tile);
+	color: var(--tkd-green-ink);
+}
+
+.tkdesk .tkd-banner--success .tkd-banner__ico {
+	background: var(--tkd-green);
+	color: #fff;
+	animation: tkd-pop 500ms var(--tkd-spring) both;
+}
+
+.tkdesk .tkd-banner--success .tkd-banner__ico .tkd-ico {
+	stroke-width: 3;
+}
+
+/* Per-item removal results, revealed one by one. */
+.tkdesk .tkd-outcomes {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+	padding: var(--tkd-card-pad);
+}
+
+.tkdesk .tkd-outcome {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	gap: var(--tkd-space-3);
+	min-block-size: 48px;
+	padding-block: 8px;
+	padding-inline: 12px;
+	border-radius: 12px;
+	background: var(--tkd-green-50);
+	animation: tkd-rise 400ms var(--tkd-ease) both;
+	animation-delay: calc(var(--i, 0) * 140ms);
+}
+
+.tkdesk .tkd-outcome.is-fail {
+	background: var(--tkd-red-50);
+}
+
+.tkdesk .tkd-outcome__ico {
+	display: grid;
+	place-items: center;
+	inline-size: 28px;
+	block-size: 28px;
+	border-radius: 50%;
+	background: var(--tkd-green);
+	color: #fff;
+}
+
+.tkdesk .tkd-outcome.is-fail .tkd-outcome__ico {
+	background: var(--tkd-red);
+}
+
+.tkdesk .tkd-outcome__ico .tkd-ico {
+	inline-size: 16px;
+	block-size: 16px;
+	stroke-width: 3;
+}
+
+.tkdesk .tkd-outcome__label {
+	font-weight: 700;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-outcome__msg {
+	color: var(--tkd-green-ink);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	text-align: end;
+}
+
+.tkdesk .tkd-outcome.is-fail .tkd-outcome__msg {
+	color: var(--tkd-red-ink);
+}
+
+@media (width <= 600px) {
+
+	.tkdesk .tkd-outcome {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+
+	.tkdesk .tkd-outcome__msg {
+		grid-column: 2;
+		text-align: start;
+	}
+}
+
+.tkdesk .tkd-input.tkd-cdn__urls {
+	min-block-size: 0;
+	font-family: var(--tkd-mono);
+	font-size: var(--tkd-fs-small);
+	resize: none;
+}
+
+/* Request card: label / value rows. */
+.tkdesk .tkd-dl {
+	display: flex;
+	flex-direction: column;
+}
+
+.tkdesk .tkd-dl__row {
+	display: grid;
+	grid-template-columns: minmax(120px, 0.36fr) minmax(0, 1fr);
+	gap: var(--tkd-space-4);
+	padding-block: 14px;
+	border-block-start: 1px solid var(--tkd-border);
+}
+
+.tkdesk .tkd-dl__row:first-child {
+	padding-block-start: 0;
+	border-block-start: 0;
+}
+
+.tkdesk .tkd-dl dt {
+	padding-block-start: 2px;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+}
+
+.tkdesk .tkd-dl dd {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2) 10px;
+	min-inline-size: 0;
+}
+
+@media (width <= 600px) {
+
+	.tkdesk .tkd-dl__row {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 4px;
+	}
+}
+
+.tkdesk .tkd-thread {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+	inline-size: 100%;
+}
+
+.tkdesk .tkd-thread__msg {
+	padding-block: 10px;
+	padding-inline: 14px;
+	border-radius: 12px;
+	border-start-start-radius: 4px;
+	background: var(--tkd-blue-50);
+}
+
+.tkdesk .tkd-thread__msg.is-them {
+	background: var(--tkd-bg);
+}
+
+.tkdesk .tkd-thread__meta {
+	margin-block-end: 2px;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-small);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-contact {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+/* Copies list. */
+.tkdesk .tkd-loading {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--tkd-text-2);
+	font-weight: 600;
+}
+
+.tkdesk .tkd-spinner {
+	flex: none;
+	inline-size: 18px;
+	block-size: 18px;
+	border: 2.5px solid var(--tkd-primary-soft);
+	border-block-start-color: var(--tkd-primary);
+	border-radius: 50%;
+	animation: tkd-spin 0.8s linear infinite;
+}
+
+.tkdesk .tkd-note {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	padding-block: 10px;
+	padding-inline: 14px;
+	border-radius: 12px;
+	background: var(--tkd-green-50);
+	color: var(--tkd-green-ink);
+	font-weight: 600;
+}
+
+.tkdesk .tkd-index {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding-block: 12px;
+	padding-inline: 14px;
+	border-radius: 12px;
+	background: var(--tkd-amber-50);
+}
+
+.tkdesk .tkd-index .tkd-help {
+	color: var(--tkd-amber-ink);
+	font-weight: 600;
+}
+
+.tkdesk progress {
+	inline-size: 100%;
+	block-size: 8px;
+	overflow: hidden;
+	border: 0;
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-amber-tile);
+	appearance: none;
+}
+
+.tkdesk progress::-webkit-progress-bar {
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-amber-tile);
+}
+
+.tkdesk progress::-webkit-progress-value {
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-amber);
+}
+
+.tkdesk progress::-moz-progress-bar {
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-amber);
+}
+
+.tkdesk .tkd-copies {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-copy {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	padding-block: 4px;
+	padding-inline: 0 4px;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+	background: var(--tkd-card);
+	transition: border-color var(--tkd-dur-fast) var(--tkd-ease), background-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-copy:has(input:checked) {
+	background: var(--tkd-blue-50);
+	border-color: color-mix(in srgb, var(--tkd-primary) 45%, transparent);
+}
+
+.tkdesk .tkd-copy.is-done {
+	background: var(--tkd-green-50);
+	border-color: var(--tkd-green-tile);
+}
+
+.tkdesk .tkd-copy__main {
+	display: flex;
+	flex: 1 1 auto;
+	align-items: center;
+	gap: var(--tkd-space-3);
+	min-inline-size: 0;
+	min-block-size: var(--tkd-touch);
+	padding-inline-start: 14px;
+}
+
+.tkdesk label.tkd-copy__main {
+	cursor: pointer;
+}
+
+.tkdesk .tkd-copy__text {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-inline-size: 0;
+	padding-block: 6px;
+}
+
+.tkdesk .tkd-copy__label {
+	font-weight: 700;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-copy__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.tkdesk .tkd-copy__badges .tkd-chip {
+	min-block-size: 22px;
+	padding-inline: 8px;
+	font-size: var(--tkd-fs-small);
+}
+
+.tkdesk .tkd-copy__tools {
+	display: flex;
+	flex: none;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 4px;
+}
+
+/* Decision card. */
+.tkdesk .tkd-images {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-image {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-block-size: var(--tkd-touch);
+	padding-block: 6px;
+	padding-inline: 10px;
+	border: 1px solid var(--tkd-border);
+	border-radius: 12px;
+	cursor: pointer;
+}
+
+.tkdesk .tkd-image:has(input:checked) {
+	background: var(--tkd-blue-50);
+	border-color: var(--tkd-primary);
+}
+
+.tkdesk .tkd-image__thumb {
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 48px;
+	block-size: 48px;
+	border-radius: 8px;
+	background: var(--tkd-neutral-tile);
+	color: var(--tkd-text-2);
+	object-fit: cover;
+}
+
+/*
+ * Moderator safety: thumbnails and previews stay blurred and gray until "Show image" is pressed
+ * (.tkd-revealed on the panel, set per request). Never on hover or focus.
+ */
+.tkdesk img.tkd-image__thumb,
+.tkdesk .tkd-safe__img {
+	filter: blur(14px) grayscale(1);
+	transition: filter var(--tkd-dur) var(--tkd-ease);
+}
+
+.tkdesk img.tkd-image__thumb {
+	clip-path: inset(0 round 8px);
+	filter: blur(6px) grayscale(1);
+}
+
+.tkdesk .tkd-revealed img.tkd-image__thumb,
+.tkdesk .tkd-revealed .tkd-safe__img {
+	filter: none;
+}
+
+.tkdesk .tkd-image__label {
+	min-inline-size: 0;
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+/* Safe preview of the reported item, in the Request card. */
+.tkdesk .tkd-safe {
+	display: flex;
+	flex-basis: 100%;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+	margin: 0;
+}
+
+.tkdesk .tkd-safe__frame {
+	position: relative;
+	display: grid;
+	gap: 6px;
+	max-inline-size: 360px;
+	overflow: hidden;
+	border-radius: 12px;
+	background: var(--tkd-neutral-tile);
+}
+
+.tkdesk .tkd-safe__frame.is-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tkdesk .tkd-safe__img {
+	display: block;
+	inline-size: 100%;
+	max-block-size: 240px;
+	object-fit: cover;
+}
+
+.tkdesk .tkd-safe__frame.is-grid .tkd-safe__img {
+	aspect-ratio: 1;
+}
+
+.tkdesk .tkd-safe__veil {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	background: color-mix(in srgb, var(--tkd-frame) 28%, transparent);
+}
+
+.tkdesk .tkd-safe__bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2) var(--tkd-space-4);
+}
+
+.tkdesk .tkd-safe__pref {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	min-block-size: var(--tkd-touch);
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.tkdesk .tkd-revealed .tkd-safe__veil,
+.tkdesk .tkd-panel:not(.tkd-revealed) .tkd-safe__hide {
+	display: none;
+}
+
+/* Content note before "Open item", and the note that previews are off. */
+.tkdesk .tkd-contentnote {
+	display: flex;
+	flex-basis: 100%;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-small);
+}
+
+.tkdesk .tkd-contentnote .tkd-ico {
+	flex: none;
+	inline-size: 16px;
+	block-size: 16px;
+}
+
+/* Report to the NCMEC CyberTipline (person under 18). */
+.tkdesk .tkd-chip-ico--red { background: var(--tkd-red-tile); color: var(--tkd-red-ink); }
+
+.tkdesk .tkd-card--minor {
+	border-color: var(--tkd-red-tile);
+	box-shadow: var(--tkd-shadow-card), inset 4px 0 0 var(--tkd-red);
+}
+
+.tkdesk .tkd-minor__steps {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-3);
+	margin: 0;
+	padding-inline-start: 1.5em;
+	list-style: decimal;
+}
+
+.tkdesk .tkd-minor__steps li::marker {
+	color: var(--tkd-red-ink);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-minor__steps li {
+	padding-inline-start: 4px;
+}
+
+.tkdesk .tkd-minor__steps li > span {
+	display: block;
+	margin-block-end: 6px;
+}
+
+.tkdesk .tkd-minor__form {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: var(--tkd-space-3);
+}
+
+.tkdesk .tkd-bullets {
+	margin: 0;
+	padding-inline-start: 1.25em;
+	list-style: disc;
+}
+
+.tkdesk .tkd-bullets li + li {
+	margin-block-start: 6px;
+}
+
+.tkdesk .tkd-decision__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	padding-block-start: var(--tkd-space-4);
+	border-block-start: 1px solid var(--tkd-border);
+}
+
+.tkdesk .tkd-more {
+	position: relative;
+	margin-inline-start: auto;
+}
+
+.tkdesk .tkd-menu {
+	position: absolute;
+	inset-block-end: calc(100% + 6px);
+	inset-inline-end: 0;
+	z-index: 30;
+	min-inline-size: 210px;
+	padding: 6px;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+	background: var(--tkd-card);
+	box-shadow: var(--tkd-shadow-pop);
+	animation: tkd-pop var(--tkd-dur) var(--tkd-ease) both;
+}
+
+.tkdesk .tkd-menu__item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	inline-size: 100%;
+	min-block-size: var(--tkd-touch);
+	padding-inline: 12px;
+	border: 0;
+	border-radius: 10px;
+	background: transparent;
+	color: var(--tkd-text);
+	font-weight: 600;
+	text-align: start;
+	cursor: pointer;
+}
+
+.tkdesk .tkd-menu__item:hover {
+	background: var(--tkd-bg);
+}
+
+.tkdesk .tkd-menu__item .tkd-ico {
+	inline-size: 18px;
+	block-size: 18px;
+	color: var(--tkd-text-2);
+}
+
+/* Email preview in the "Do not remove" dialog. */
+.tkdesk .tkd-email {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: var(--tkd-space-4);
+	border: 1px dashed var(--tkd-border-strong);
+	border-radius: 12px;
+	background: var(--tkd-bg);
+	font-size: var(--tkd-fs-label);
+}
+
+.tkdesk .tkd-email__subject {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tkd-space-2);
+	padding-block-end: 10px;
+	border-block-end: 1px solid var(--tkd-border);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-email__key {
+	color: var(--tkd-text-2);
+	font-weight: 600;
+}
+
+/* Record timeline, newest last. */
+.tkdesk .tkd-log {
+	display: flex;
+	flex-direction: column;
+}
+
+.tkdesk .tkd-log__row {
+	--tkd-tone: var(--tkd-primary);
+	position: relative;
+	display: flex;
+	gap: 14px;
+	padding-block-end: var(--tkd-space-4);
+}
+
+.tkdesk .tkd-log__row:last-child {
+	padding-block-end: 0;
+}
+
+.tkdesk .tkd-log__row::before {
+	position: absolute;
+	inset-block: 18px 0;
+	inset-inline-start: 6px;
+	inline-size: 2px;
+	content: "";
+	background: var(--tkd-border);
+}
+
+.tkdesk .tkd-log__row:last-child::before {
+	display: none;
+}
+
+.tkdesk .tkd-tone--green { --tkd-tone: var(--tkd-green); }
+.tkdesk .tkd-tone--red { --tkd-tone: var(--tkd-red); }
+.tkdesk .tkd-tone--amber { --tkd-tone: var(--tkd-amber); }
+
+.tkdesk .tkd-log__dot {
+	position: relative;
+	flex: none;
+	inline-size: 14px;
+	block-size: 14px;
+	margin-block-start: 3px;
+	border: 3px solid var(--tkd-tone);
+	border-radius: 50%;
+	background: var(--tkd-card);
+}
+
+.tkdesk .tkd-log__main {
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-log__text {
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-log__meta {
+	margin-block-start: 2px;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-small);
+}
+
+/* "×13": identical neighboring entries shown as one. */
+.tkdesk .tkd-repeat {
+	display: inline-block;
+	margin-inline-start: var(--tkd-space-2);
+	padding-inline: 8px;
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-neutral-tile);
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-small);
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* ---------- Day 3: shared pieces ---------- */
+.tkdesk .tkd-hero__titlerow {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-hero .tkd-tipbtn {
+	color: var(--tkd-frame-text);
+}
+
+.tkdesk .tkd-hero .tkd-tipbtn:hover {
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+}
+
+.tkdesk .tkd-hero .tkd-tip {
+	inset-inline-start: 0;
+	inset-inline-end: auto;
+	background: var(--tkd-card);
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-linkchip--btn {
+	border: 0;
+	font-size: var(--tkd-fs-label);
+	cursor: pointer;
+}
+
+.tkdesk .tkd-stack {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-4);
+}
+
+/* A group of fields that belongs to one switch (Spam protection: Google reCAPTCHA). */
+.tkdesk .tkd-stack--panel {
+	padding: var(--tkd-space-4);
+	background: var(--tkd-bg);
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+}
+
+.tkdesk .tkd-copybox {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-copybox .tkd-input {
+	flex: 1 1 220px;
+	min-inline-size: 0;
+	background-color: var(--tkd-bg);
+	font-size: var(--tkd-fs-label);
+}
+
+.tkdesk .tkd-row2 {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: var(--tkd-space-3);
+}
+
+.tkdesk .tkd-row2 > .tkd-field {
+	flex: 1 1 260px;
+}
+
+.tkdesk .tkd-checkgrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-split {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	align-items: start;
+	gap: var(--tkd-space-6);
+}
+
+@media (width <= 900px) {
+
+	.tkdesk .tkd-split {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* ---------- Inbox status card ---------- */
+.tkdesk .tkd-status {
+	position: relative;
+	gap: var(--tkd-space-3);
+	padding-block: var(--tkd-space-4);
+	padding-inline: var(--tkd-card-pad);
+}
+
+/* Dismiss: pinned to the top end corner, level with the 36px icon, at every width. */
+.tkdesk .tkd-status__close {
+	position: absolute;
+	inset-block-start: calc(var(--tkd-space-4) - 4px);
+	inset-inline-end: calc(var(--tkd-card-pad) - 12px);
+	color: var(--tkd-green-ink);
+}
+
+.tkdesk .tkd-status__close:hover {
+	background: var(--tkd-green-tile);
+	color: var(--tkd-green-ink);
+}
+
+.tkdesk .tkd-status:has(.tkd-status__close) .tkd-status__head {
+	padding-inline-end: 36px;
+}
+
+.tkdesk .tkd-status.is-live {
+	background: var(--tkd-green-50);
+	border-color: var(--tkd-green-tile);
+}
+
+.tkdesk .tkd-status.is-down {
+	border-color: var(--tkd-red-tile);
+}
+
+.tkdesk .tkd-status__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-3);
+}
+
+.tkdesk .tkd-status__ico {
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 36px;
+	block-size: 36px;
+	border-radius: 50%;
+	background: var(--tkd-red);
+	color: #fff;
+}
+
+.tkdesk .tkd-status.is-live .tkd-status__ico {
+	background: var(--tkd-green);
+	animation: tkd-pop 500ms var(--tkd-spring) both;
+}
+
+.tkdesk .tkd-status__ico .tkd-ico {
+	stroke-width: 2.5;
+}
+
+.tkdesk .tkd-status__title {
+	flex: 1 1 auto;
+	font-size: var(--tkd-fs-card);
+	font-weight: 800;
+}
+
+.tkdesk .tkd-status.is-live .tkd-status__title {
+	color: var(--tkd-green-ink);
+}
+
+.tkdesk .tkd-problems {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-problem {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px var(--tkd-space-3);
+	padding-block: 10px;
+	padding-inline: 14px;
+	border-radius: 12px;
+	background: var(--tkd-amber-50);
+	color: var(--tkd-amber-ink);
+}
+
+.tkdesk .tkd-problem--error {
+	background: var(--tkd-red-50);
+	color: var(--tkd-red-ink);
+}
+
+.tkdesk .tkd-problem__msg {
+	flex: 1 1 260px;
+	font-weight: 600;
+}
+
+/* ---------- Record of actions ---------- */
+.tkdesk .tkd-logfilters {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: var(--tkd-space-3) var(--tkd-space-4);
+	padding-block: var(--tkd-space-4);
+	padding-inline: var(--tkd-card-pad);
+}
+
+.tkdesk .tkd-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: var(--tkd-space-4);
+}
+
+.tkdesk .tkd-tile {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-3);
+	min-inline-size: 0;
+	padding: var(--tkd-space-5);
+	border-radius: var(--tkd-radius-card);
+	background: var(--tkd-card);
+	box-shadow: var(--tkd-shadow-card);
+}
+
+.tkdesk .tkd-tile__top {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-tile__top .tkd-chip-ico {
+	inline-size: 34px;
+	block-size: 34px;
+	border-radius: 10px;
+}
+
+.tkdesk .tkd-tile__top .tkd-chip-ico .tkd-ico {
+	inline-size: 18px;
+	block-size: 18px;
+}
+
+.tkdesk .tkd-tile__label {
+	flex: 1;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.tkdesk .tkd-tile__value {
+	font-size: 28px;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.1;
+	letter-spacing: -0.02em;
+}
+
+.tkdesk .tkd-skel--big {
+	inline-size: 45%;
+	block-size: 28px;
+}
+
+/* A Request ID is set: one line naming whose record this is, in place of the site-wide tiles. */
+.tkdesk .tkd-recordfor {
+	grid-column: 1 / -1;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-3);
+	padding-block: var(--tkd-space-3);
+	padding-inline: var(--tkd-card-pad);
+}
+
+/* Key events | Everything */
+.tkdesk .tkd-logbar {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.tkdesk .tkd-seg {
+	display: inline-flex;
+	gap: 4px;
+	padding: 4px;
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-card);
+	box-shadow: var(--tkd-shadow-card);
+}
+
+.tkdesk .tkd-seg__btn {
+	min-block-size: 40px;
+	padding-inline: 18px;
+	border: 0;
+	border-radius: var(--tkd-radius-pill);
+	background: transparent;
+	color: var(--tkd-text-2);
+	font-weight: 700;
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease), color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-seg__btn:hover {
+	color: var(--tkd-text);
+}
+
+.tkdesk .tkd-seg__btn[aria-pressed="true"] {
+	background: var(--tkd-frame);
+	color: #fff;
+}
+
+@media (width <= 600px) {
+
+	/* Two tiles a row instead of five stacked cards; the last one spans when it is alone. */
+	.tkdesk .tkd-tiles {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--tkd-space-3);
+	}
+
+	.tkdesk .tkd-tile {
+		padding: var(--tkd-space-4);
+	}
+
+	.tkdesk .tkd-tile:last-child:nth-child(odd) {
+		grid-column: 1 / -1;
+	}
+
+	.tkdesk .tkd-tile__value {
+		font-size: 22px;
+	}
+
+	.tkdesk .tkd-logbar {
+		justify-content: stretch;
+	}
+
+	.tkdesk .tkd-recordfor > .tkd-muted {
+		display: none; /* The separator dangles once Clear wraps below. */
+	}
+
+	.tkdesk .tkd-seg {
+		flex: 1;
+	}
+
+	.tkdesk .tkd-seg__btn {
+		flex: 1;
+	}
+}
+
+/* ---------- Settings ---------- */
+.tkdesk .tkd-settings {
+	--tkd-savebar-h: 64px;
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-5);
+	max-inline-size: 920px;
+}
+
+.tkdesk .tkd-settings__cards {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-5);
+	padding-block-end: var(--tkd-savebar-h);
+}
+
+/* Keyboard focus never lands behind the sticky Save bar. */
+html:has(.tkdesk .tkd-settings) {
+	scroll-padding-block-end: calc(64px + 24px);
+}
+
+/* Wide screens: two balanced columns in card order (reading and tab order unchanged), Save bar across both. */
+@media (width >= 1200px) {
+
+	.tkdesk .tkd-settings {
+		max-inline-size: none;
+	}
+
+	.tkdesk .tkd-settings__cards {
+		display: block;
+		columns: 2;
+		column-gap: var(--tkd-space-5);
+	}
+
+	.tkdesk .tkd-settings__cards > .tkd-card {
+		margin-block-end: var(--tkd-space-5);
+		break-inside: avoid;
+	}
+}
+
+.tkdesk .tkd-savebar {
+	position: sticky;
+	inset-block-end: 12px;
+	z-index: 30;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tkd-space-3);
+	padding-block: 10px;
+	padding-inline: 20px 10px;
+	border-radius: var(--tkd-radius-tile);
+	background: var(--tkd-frame);
+	color: #fff;
+	box-shadow: var(--tkd-shadow-pop);
+}
+
+.tkdesk .tkd-savebar__text {
+	color: var(--tkd-frame-text);
+	font-weight: 600;
+}
+
+.tkdesk .tkd-savebar :focus-visible {
+	outline-color: #fff;
+}
+
+/* Settings section links: a sticky row of chips under the header. */
+.tkdesk .tkd-secnav {
+	position: sticky;
+	inset-block-start: calc(var(--wp-admin--admin-bar--height, 32px) + var(--tkd-header-h) + 8px);
+	z-index: 30;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 6px;
+	border-radius: var(--tkd-radius-tile);
+	background: color-mix(in srgb, var(--tkd-card) 92%, transparent);
+	box-shadow: var(--tkd-shadow-card);
+	backdrop-filter: saturate(1.4) blur(10px);
+}
+
+.tkdesk .tkd-secnav__link {
+	display: inline-flex;
+	align-items: center;
+	min-block-size: 36px;
+	padding-inline: 14px;
+	border-radius: var(--tkd-radius-pill);
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.tkdesk .tkd-secnav__link:hover {
+	background: var(--tkd-blue-50);
+	color: var(--tkd-primary-ink);
+}
+
+@media (pointer: coarse) {
+
+	.tkdesk .tkd-secnav__link {
+		min-block-size: var(--tkd-touch);
+	}
+}
+
+@media (width <= 600px) {
+
+	.tkdesk .tkd-secnav {
+		inset-block-start: 0;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: none;
+		mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+	}
+}
+
+.tkdesk .tkd-savebar .tkd-btn--secondary {
+	background: transparent;
+	border-color: #6b6c7f;
+	color: #fff;
+}
+
+.tkdesk .tkd-savebar .tkd-btn--secondary:hover:not(:disabled) {
+	background: var(--tkd-frame-2);
+}
+
+.tkdesk .tkd-team {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-team__row {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-3);
+	padding-block: 10px;
+	padding-inline: 12px;
+	border: 1px solid var(--tkd-border);
+	border-radius: 12px;
+}
+
+.tkdesk .tkd-team__who {
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-mails {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Email rows: name and when it is sent beside the on/off switch, then the actions and any warning. */
+.tkdesk .tkd-mails__row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: start;
+	gap: var(--tkd-space-2) var(--tkd-space-4);
+	padding-block: 14px;
+	border-block-start: 1px solid var(--tkd-border);
+}
+
+.tkdesk .tkd-mails__text {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-mails__name {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-mails__label {
+	color: var(--tkd-text);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-mails__row.is-off .tkd-mails__label {
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-mails__when {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+}
+
+.tkdesk .tkd-mails__when .tkd-ico {
+	flex: none;
+	inline-size: 15px;
+	block-size: 15px;
+	margin-block-start: 1px;
+}
+
+.tkdesk .tkd-mails__switch {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-block-size: 32px;
+	cursor: pointer;
+}
+
+.tkdesk .tkd-mails__switch:has(input:checked) .tkd-switchrow__state {
+	color: var(--tkd-primary-ink); /* 4.5:1 or better on the blue tint. */
+}
+
+.tkdesk .tkd-mails__actions,
+.tkdesk .tkd-mails__warn {
+	grid-column: 1 / -1;
+}
+
+.tkdesk .tkd-mails__actions {
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-mails__warn {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--tkd-space-2);
+	padding: 10px 12px;
+	border: 1px solid var(--tkd-amber-tile);
+	border-radius: var(--tkd-radius-control);
+	background: var(--tkd-amber-50);
+	color: var(--tkd-amber-ink);
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+}
+
+.tkdesk .tkd-mails__warn .tkd-ico {
+	flex: none;
+	inline-size: 16px;
+	block-size: 16px;
+	margin-block-start: 1px;
+}
+
+/* Email editor: subject and text beside the fields list, live preview below. */
+.tkdesk .tkd-tpl {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(190px, 230px);
+	align-items: start;
+	gap: var(--tkd-space-5);
+}
+
+.tkdesk .tkd-tpl__edit,
+.tkdesk .tkd-tpl__side {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-3);
+	min-inline-size: 0;
+}
+
+.tkdesk .tkd-tpl textarea {
+	min-block-size: 240px;
+	resize: vertical;
+}
+
+.tkdesk .tkd-tags {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-block-size: 360px;
+	margin: 0;
+	padding-inline-end: 4px;
+	overflow: auto;
+}
+
+.tkdesk .tkd-tags__row {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	margin: 0;
+}
+
+.tkdesk .tkd-tag {
+	min-block-size: 30px;
+	padding-inline: 10px;
+	border: 1px solid color-mix(in srgb, var(--tkd-primary) 30%, transparent);
+	border-radius: var(--tkd-radius-pill);
+	background: var(--tkd-blue-50);
+	color: var(--tkd-primary-ink);
+	font-family: var(--tkd-mono);
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color var(--tkd-dur-fast) var(--tkd-ease);
+}
+
+.tkdesk .tkd-tag:hover {
+	background: var(--tkd-primary-soft);
+}
+
+.tkdesk .tkd-tags__desc {
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-small);
+}
+
+.tkdesk .tkd-tags__req {
+	margin-inline-start: 6px;
+	color: var(--tkd-amber-ink);
+	font-weight: 700;
+}
+
+@media (width <= 600px) {
+
+	.tkdesk .tkd-tpl {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.tkdesk .tkd-tags {
+		max-block-size: none;
+	}
+}
+
+.tkdesk .tkd-keybox {
+	align-items: flex-start;
+}
+
+.tkdesk .tkd-keybox .tkd-alert__msg {
+	gap: var(--tkd-space-2);
+	font-weight: 500;
+}
+
+/* ---------- Setup ---------- */
+.tkdesk .tkd-steps {
+	display: grid;
+	grid-auto-columns: minmax(0, 1fr);
+	grid-auto-flow: column;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-step {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-inline-size: 0;
+	padding-block: 10px;
+	padding-inline: 12px;
+	border-radius: var(--tkd-radius-tile);
+	background: var(--tkd-card);
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+	box-shadow: var(--tkd-shadow-card);
+	transition: box-shadow var(--tkd-dur) var(--tkd-ease);
+}
+
+.tkdesk .tkd-step__num {
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 28px;
+	block-size: 28px;
+	border-radius: 50%;
+	background: var(--tkd-neutral-tile);
+	font-weight: 800;
+}
+
+.tkdesk .tkd-step__num .tkd-ico {
+	inline-size: 16px;
+	block-size: 16px;
+	stroke-width: 3;
+}
+
+.tkdesk .tkd-step__label {
+	line-height: 1.3;
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-step[aria-current="step"] {
+	color: var(--tkd-primary-ink);
+	box-shadow: var(--tkd-shadow-card), inset 0 0 0 2px var(--tkd-primary);
+}
+
+.tkdesk .tkd-step[aria-current="step"] .tkd-step__num {
+	background: var(--tkd-primary);
+	color: #fff;
+}
+
+.tkdesk .tkd-step.is-done {
+	color: var(--tkd-green-ink);
+}
+
+.tkdesk .tkd-step.is-done .tkd-step__num {
+	background: var(--tkd-green);
+	color: #fff;
+}
+
+@media (width <= 900px) {
+
+	.tkdesk .tkd-steps {
+		display: flex;
+		flex-wrap: wrap;
+	}
+
+	.tkdesk .tkd-step:not([aria-current]) .tkd-step__label {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+}
+
+/* Phones: one row, the current step takes the room its name needs. */
+@media (width <= 600px) {
+
+	.tkdesk .tkd-steps {
+		flex-wrap: nowrap;
+	}
+
+	.tkdesk .tkd-step {
+		padding-inline: 6px;
+	}
+
+	.tkdesk .tkd-step[aria-current] {
+		flex: 1;
+		min-inline-size: 0;
+	}
+}
+
+.tkdesk .tkd-stepcard .tkd-card__body {
+	gap: var(--tkd-space-5);
+}
+
+.tkdesk .tkd-eyebrow {
+	margin-block-end: calc(var(--tkd-space-4) * -1);
+	color: var(--tkd-primary-ink);
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-stepcard__title {
+	font-size: 22px;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	text-wrap: balance;
+}
+
+.tkdesk .tkd-stepnav {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-3);
+	padding-block-start: var(--tkd-space-4);
+	border-block-start: 1px solid var(--tkd-border);
+}
+
+.tkdesk .tkd-stepnav__next {
+	margin-inline-start: auto;
+}
+
+.tkdesk .tkd-verdict {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+	padding-block: 18px;
+	padding-inline: 20px;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+	background: var(--tkd-bg);
+	animation: tkd-pop 300ms var(--tkd-ease) both;
+}
+
+.tkdesk .tkd-verdict__title {
+	display: flex;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	font-size: var(--tkd-fs-card);
+	font-weight: 800;
+}
+
+.tkdesk .tkd-verdict__note {
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	font-weight: 600;
+}
+
+.tkdesk .tkd-verdict--green {
+	background: var(--tkd-green-50);
+	border-color: var(--tkd-green-tile);
+}
+
+.tkdesk .tkd-verdict--green .tkd-verdict__title {
+	color: var(--tkd-green-ink);
+}
+
+.tkdesk .tkd-verdict--amber {
+	background: var(--tkd-amber-50);
+	border-color: var(--tkd-amber-tile);
+}
+
+.tkdesk .tkd-verdict--amber .tkd-verdict__title {
+	color: var(--tkd-amber-ink);
+}
+
+.tkdesk .tkd-trybox {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-3);
+}
+
+.tkdesk .tkd-trybox > .tkd-btn {
+	align-self: flex-start;
+}
+
+/* Theme-like previews: the notice page and where the link shows. */
+.tkdesk .tkd-notice,
+.tkdesk .tkd-preview {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+	margin: 0;
+}
+
+.tkdesk .tkd-notice__page,
+.tkdesk .tkd-mock {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 20px;
+	border: 1px solid var(--tkd-border);
+	border-radius: var(--tkd-radius-tile);
+	background: #fff;
+	box-shadow: var(--tkd-shadow-card);
+}
+
+.tkdesk .tkd-notice__page {
+	color: #2b2b38;
+	font-family: georgia, "Times New Roman", serif;
+	font-size: var(--tkd-fs-label);
+	line-height: 1.6;
+}
+
+.tkdesk .tkd-notice__title {
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.tkdesk .tkd-notice__form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+	margin-block-start: 6px;
+}
+
+.tkdesk .tkd-notice__form span {
+	block-size: 28px;
+	border: 1px solid var(--tkd-border-strong);
+	border-radius: 6px;
+}
+
+.tkdesk .tkd-notice__form .is-tall {
+	block-size: 56px;
+}
+
+.tkdesk .tkd-notice__form .tkd-notice__btn {
+	inline-size: 120px;
+	border: 0;
+	background: #2b2b38;
+}
+
+.tkdesk .tkd-mock__bar {
+	display: flex;
+	gap: 6px;
+	padding-block-end: 10px;
+	border-block-end: 1px solid var(--tkd-border);
+}
+
+.tkdesk .tkd-mock__bar span {
+	inline-size: 10px;
+	block-size: 10px;
+	border-radius: 50%;
+	background: var(--tkd-border-strong);
+}
+
+.tkdesk .tkd-mock__post {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-mock__title {
+	inline-size: 60%;
+	block-size: 14px;
+	border-radius: 6px;
+	background: var(--tkd-text);
+	opacity: 0.8;
+}
+
+.tkdesk .tkd-mock__img {
+	display: grid;
+	place-items: center;
+	block-size: 88px;
+	border-radius: 8px;
+	background: linear-gradient(135deg, var(--tkd-blue-tile), var(--tkd-green-tile));
+	color: var(--tkd-primary-ink);
+}
+
+.tkdesk .tkd-mock__line {
+	block-size: 8px;
+	border-radius: 4px;
+	background: var(--tkd-neutral-tile);
+}
+
+.tkdesk .tkd-mock__line.is-short {
+	inline-size: 70%;
+}
+
+.tkdesk .tkd-mock__link {
+	align-self: flex-start;
+	padding-block: 2px;
+	padding-inline: 8px;
+	border-radius: 6px;
+	background: var(--tkd-blue-50);
+	color: var(--tkd-primary-ink);
+	font-size: var(--tkd-fs-small);
+	font-weight: 700;
+	text-decoration: underline;
+	animation: tkd-pop 300ms var(--tkd-spring) both;
+}
+
+.tkdesk .tkd-mock__comment {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2);
+	padding-block-start: 10px;
+	border-block-start: 1px dashed var(--tkd-border);
+}
+
+.tkdesk .tkd-mock__comment .tkd-mock__line {
+	flex: 1 1 120px;
+}
+
+.tkdesk .tkd-mock__avatar {
+	inline-size: 22px;
+	block-size: 22px;
+	border-radius: 50%;
+	background: var(--tkd-purple-tile);
+}
+
+.tkdesk .tkd-mock__footer {
+	padding-block-start: 10px;
+	border-block-start: 1px solid var(--tkd-border);
+	color: var(--tkd-primary-ink);
+	font-size: var(--tkd-fs-small);
+	text-align: center;
+	text-decoration: underline;
+}
+
+/* ---------- Motion ---------- */
+@keyframes tkd-rise {
+
+	from {
+		opacity: 0;
+		translate: 0 8px;
+	}
+}
+
+@keyframes tkd-fade {
+
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes tkd-pop {
+
+	from {
+		opacity: 0;
+		scale: 0.94;
+	}
+}
+
+@keyframes tkd-dialog-in {
+
+	from {
+		opacity: 0;
+		translate: 0 12px;
+		scale: 0.97;
+	}
+}
+
+@keyframes tkd-toast-in {
+
+	from {
+		opacity: 0;
+		translate: 0 -10px;
+		scale: 0.97;
+	}
+}
+
+@keyframes tkd-toast-out {
+
+	to {
+		opacity: 0;
+		translate: 0 -6px;
+	}
+}
+
+@keyframes tkd-ring-in {
+
+	from {
+		stroke-dashoffset: 100.53;
+	}
+}
+
+@keyframes tkd-shimmer {
+
+	from {
+		background-position: 100% 0;
+	}
+
+	to {
+		background-position: -100% 0;
+	}
+}
+
+@keyframes tkd-spin {
+
+	to {
+		rotate: 360deg;
+	}
+}
+
+@keyframes tkd-pulse {
+
+	50% {
+		opacity: 0.35;
+	}
+}
+
+/* No ring animation, no shimmer, no movement when the visitor asks for less motion. */
+@media (prefers-reduced-motion: reduce) {
+
+	.tkdesk *,
+	.tkdesk *::before,
+	.tkdesk *::after,
+	.tkdesk .tkd-dialog::backdrop {
+		animation: none !important;
+		transition: none !important;
+	}
+}
+
+/* ---------- Removal proof, hide while reviewing, Undo in toasts ---------- */
+.tkdesk .tkd-alert--ok {
+	background: var(--tkd-green-50);
+	border-color: var(--tkd-green-tile);
+	color: var(--tkd-green-ink);
+}
+
+.tkdesk .tkd-reach .tkd-alert__msg p + p,
+.tkdesk .tkd-hide .tkd-alert__msg p + p {
+	font-weight: 500;
+}
+
+.tkdesk .tkd-reach__when {
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-small);
+	font-weight: 500;
+}
+
+.tkdesk .tkd-card--alert {
+	border-color: var(--tkd-red);
+	box-shadow: var(--tkd-shadow-danger);
+}
+
+.tkdesk .tkd-card--alert .tkd-card__body > .tkd-strong {
+	color: var(--tkd-red-ink);
+}
+
+.tkdesk .tkd-reach__steps {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-3);
+	margin: 0;
+	padding-inline-start: 1.25em;
+	list-style: decimal;
+}
+
+.tkdesk .tkd-reach__steps li > * + * {
+	margin-block-start: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-confirm {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-confirm p {
+	margin: 0;
+}
+
+.tkdesk .tkd-toast__undo {
+	flex: none;
+	align-self: center;
+	min-block-size: 36px;
+	padding-inline: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.55);
+	border-radius: var(--tkd-radius-pill);
+	background: transparent;
+	color: #fff;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.tkdesk .tkd-toast__undo:hover {
+	background: rgba(255, 255, 255, 0.14);
+}
+
+.tkdesk .tkd-toast__undo:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 2px;
+}
+
+/* Setup notice preview: one paragraph holds the numbered list as lines. */
+.tkdesk .tkd-notice__p {
+	white-space: pre-line;
+}
+
+/* Abuse guards (signals.php): auto-hidden and signal chips in the inbox, the Signals note and the watch list. */
+.tkdesk .tkd-req__flags {
+	margin-block-start: 4px;
+}
+
+.tkdesk .tkd-req__flags .tkd-chip {
+	min-block-size: 22px;
+	padding-inline: 8px;
+	font-size: var(--tkd-fs-small);
+}
+
+.tkdesk .tkd-signals .tkd-bullets {
+	font-weight: 500;
+}
+
+.tkdesk .tkd-watch {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2) var(--tkd-space-3);
+}
+
+.tkdesk .tkd-watch .tkd-help {
+	flex-basis: 100%;
+}
+
+/* ---------- Coverage drill buttons and the saved Cloudflare token (wave 2) ---------- */
+.tkdesk .tkd-problem__acts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-cfsaved {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--tkd-space-2) var(--tkd-space-3);
+	min-block-size: 44px;
+}
+
+.tkdesk .tkd-cfsaved__state {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--tkd-green-ink);
+	font-weight: 600;
+}
+
+/* ---------- Placing the notice link, blocks and shortcodes, policy text (wave 2) ---------- */
+.tkdesk .tkd-placeit {
+	display: grid;
+	gap: var(--tkd-space-2);
+}
+
+.tkdesk .tkd-howto {
+	display: grid;
+	gap: 4px;
+	margin: 0;
+	padding-inline-start: 1.5em;
+	list-style: decimal;
+}
+
+.tkdesk .tkd-howto li {
+	margin: 0;
+	padding-inline-start: 0.25em;
+}
+
+.tkdesk .tkd-blocklist {
+	display: grid;
+	gap: var(--tkd-space-3);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tkdesk .tkd-blockrow {
+	display: grid;
+	gap: 4px;
+	margin: 0;
+}
+
+.tkdesk .tkd-blockrow .tkd-copybox {
+	max-inline-size: 26rem;
+	margin-block-start: 4px;
+}
+
+.tkdesk .tkd-policy {
+	font-size: var(--tkd-fs-label);
+	line-height: 1.5;
+	resize: vertical;
+}
+
+.tkdesk .tkd-signals {
+	align-items: flex-start;
+}
+
+/* Person who posted it: poster notices and review requests (poster.php). */
+.tkdesk .tkd-poster {
+	display: grid;
+	gap: var(--tkd-space-2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tkdesk .tkd-poster__row {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+}
+
+.tkdesk .tkd-poster__row > .tkd-ico {
+	flex: none;
+	inline-size: 18px;
+	block-size: 18px;
+	margin-block-start: 2px;
+	color: var(--tkd-green-ink);
+}
+
+.tkdesk .tkd-poster__row.is-off > .tkd-ico {
+	color: var(--tkd-text-2);
+}
+
+.tkdesk .tkd-poster__items {
+	display: block;
+	color: var(--tkd-text-2);
+	font-size: var(--tkd-fs-label);
+	overflow-wrap: anywhere;
+}
+
+.tkdesk .tkd-subhead {
+	margin: var(--tkd-space-2) 0 0;
+	font-size: var(--tkd-fs-label);
+	font-weight: 700;
+}
+
+.tkdesk .tkd-poster__past {
+	display: grid;
+	gap: 4px;
+}
