@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Takedown Desk: Take It Down Act Removal Requests and DMCA Takedown Notices 1.1.0\n"
+"Project-Id-Version: Takedown Desk: Take It Down Act Removal Requests and DMCA Takedown Notices 1.1.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/takedown-desk\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-23T22:11:17+01:00\n"
+"POT-Creation-Date: 2026-11-24T18:43:50+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: takedown-desk\n"
@@ -17,6 +17,11 @@ msgstr ""
 #. Plugin Name of the plugin
 #: takedown-desk.php
 msgid "Takedown Desk: Take It Down Act Removal Requests and DMCA Takedown Notices"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: takedown-desk.php
+msgid "https://swiftwebdev.com/takedown-desk/"
 msgstr ""
 
 #. Description of the plugin
@@ -38,7 +43,7 @@ msgstr ""
 #: includes/privacy.php:14
 #: includes/privacy.php:24
 #: includes/privacy.php:46
-#: assets/js/admin.js:5825
+#: assets/js/admin.js:5827
 msgid "Takedown Desk"
 msgstr ""
 
@@ -179,7 +184,7 @@ msgstr ""
 
 #. translators: %s: request ID.
 #: includes/emails.php:103
-#: assets/js/admin.js:3336
+#: assets/js/admin.js:3337
 #, php-format,js-format
 msgid "Your removal request %s: Not removed"
 msgstr ""
@@ -472,92 +477,124 @@ msgstr ""
 msgid "NCMEC Take It Down, if you were under 18 in the image: %s"
 msgstr ""
 
-#: includes/emails.php:378
-msgid "Your site name"
-msgstr ""
-
-#: includes/emails.php:379
-msgid "Link to your home page"
-msgstr ""
-
 #: includes/emails.php:380
-msgid "The request ID"
+msgid "The notice ID"
 msgstr ""
 
 #: includes/emails.php:381
-msgid "Date and time the request arrived"
+msgid "Date and time the notice arrived"
 msgstr ""
 
 #: includes/emails.php:382
-msgid "Date and time the 48 hours end"
+msgid "Date and time of the target"
 msgstr ""
 
 #: includes/emails.php:383
-msgid "Private link where the requester checks the status and replies"
+msgid "Private link where the sender checks the status and replies"
 msgstr ""
 
 #: includes/emails.php:384
-msgid "Your question to the requester"
+msgid "Your question to the sender"
 msgstr ""
 
 #: includes/emails.php:385
-msgid "The reason you chose, as a full sentence"
+msgid "Your optional message to the sender"
 msgstr ""
 
 #: includes/emails.php:386
-msgid "Your optional message to the requester"
+msgid "Link to your copyright notice page"
 msgstr ""
 
 #: includes/emails.php:387
-msgid "What was removed, including any identical copies"
-msgstr ""
-
-#: includes/emails.php:388
-msgid "Number of identical copies removed with it"
-msgstr ""
-
-#: includes/emails.php:389
-msgid "Date and time of the removal"
+msgid "Whole hours left before the target"
 msgstr ""
 
 #: includes/emails.php:390
-msgid "Time from the request to the removal"
+msgid "Your site name"
 msgstr ""
 
 #: includes/emails.php:391
-msgid "Link to your removal request page"
+msgid "Link to your home page"
 msgstr ""
 
 #: includes/emails.php:392
-msgid "The reported item, such as a post title"
+msgid "The request ID"
 msgstr ""
 
 #: includes/emails.php:393
-msgid "Link to the request in your dashboard"
+msgid "Date and time the request arrived"
 msgstr ""
 
 #: includes/emails.php:394
-msgid "Whole hours left before the deadline"
+msgid "Date and time the 48 hours end"
 msgstr ""
 
 #: includes/emails.php:395
-msgid "Time left before the target, in hours and minutes"
+msgid "Private link where the requester checks the status and replies"
 msgstr ""
 
 #: includes/emails.php:396
-msgid "What was removed from the person who posted it, one item per line"
+msgid "Your question to the requester"
 msgstr ""
 
 #: includes/emails.php:397
-msgid "Private link where the person who posted it asks for a review"
+msgid "The reason you chose, as a full sentence"
 msgstr ""
 
 #: includes/emails.php:398
+msgid "Your optional message to the requester"
+msgstr ""
+
+#: includes/emails.php:399
+msgid "What was removed, including any identical copies"
+msgstr ""
+
+#: includes/emails.php:400
+msgid "Number of identical copies removed with it"
+msgstr ""
+
+#: includes/emails.php:401
+msgid "Date and time of the removal"
+msgstr ""
+
+#: includes/emails.php:402
+msgid "Time from the request to the removal"
+msgstr ""
+
+#: includes/emails.php:403
+msgid "Link to your removal request page"
+msgstr ""
+
+#: includes/emails.php:404
+msgid "The reported item, such as a post title"
+msgstr ""
+
+#: includes/emails.php:405
+msgid "Link to the request in your dashboard"
+msgstr ""
+
+#: includes/emails.php:406
+msgid "Whole hours left before the deadline"
+msgstr ""
+
+#: includes/emails.php:407
+msgid "Time left before the target, in hours and minutes"
+msgstr ""
+
+#: includes/emails.php:408
+msgid "What was removed from the person who posted it, one item per line"
+msgstr ""
+
+#: includes/emails.php:409
+msgid "Private link where the person who posted it asks for a review"
+msgstr ""
+
+#: includes/emails.php:410
 msgid "How to contest the decision, when \"This site has visitors in the EU\" is on"
 msgstr ""
 
 #. translators: %d: number of identical copies.
-#: includes/emails.php:441
+#: includes/emails.php:453
 #, php-format
 msgid "the image you reported and %d identical copy"
 msgid_plural "the image you reported and %d identical copies"
@@ -565,39 +602,39 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of identical copies.
-#: includes/emails.php:441
+#: includes/emails.php:453
 msgid "the image you reported"
 msgstr ""
 
-#: includes/emails.php:447
+#: includes/emails.php:459
 msgid "a link that is not matched to an item yet"
 msgstr ""
 
-#: includes/emails.php:454
+#: includes/emails.php:466
 msgid "If you disagree with this decision, you can also take it to a court or, if you are in the EU, to an out-of-court dispute settlement body under the Digital Services Act."
 msgstr ""
 
-#: includes/emails.php:531
-#: includes/rest.php:1660
+#: includes/emails.php:543
+#: includes/rest.php:1663
 msgid "Choose one of the listed emails."
 msgstr ""
 
-#: includes/emails.php:544
-#: assets/js/admin.js:4337
+#: includes/emails.php:556
+#: assets/js/admin.js:4339
 msgid "Keep the subject on one line."
 msgstr ""
 
 #. translators: %d: maximum number of characters.
-#: includes/emails.php:547
+#: includes/emails.php:559
 #: includes/rest.php:1336
-#: assets/js/admin.js:4331
+#: assets/js/admin.js:4333
 #, php-format,js-format
 msgid "Use %d characters or fewer."
 msgstr ""
 
 #. translators: %s: list of fields such as {item}.
-#: includes/emails.php:550
-#: assets/js/admin.js:4334
+#: includes/emails.php:562
+#: assets/js/admin.js:4336
 #, php-format,js-format
 msgid "This email cannot fill in %s. Remove it or pick a field from the list."
 msgid_plural "This email cannot fill in %s. Remove them or pick fields from the list."
@@ -605,24 +642,32 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: list of fields such as {request_id}.
-#: includes/emails.php:557
-#: assets/js/admin.js:4341
+#: includes/emails.php:569
+#: assets/js/admin.js:4343
 #, php-format,js-format
 msgid "This email must include %s. Add it back to the subject or the text."
 msgid_plural "This email must include %s. Add them back to the subject or the text."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/emails.php:609
-#: includes/emails.php:623
+#: includes/emails.php:630
+#: includes/emails.php:644
 msgid "Sample forum post"
 msgstr ""
 
-#: includes/emails.php:618
+#: includes/emails.php:639
+msgid "Which page on this site shows the material? Paste its link."
+msgstr ""
+
+#: includes/emails.php:639
 msgid "Which page shows the image? Paste its link."
 msgstr ""
 
-#: includes/emails.php:619
+#: includes/emails.php:640
+msgid "We checked the page you linked and could not find the material your notice describes."
+msgstr ""
+
+#: includes/emails.php:640
 msgid "We checked the page you linked and every image on it."
 msgstr ""
 
@@ -674,9 +719,9 @@ msgstr ""
 #: includes/frontend.php:111
 #: includes/frontend.php:237
 #: includes/settings.php:37
-#: assets/js/admin.js:4926
-#: assets/js/admin.js:5479
-#: assets/js/admin.js:5499
+#: assets/js/admin.js:4928
+#: assets/js/admin.js:5481
+#: assets/js/admin.js:5501
 msgid "Request removal of intimate images"
 msgstr ""
 
@@ -722,7 +767,7 @@ msgid "Copyright notices"
 msgstr ""
 
 #: includes/frontend.php:271
-#: assets/js/admin.js:5503
+#: assets/js/admin.js:5505
 msgid "Request removal"
 msgstr ""
 
@@ -805,7 +850,7 @@ msgstr ""
 #: includes/minors.php:80
 #: includes/objects.php:479
 #: includes/objects.php:779
-#: includes/requests.php:683
+#: includes/requests.php:685
 msgid "This request does not exist."
 msgstr ""
 
@@ -831,13 +876,13 @@ msgid "Takedown moderator"
 msgstr ""
 
 #: includes/log.php:26
-#: assets/js/admin.js:2617
+#: assets/js/admin.js:2618
 msgid "Requester"
 msgstr ""
 
 #: includes/log.php:28
-#: assets/js/admin.js:4464
-#: assets/js/admin.js:4599
+#: assets/js/admin.js:4466
+#: assets/js/admin.js:4601
 msgid "Person who posted it"
 msgstr ""
 
@@ -868,12 +913,12 @@ msgid "Enter the date you filed the report. It cannot be in the future."
 msgstr ""
 
 #: includes/minors.php:257
-#: assets/js/admin.js:2451
+#: assets/js/admin.js:2452
 msgid "Previews are off because the person in the image was under 18."
 msgstr ""
 
 #: includes/objects.php:78
-#: assets/js/admin.js:2667
+#: assets/js/admin.js:2668
 msgid "Comment"
 msgstr ""
 
@@ -964,7 +1009,7 @@ msgstr ""
 #: includes/objects.php:487
 #: includes/objects.php:776
 #: includes/poster.php:414
-#: includes/requests.php:716
+#: includes/requests.php:718
 msgid "Write a decision note of at least 10 characters."
 msgstr ""
 
@@ -1090,8 +1135,8 @@ msgid "Open the most recent email we sent you about the removal and use the link
 msgstr ""
 
 #: includes/poster.php:481
-#: assets/js/admin.js:4454
-#: assets/js/admin.js:4527
+#: assets/js/admin.js:4456
+#: assets/js/admin.js:4529
 msgid "Review requested"
 msgstr ""
 
@@ -1190,7 +1235,7 @@ msgid "The removal request form and the review form use Google reCAPTCHA to chec
 msgstr ""
 
 #: includes/privacy.php:83
-#: assets/js/admin.js:3630
+#: assets/js/admin.js:3631
 msgid "Request ID"
 msgstr ""
 
@@ -1211,22 +1256,22 @@ msgid "Link reported"
 msgstr ""
 
 #: includes/privacy.php:87
-#: assets/js/admin.js:2316
+#: assets/js/admin.js:2317
 msgid "Details"
 msgstr ""
 
 #: includes/privacy.php:88
-#: assets/js/admin.js:2318
+#: assets/js/admin.js:2319
 msgid "Statement"
 msgstr ""
 
 #: includes/privacy.php:90
-#: assets/js/admin.js:2313
+#: assets/js/admin.js:2314
 msgid "Copyrighted work"
 msgstr ""
 
 #: includes/privacy.php:91
-#: assets/js/admin.js:2314
+#: assets/js/admin.js:2315
 msgid "Where the original is"
 msgstr ""
 
@@ -1289,7 +1334,7 @@ msgstr ""
 
 #: includes/requests.php:18
 #: assets/js/admin.js:1712
-#: assets/js/admin.js:2005
+#: assets/js/admin.js:2006
 msgid "Copyright notice"
 msgstr ""
 
@@ -1368,12 +1413,12 @@ msgid "Street, city, postal code and country."
 msgstr ""
 
 #: includes/requests.php:66
-#: assets/js/admin.js:2336
+#: assets/js/admin.js:2337
 msgid "I believe in good faith that the use of the material is not authorized by the copyright owner, its agent or the law."
 msgstr ""
 
 #: includes/requests.php:67
-#: assets/js/admin.js:2337
+#: assets/js/admin.js:2338
 msgid "The information in this notice is accurate, and under penalty of perjury, I am the copyright owner or am authorized to act for the owner."
 msgstr ""
 
@@ -1409,7 +1454,7 @@ msgid "Who are you asking for?"
 msgstr ""
 
 #: includes/requests.php:130
-#: assets/js/admin.js:2326
+#: assets/js/admin.js:2327
 msgid "Myself"
 msgstr ""
 
@@ -1457,161 +1502,165 @@ msgid "Add the link to the page that shows the image."
 msgstr ""
 
 #: includes/requests.php:238
+msgid "Paste the full link, starting with https:// or http://."
+msgstr ""
+
+#: includes/requests.php:240
 #: assets/js/admin.js:1788
 msgid "Describe the copyrighted work in 10 to 2,000 characters."
 msgstr ""
 
-#: includes/requests.php:240
+#: includes/requests.php:242
 msgid "Paste a link that starts with http:// or https://, or leave this empty."
 msgstr ""
 
-#: includes/requests.php:241
+#: includes/requests.php:243
 msgid "Keep this under 2,000 characters."
 msgstr ""
 
-#: includes/requests.php:242
+#: includes/requests.php:244
 msgid "Write a short statement. One or two sentences is enough."
 msgstr ""
 
-#: includes/requests.php:243
+#: includes/requests.php:245
 msgid "Enter an email address so we can tell you the outcome."
 msgstr ""
 
-#: includes/requests.php:243
+#: includes/requests.php:245
 msgid "Enter an email address like name@example.com."
 msgstr ""
 
-#: includes/requests.php:244
+#: includes/requests.php:246
 msgid "Enter a phone number with digits only, or leave this empty."
 msgstr ""
 
-#: includes/requests.php:245
+#: includes/requests.php:247
 msgid "Keep the address under 300 characters."
 msgstr ""
 
-#: includes/requests.php:246
+#: includes/requests.php:248
 msgid "Choose whether you own the copyright or act for the owner."
 msgstr ""
 
-#: includes/requests.php:246
+#: includes/requests.php:248
 msgid "Choose who you are asking for."
 msgstr ""
 
-#: includes/requests.php:247
+#: includes/requests.php:249
 msgid "Type your full name to sign the notice."
 msgstr ""
 
-#: includes/requests.php:247
+#: includes/requests.php:249
 msgid "Type your full name to sign the request."
 msgstr ""
 
-#: includes/requests.php:248
-#: includes/requests.php:249
+#: includes/requests.php:250
+#: includes/requests.php:251
 #: assets/js/admin.js:1517
 msgid "Check this box to confirm the statement."
 msgstr ""
 
-#: includes/requests.php:401
+#: includes/requests.php:403
 msgid "We could not save the request."
 msgstr ""
 
-#: includes/requests.php:611
+#: includes/requests.php:613
 msgid "This information was deleted under the data retention setting."
 msgstr ""
 
-#: includes/requests.php:615
+#: includes/requests.php:617
 msgid "This information cannot be read because the encryption key changed."
 msgstr ""
 
 #. translators: 1: current status, 2: requested status.
-#: includes/requests.php:711
+#: includes/requests.php:713
 #, php-format
 msgid "This request cannot move from %1$s to %2$s."
 msgstr ""
 
-#: includes/requests.php:719
+#: includes/requests.php:721
 msgid "Choose a reason for not removing the item."
 msgstr ""
 
-#: includes/requests.php:726
+#: includes/requests.php:728
 msgid "An administrator filed this request, so there is no requester to ask."
 msgstr ""
 
-#: includes/requests.php:731
+#: includes/requests.php:733
 msgid "Write the question for the requester."
 msgstr ""
 
-#: includes/requests.php:851
+#: includes/requests.php:853
 #: includes/rest.php:1159
 msgid "This request changed in the meantime. Reload it to see where it stands."
 msgstr ""
 
-#: includes/requests.php:876
+#: includes/requests.php:878
 msgid "This request is closed, so details can no longer be added."
 msgstr ""
 
-#: includes/requests.php:883
+#: includes/requests.php:885
 msgid "Write a message of 10 to 2,000 characters."
 msgstr ""
 
-#: includes/requests.php:889
+#: includes/requests.php:891
 msgid "You already sent 5 replies in the last hour. Please wait an hour, then send your reply again."
 msgstr ""
 
 #. translators: %s: ID of the earlier request.
-#: includes/requests.php:931
-#: assets/js/admin.js:3306
+#: includes/requests.php:933
+#: assets/js/admin.js:3307
 #, php-format,js-format
 msgid "We already handled this item under request %s."
 msgstr ""
 
 #. translators: %s: ID of the earlier request.
-#: includes/requests.php:931
+#: includes/requests.php:933
 msgid "We already handled this item under another request."
 msgstr ""
 
-#: includes/requests.php:934
+#: includes/requests.php:936
 msgid "The notice is missing information we need to act on it."
 msgstr ""
 
-#: includes/requests.php:935
+#: includes/requests.php:937
 msgid "We could not find the material on this site from the information in the notice."
 msgstr ""
 
-#: includes/requests.php:936
+#: includes/requests.php:938
 msgid "After reviewing the notice, we did not remove the material."
 msgstr ""
 
-#: includes/requests.php:939
-#: includes/requests.php:951
-#: assets/js/admin.js:3309
+#: includes/requests.php:941
+#: includes/requests.php:953
+#: assets/js/admin.js:3310
 msgid "After a further review we put the item back. Reply if you have more information."
 msgstr ""
 
-#: includes/requests.php:943
-#: assets/js/admin.js:3300
+#: includes/requests.php:945
+#: assets/js/admin.js:3301
 msgid "We could not find the image from the information in the request."
 msgstr ""
 
 #. translators: %s: site name.
-#: includes/requests.php:945
-#: assets/js/admin.js:3302
+#: includes/requests.php:947
+#: assets/js/admin.js:3303
 #, php-format,js-format
 msgid "The link is not hosted on %s, so we cannot remove it. Contact the site that hosts it."
 msgstr ""
 
-#: includes/requests.php:946
-#: assets/js/admin.js:3303
+#: includes/requests.php:948
+#: assets/js/admin.js:3304
 msgid "The request was missing information we need and we did not hear back."
 msgstr ""
 
-#: includes/requests.php:947
-#: assets/js/admin.js:3304
+#: includes/requests.php:949
+#: assets/js/admin.js:3305
 msgid "The item at that link does not show what the request describes."
 msgstr ""
 
-#: includes/requests.php:950
-#: assets/js/admin.js:3308
+#: includes/requests.php:952
+#: assets/js/admin.js:3309
 msgid "We could not confirm the request with the information we have."
 msgstr ""
 
@@ -1648,7 +1697,7 @@ msgstr ""
 #: includes/view-form.php:147
 #: assets/js/admin.js:550
 #: assets/js/admin.js:1175
-#: assets/js/admin.js:3801
+#: assets/js/admin.js:3802
 msgid "Removed"
 msgstr ""
 
@@ -1658,12 +1707,12 @@ msgstr ""
 #: includes/view-form.php:150
 #: assets/js/admin.js:551
 #: assets/js/admin.js:1176
-#: assets/js/admin.js:3802
+#: assets/js/admin.js:3803
 msgid "Not removed"
 msgstr ""
 
 #: includes/rest.php:323
-#: assets/js/admin.js:1888
+#: assets/js/admin.js:1889
 msgid "This request does not exist or was deleted."
 msgstr ""
 
@@ -1717,12 +1766,12 @@ msgstr ""
 
 #. translators: %s: placeholder for the other request ID.
 #: includes/rest.php:547
-#: assets/js/admin.js:3306
+#: assets/js/admin.js:3307
 msgid "Already handled in another request"
 msgstr ""
 
 #: includes/rest.php:548
-#: assets/js/admin.js:3308
+#: assets/js/admin.js:3309
 msgid "Not made in good faith"
 msgstr ""
 
@@ -1833,7 +1882,7 @@ msgid "The contact details cannot be read after a key change."
 msgstr ""
 
 #: includes/rest.php:649
-#: assets/js/admin.js:2065
+#: assets/js/admin.js:2066
 msgid "Filed by the site team, so there is no requester to email."
 msgstr ""
 
@@ -1864,7 +1913,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/rest.php:717
-#: assets/js/admin.js:3593
+#: assets/js/admin.js:3594
 msgid "Request received"
 msgstr ""
 
@@ -1965,7 +2014,7 @@ msgid "Asked the requester for details"
 msgstr ""
 
 #: includes/rest.php:748
-#: assets/js/admin.js:3600
+#: assets/js/admin.js:3601
 msgid "Requester sent details"
 msgstr ""
 
@@ -2014,7 +2063,7 @@ msgid "Request closed: not removed (%s)"
 msgstr ""
 
 #: includes/rest.php:763
-#: assets/js/admin.js:3609
+#: assets/js/admin.js:3610
 msgid "Marked as spam"
 msgstr ""
 
@@ -2081,7 +2130,7 @@ msgid "Note: %s"
 msgstr ""
 
 #: includes/rest.php:784
-#: assets/js/admin.js:3598
+#: assets/js/admin.js:3599
 msgid "Contact details viewed"
 msgstr ""
 
@@ -2267,7 +2316,7 @@ msgid "Choose someone who can act on requests."
 msgstr ""
 
 #: includes/rest.php:1052
-#: assets/js/admin.js:2691
+#: assets/js/admin.js:2692
 msgid "No item found at that link."
 msgstr ""
 
@@ -2294,7 +2343,7 @@ msgid "Add up to %d entries."
 msgstr ""
 
 #: includes/rest.php:1331
-#: assets/js/admin.js:5626
+#: assets/js/admin.js:5628
 msgid "Enter a valid email address."
 msgstr ""
 
@@ -2335,41 +2384,41 @@ msgid "Some fields need a fix."
 msgstr ""
 
 #: includes/rest.php:1401
-#: assets/js/admin.js:3881
+#: assets/js/admin.js:3882
 msgid "Forum topics"
 msgstr ""
 
 #: includes/rest.php:1402
-#: assets/js/admin.js:3881
+#: assets/js/admin.js:3882
 msgid "Forum replies"
 msgstr ""
 
-#: includes/rest.php:1484
-#: includes/rest.php:1507
+#: includes/rest.php:1487
+#: includes/rest.php:1510
 msgid "This action is not available."
 msgstr ""
 
-#: includes/rest.php:1510
+#: includes/rest.php:1513
 msgid "Choose a page that is not in the trash."
 msgstr ""
 
-#: includes/rest.php:1531
+#: includes/rest.php:1534
 msgid "There is no notice page yet. Create it first."
 msgstr ""
 
-#: includes/rest.php:1590
+#: includes/rest.php:1593
 msgid "Takedown Desk test item"
 msgstr ""
 
-#: includes/rest.php:1591
+#: includes/rest.php:1594
 msgid "Takedown Desk created this private post so you can try a removal request. Only you and other editors can see it."
 msgstr ""
 
-#: includes/rest.php:1603
+#: includes/rest.php:1606
 msgid "This is a test request sent from the setup screen."
 msgstr ""
 
-#: includes/rest.php:1604
+#: includes/rest.php:1607
 msgid "This is a test. Nobody asked for this removal."
 msgstr ""
 
@@ -2393,12 +2442,12 @@ msgid "Not shown"
 msgstr ""
 
 #: includes/shortcode.php:148
-#: assets/js/admin.js:3800
+#: assets/js/admin.js:3801
 msgid "Requests received"
 msgstr ""
 
 #: includes/shortcode.php:151
-#: assets/js/admin.js:3803
+#: assets/js/admin.js:3804
 msgid "Median time to removal"
 msgstr ""
 
@@ -2408,7 +2457,7 @@ msgstr ""
 
 #. translators: %s: a whole-number percentage, for example 92.
 #: includes/shortcode.php:153
-#: assets/js/admin.js:3807
+#: assets/js/admin.js:3808
 msgid "Closed within 48 hours"
 msgstr ""
 
@@ -2461,7 +2510,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/signals.php:128
-#: assets/js/admin.js:2397
+#: assets/js/admin.js:2398
 msgid "On your watch list"
 msgstr ""
 
@@ -2515,8 +2564,8 @@ msgid "There is no notice page, so people have no place to send a removal reques
 msgstr ""
 
 #: includes/status.php:54
-#: assets/js/admin.js:4916
-#: assets/js/admin.js:5468
+#: assets/js/admin.js:4918
+#: assets/js/admin.js:5470
 msgid "Create the notice page"
 msgstr ""
 
@@ -2545,12 +2594,12 @@ msgid "Run WP-Cron from a real cron job"
 msgstr ""
 
 #: includes/status.php:75
-#: assets/js/admin.js:4132
+#: assets/js/admin.js:4133
 msgid "Only one person can act on requests. Add a second moderator so weekends and holidays are covered."
 msgstr ""
 
 #: includes/status.php:75
-#: assets/js/admin.js:5593
+#: assets/js/admin.js:5595
 msgid "Add a moderator"
 msgstr ""
 
@@ -2568,12 +2617,12 @@ msgstr ""
 
 #: includes/status.php:81
 #: assets/js/admin.js:1481
-#: assets/js/admin.js:5669
+#: assets/js/admin.js:5671
 msgid "Send a test request"
 msgstr ""
 
 #: includes/status.php:86
-#: assets/js/admin.js:4106
+#: assets/js/admin.js:4107
 msgid "Your encryption key is stored in the same database as the data it protects. Add a TKDESK_KEY line to wp-config.php."
 msgstr ""
 
@@ -2674,7 +2723,7 @@ msgstr ""
 #: includes/view-form.php:95
 #: includes/view-form.php:298
 #: assets/js/admin.js:212
-#: assets/js/admin.js:2279
+#: assets/js/admin.js:2280
 msgid "(opens in a new tab)"
 msgstr ""
 
@@ -2752,7 +2801,7 @@ msgid "Being reviewed"
 msgstr ""
 
 #: includes/view-form.php:135
-#: assets/js/admin.js:3003
+#: assets/js/admin.js:3004
 msgid "Decision"
 msgstr ""
 
@@ -3024,8 +3073,8 @@ msgid "Copied."
 msgstr ""
 
 #: assets/js/admin.js:295
-#: assets/js/admin.js:4090
-#: assets/js/admin.js:4808
+#: assets/js/admin.js:4091
+#: assets/js/admin.js:4810
 msgid "Copy"
 msgstr ""
 
@@ -3102,7 +3151,7 @@ msgid "Under 8 h left"
 msgstr ""
 
 #: assets/js/admin.js:456
-#: assets/js/admin.js:3613
+#: assets/js/admin.js:3614
 msgid "Overdue"
 msgstr ""
 
@@ -3184,7 +3233,7 @@ msgid "Fix these to continue:"
 msgstr ""
 
 #: assets/js/admin.js:871
-#: assets/js/admin.js:4760
+#: assets/js/admin.js:4762
 msgid "Close"
 msgstr ""
 
@@ -3201,13 +3250,13 @@ msgid "Clock"
 msgstr ""
 
 #: assets/js/admin.js:939
-#: assets/js/admin.js:2366
-#: assets/js/admin.js:3834
+#: assets/js/admin.js:2367
+#: assets/js/admin.js:3835
 msgid "Request"
 msgstr ""
 
 #: assets/js/admin.js:941
-#: assets/js/admin.js:2027
+#: assets/js/admin.js:2028
 msgid "Assigned to"
 msgstr ""
 
@@ -3288,7 +3337,7 @@ msgid "We will remind you in 30 days."
 msgstr ""
 
 #: assets/js/admin.js:1111
-#: assets/js/admin.js:4692
+#: assets/js/admin.js:4694
 msgid "Copyright notice page created."
 msgstr ""
 
@@ -3310,7 +3359,7 @@ msgstr ""
 
 #: assets/js/admin.js:1134
 #: assets/js/admin.js:1482
-#: assets/js/admin.js:5453
+#: assets/js/admin.js:5455
 msgid "View your notice page"
 msgstr ""
 
@@ -3385,13 +3434,13 @@ msgid "Loading requests"
 msgstr ""
 
 #: assets/js/admin.js:1401
-#: assets/js/admin.js:2573
+#: assets/js/admin.js:2574
 msgid "Under 18"
 msgstr ""
 
 #: assets/js/admin.js:1404
-#: assets/js/admin.js:2008
-#: assets/js/admin.js:2703
+#: assets/js/admin.js:2009
+#: assets/js/admin.js:2704
 msgid "Item not matched"
 msgstr ""
 
@@ -3448,7 +3497,7 @@ msgid "When someone sends a removal request it appears here with a 48-hour clock
 msgstr ""
 
 #: assets/js/admin.js:1492
-#: assets/js/admin.js:5679
+#: assets/js/admin.js:5681
 msgid "Test request sent."
 msgstr ""
 
@@ -3667,125 +3716,125 @@ msgstr ""
 msgid "Choose who is sending the notice."
 msgstr ""
 
-#: assets/js/admin.js:1816
+#: assets/js/admin.js:1817
 msgid "Filed by the site team, so there is no requester to ask or email."
 msgstr ""
 
-#: assets/js/admin.js:1819
-#: assets/js/admin.js:2289
+#: assets/js/admin.js:1820
+#: assets/js/admin.js:2290
 msgid "Reported item"
 msgstr ""
 
-#: assets/js/admin.js:1820
+#: assets/js/admin.js:1821
 msgid "Exact copy"
 msgstr ""
 
-#: assets/js/admin.js:1821
+#: assets/js/admin.js:1822
 msgid "Also appears in"
 msgstr ""
 
-#: assets/js/admin.js:1824
+#: assets/js/admin.js:1825
 msgid "Taken offline"
 msgstr ""
 
-#: assets/js/admin.js:1825
-#: assets/js/admin.js:3602
+#: assets/js/admin.js:1826
+#: assets/js/admin.js:3603
 msgid "Images removed"
 msgstr ""
 
-#: assets/js/admin.js:1826
+#: assets/js/admin.js:1827
 msgid "Deleted permanently"
 msgstr ""
 
-#: assets/js/admin.js:1827
+#: assets/js/admin.js:1828
 msgid "Restored"
 msgstr ""
 
-#: assets/js/admin.js:1828
+#: assets/js/admin.js:1829
 msgid "Hidden while reviewing"
 msgstr ""
 
-#: assets/js/admin.js:1829
+#: assets/js/admin.js:1830
 msgid "Skipped"
 msgstr ""
 
-#: assets/js/admin.js:1830
+#: assets/js/admin.js:1831
 msgid "Failed"
 msgstr ""
 
-#: assets/js/admin.js:1833
+#: assets/js/admin.js:1834
 msgid "Asking for details does not pause the target clock."
 msgstr ""
 
-#: assets/js/admin.js:1833
+#: assets/js/admin.js:1834
 msgid "Asking for details does not pause the deadline."
 msgstr ""
 
-#: assets/js/admin.js:1889
-#: assets/js/admin.js:1924
+#: assets/js/admin.js:1890
+#: assets/js/admin.js:1925
 msgid "Back to requests"
 msgstr ""
 
-#: assets/js/admin.js:1891
+#: assets/js/admin.js:1892
 msgid "We could not load this request. Check your connection and try again."
 msgstr ""
 
-#: assets/js/admin.js:1932
+#: assets/js/admin.js:1933
 msgid "Loading request"
 msgstr ""
 
-#: assets/js/admin.js:1974
+#: assets/js/admin.js:1975
 msgid "Decide"
 msgstr ""
 
-#: assets/js/admin.js:1997
+#: assets/js/admin.js:1998
 msgid "Closed after the target"
 msgstr ""
 
-#: assets/js/admin.js:1997
+#: assets/js/admin.js:1998
 msgid "Closed after the deadline"
 msgstr ""
 
-#: assets/js/admin.js:2005
+#: assets/js/admin.js:2006
 msgid "Removal request"
 msgstr ""
 
 #. translators: %s: user display name.
-#: assets/js/admin.js:2040
+#: assets/js/admin.js:2041
 #, js-format
 msgid "Assigned to %s."
 msgstr ""
 
-#: assets/js/admin.js:2040
+#: assets/js/admin.js:2041
 msgid "Request unassigned."
 msgstr ""
 
-#: assets/js/admin.js:2051
+#: assets/js/admin.js:2052
 msgid "Requester not emailed: The contact details were deleted."
 msgstr ""
 
-#: assets/js/admin.js:2052
+#: assets/js/admin.js:2053
 msgid "Requester not emailed: The contact details cannot be read after a key change."
 msgstr ""
 
-#: assets/js/admin.js:2055
+#: assets/js/admin.js:2056
 msgid "Requester not emailed: The email could not be sent."
 msgstr ""
 
-#: assets/js/admin.js:2062
+#: assets/js/admin.js:2063
 msgid "Reopen request"
 msgstr ""
 
-#: assets/js/admin.js:2062
+#: assets/js/admin.js:2063
 msgid "Request reopened. The deadline was not reset."
 msgstr ""
 
-#: assets/js/admin.js:2065
+#: assets/js/admin.js:2066
 msgid "Requester emailed."
 msgstr ""
 
 #. translators: 1: number of items, 2: duration such as "17 h 42 min".
-#: assets/js/admin.js:2072
+#: assets/js/admin.js:2073
 #, js-format
 msgid "Removed %1$d item %2$s after the request."
 msgid_plural "Removed %1$d items %2$s after the request."
@@ -3793,1970 +3842,1970 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: sentence such as "Closed 3 h 5 min after the request", 2: decline reason.
-#: assets/js/admin.js:2077
+#: assets/js/admin.js:2078
 #, js-format
 msgid "%1$s. Reason: %2$s."
 msgstr ""
 
-#: assets/js/admin.js:2077
+#: assets/js/admin.js:2078
 msgid "Closed"
 msgstr ""
 
-#: assets/js/admin.js:2080
-#: assets/js/admin.js:2991
+#: assets/js/admin.js:2081
+#: assets/js/admin.js:2992
 msgid "Marked as spam. No email was sent."
 msgstr ""
 
-#: assets/js/admin.js:2099
+#: assets/js/admin.js:2100
 msgid "Check again"
 msgstr ""
 
 #. translators: %s: date and time.
-#: assets/js/admin.js:2102
+#: assets/js/admin.js:2103
 #, js-format
 msgid "Checked %s."
 msgstr ""
 
 #. translators: %s: date and time.
-#: assets/js/admin.js:2104
+#: assets/js/admin.js:2105
 #, js-format
 msgid "Next automatic check: %s."
 msgstr ""
 
 #. translators: %s: error message.
-#: assets/js/admin.js:2110
+#: assets/js/admin.js:2111
 #, js-format
 msgid "Cloudflare did not purge the removed links (%s). Check the Cloudflare settings, then select Check again."
 msgstr ""
 
 #. translators: %d: number of links.
-#: assets/js/admin.js:2123
+#: assets/js/admin.js:2124
 #, js-format
 msgid "Verified unreachable: %d link no longer answers."
 msgid_plural "Verified unreachable: %d links no longer answer."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:2124
+#: assets/js/admin.js:2125
 msgid "We could not check whether the removed links still answer."
 msgstr ""
 
 #. translators: %d: number of links.
-#: assets/js/admin.js:2127
+#: assets/js/admin.js:2128
 #, js-format
 msgid "We could not check %d link. Try again in a few minutes."
 msgid_plural "We could not check %d links. Try again in a few minutes."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:2129
+#: assets/js/admin.js:2130
 msgid "Cloudflare purged its cached copies."
 msgstr ""
 
-#: assets/js/admin.js:2136
+#: assets/js/admin.js:2137
 msgid "Links that still answer"
 msgstr ""
 
-#: assets/js/admin.js:2140
+#: assets/js/admin.js:2141
 msgid "Hello Jetpack support,"
-msgstr ""
-
-#. translators: %s: site address.
-#: assets/js/admin.js:2142
-#, js-format
-msgid "We removed these images from %s after a copyright notice, but the Jetpack image CDN still serves copies. Please purge them from the CDN cache:"
 msgstr ""
 
 #. translators: %s: site address.
 #: assets/js/admin.js:2143
 #, js-format
+msgid "We removed these images from %s after a copyright notice, but the Jetpack image CDN still serves copies. Please purge them from the CDN cache:"
+msgstr ""
+
+#. translators: %s: site address.
+#: assets/js/admin.js:2144
+#, js-format
 msgid "We removed these images from %s after a removal request under the Take It Down Act, but the Jetpack image CDN still serves copies. Please purge them from the CDN cache:"
 msgstr ""
 
-#: assets/js/admin.js:2145
+#: assets/js/admin.js:2146
 msgid "Thank you."
 msgstr ""
 
-#: assets/js/admin.js:2147
+#: assets/js/admin.js:2148
 msgid "Message to Jetpack support"
 msgstr ""
 
-#: assets/js/admin.js:2152
+#: assets/js/admin.js:2153
 msgid "The Jetpack image CDN still serves a copy, and only Jetpack support can purge it. Send them this message:"
 msgstr ""
 
-#: assets/js/admin.js:2154
+#: assets/js/admin.js:2155
 msgid "Copy message"
 msgstr ""
 
-#: assets/js/admin.js:2154
+#: assets/js/admin.js:2155
 msgid "Contact Jetpack support"
 msgstr ""
 
-#: assets/js/admin.js:2166
+#: assets/js/admin.js:2167
 msgid "Your site uses Cloudflare. In the Cloudflare dashboard, open Caching, then Configuration, choose Custom Purge, paste the links above and purge them."
 msgstr ""
 
-#: assets/js/admin.js:2167
+#: assets/js/admin.js:2168
 msgid "Purge Cloudflare automatically"
 msgstr ""
 
 #. translators: %s: name of the caching plugin.
-#: assets/js/admin.js:2174
+#: assets/js/admin.js:2175
 #, js-format
 msgid "Clear the cache of %s and of your host, so neither serves a saved copy."
 msgstr ""
 
-#: assets/js/admin.js:2174
+#: assets/js/admin.js:2175
 msgid "If a caching plugin or your host keeps a saved copy, clear that cache."
 msgstr ""
 
-#: assets/js/admin.js:2175
+#: assets/js/admin.js:2176
 msgid "If someone put the item back on the site, take it offline again."
 msgstr ""
 
-#: assets/js/admin.js:2177
+#: assets/js/admin.js:2178
 msgid "Then select Check again."
 msgstr ""
 
 #. translators: %d: number of links.
-#: assets/js/admin.js:2182
+#: assets/js/admin.js:2183
 #, js-format
 msgid "Still reachable: %d link"
 msgid_plural "Still reachable: %d links"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:2186
+#: assets/js/admin.js:2187
 msgid "These links still answer, so people can still see the content."
 msgstr ""
 
-#: assets/js/admin.js:2188
-#: assets/js/admin.js:2266
+#: assets/js/admin.js:2189
+#: assets/js/admin.js:2267
 msgid "Copy links"
 msgstr ""
 
-#: assets/js/admin.js:2189
+#: assets/js/admin.js:2190
 msgid "Next steps"
 msgstr ""
 
-#: assets/js/admin.js:2198
+#: assets/js/admin.js:2199
 msgid "Checking the links. Please wait."
 msgstr ""
 
-#: assets/js/admin.js:2201
+#: assets/js/admin.js:2202
 msgid "Links checked."
 msgstr ""
 
-#: assets/js/admin.js:2229
+#: assets/js/admin.js:2230
 msgid "Removal results"
 msgstr ""
 
-#: assets/js/admin.js:2240
+#: assets/js/admin.js:2241
 msgid "Done"
 msgstr ""
 
-#: assets/js/admin.js:2252
+#: assets/js/admin.js:2253
 msgid "File links to purge"
 msgstr ""
 
-#: assets/js/admin.js:2258
+#: assets/js/admin.js:2259
 msgid "Check your CDN"
 msgstr ""
 
-#: assets/js/admin.js:2262
+#: assets/js/admin.js:2263
 msgid "If you use a CDN, purge these file links there too."
 msgstr ""
 
 #. translators: %s: name of the detected caching plugin or host.
-#: assets/js/admin.js:2264
+#: assets/js/admin.js:2265
 #, js-format
 msgid "Detected: %s"
 msgstr ""
 
-#: assets/js/admin.js:2274
-#: assets/js/admin.js:2313
-#: assets/js/admin.js:2316
+#: assets/js/admin.js:2275
+#: assets/js/admin.js:2314
+#: assets/js/admin.js:2317
 msgid "None given"
 msgstr ""
 
-#: assets/js/admin.js:2294
+#: assets/js/admin.js:2295
 msgid "This item may show intimate content."
 msgstr ""
 
-#: assets/js/admin.js:2298
+#: assets/js/admin.js:2299
 msgid "Open item"
 msgstr ""
 
-#: assets/js/admin.js:2299
+#: assets/js/admin.js:2300
 msgid "Edit in WordPress"
 msgstr ""
 
-#: assets/js/admin.js:2302
+#: assets/js/admin.js:2303
 msgid "Not matched yet"
 msgstr ""
 
-#: assets/js/admin.js:2306
+#: assets/js/admin.js:2307
 msgid "Uploaded by"
 msgstr ""
 
-#: assets/js/admin.js:2307
+#: assets/js/admin.js:2308
 msgid "View profile"
 msgstr ""
 
-#: assets/js/admin.js:2307
+#: assets/js/admin.js:2308
 msgid "Guest"
 msgstr ""
 
-#: assets/js/admin.js:2311
+#: assets/js/admin.js:2312
 msgid "Link as submitted"
 msgstr ""
 
-#: assets/js/admin.js:2321
+#: assets/js/admin.js:2322
 msgid "Questions and replies"
 msgstr ""
 
-#: assets/js/admin.js:2327
+#: assets/js/admin.js:2328
 msgid "Authorized representative"
 msgstr ""
 
-#: assets/js/admin.js:2328
+#: assets/js/admin.js:2329
 msgid "Parent or guardian"
 msgstr ""
 
-#: assets/js/admin.js:2329
+#: assets/js/admin.js:2330
 msgid "The site (filed by the site team)"
 msgstr ""
 
-#: assets/js/admin.js:2339
+#: assets/js/admin.js:2340
 msgid "Relationship to the work"
 msgstr ""
 
-#: assets/js/admin.js:2339
-#: assets/js/admin.js:2350
-#: assets/js/admin.js:2626
+#: assets/js/admin.js:2340
+#: assets/js/admin.js:2351
+#: assets/js/admin.js:2627
 msgid "Not available"
 msgstr ""
 
-#: assets/js/admin.js:2340
+#: assets/js/admin.js:2341
 msgid "Confirmed statements"
 msgstr ""
 
-#: assets/js/admin.js:2342
+#: assets/js/admin.js:2343
 msgid "Asking for"
 msgstr ""
 
-#: assets/js/admin.js:2344
+#: assets/js/admin.js:2345
 msgid "Under 18 in the image"
 msgstr ""
 
-#: assets/js/admin.js:2346
-#: assets/js/admin.js:5420
+#: assets/js/admin.js:2347
+#: assets/js/admin.js:5422
 msgid "Yes"
 msgstr ""
 
-#: assets/js/admin.js:2347
+#: assets/js/admin.js:2348
 msgid "Not marked"
 msgstr ""
 
-#: assets/js/admin.js:2347
-#: assets/js/admin.js:2503
+#: assets/js/admin.js:2348
+#: assets/js/admin.js:2504
 msgid "Mark as under 18"
 msgstr ""
 
-#: assets/js/admin.js:2350
+#: assets/js/admin.js:2351
 msgid "Signed"
 msgstr ""
 
-#: assets/js/admin.js:2351
+#: assets/js/admin.js:2352
 msgid "Contact"
 msgstr ""
 
-#: assets/js/admin.js:2353
+#: assets/js/admin.js:2354
 msgid "Watch list"
 msgstr ""
 
 #. translators: %s: date.
-#: assets/js/admin.js:2359
+#: assets/js/admin.js:2360
 #, js-format
 msgid "Contact details and request text were deleted on %s under your retention setting."
 msgstr ""
 
-#: assets/js/admin.js:2361
+#: assets/js/admin.js:2362
 msgid "Contact details cannot be read because this site's encryption key changed. See Settings > Data."
 msgstr ""
 
-#: assets/js/admin.js:2384
+#: assets/js/admin.js:2385
 msgid "Signals"
 msgstr ""
 
-#: assets/js/admin.js:2386
+#: assets/js/admin.js:2387
 msgid "Signals are advice only and never decide a request. A person whose images were shared widely may report many items, so judge each request on its own."
 msgstr ""
 
-#: assets/js/admin.js:2397
+#: assets/js/admin.js:2398
 msgid "Not on your watch list"
 msgstr ""
 
-#: assets/js/admin.js:2398
+#: assets/js/admin.js:2399
 msgid "Remove from watch list"
 msgstr ""
 
-#: assets/js/admin.js:2398
+#: assets/js/admin.js:2399
 msgid "Add to watch list"
 msgstr ""
 
-#: assets/js/admin.js:2405
+#: assets/js/admin.js:2406
 msgid "Requester removed from the watch list."
 msgstr ""
 
-#: assets/js/admin.js:2405
+#: assets/js/admin.js:2406
 msgid "Requester added to the watch list."
 msgstr ""
 
-#: assets/js/admin.js:2415
+#: assets/js/admin.js:2416
 msgid "Every request from this requester shows \"On your watch list\". The list keeps a one-way code, never the email address."
 msgstr ""
 
-#: assets/js/admin.js:2457
+#: assets/js/admin.js:2458
 msgid "Show image"
 msgid_plural "Show images"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:2461
+#: assets/js/admin.js:2462
 msgid "Hide image"
 msgid_plural "Hide images"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:2478
+#: assets/js/admin.js:2479
 msgid "Previews will start blurred."
 msgstr ""
 
-#: assets/js/admin.js:2478
+#: assets/js/admin.js:2479
 msgid "Previews will start visible."
 msgstr ""
 
-#: assets/js/admin.js:2497
+#: assets/js/admin.js:2498
 msgid "Always blur previews"
 msgstr ""
 
-#: assets/js/admin.js:2503
-#: assets/js/admin.js:2599
+#: assets/js/admin.js:2504
+#: assets/js/admin.js:2600
 msgid "Clear the flag"
 msgstr ""
 
-#: assets/js/admin.js:2505
+#: assets/js/admin.js:2506
 msgid "Items can only be taken offline, never deleted."
 msgstr ""
 
-#: assets/js/admin.js:2506
+#: assets/js/admin.js:2507
 msgid "Removed files stay out of public reach and are never deleted automatically."
 msgstr ""
 
-#: assets/js/admin.js:2507
+#: assets/js/admin.js:2508
 msgid "Image previews are turned off."
 msgstr ""
 
-#: assets/js/admin.js:2508
+#: assets/js/admin.js:2509
 msgid "You get the steps to report to the NCMEC CyberTipline."
 msgstr ""
 
-#: assets/js/admin.js:2511
+#: assets/js/admin.js:2512
 msgid "Mark this request as involving a person under 18?"
 msgstr ""
 
-#: assets/js/admin.js:2511
+#: assets/js/admin.js:2512
 msgid "Clear the under-18 flag?"
 msgstr ""
 
-#: assets/js/admin.js:2514
+#: assets/js/admin.js:2515
 msgid "Use this when the request says, or you have reason to believe, that the person in the image was under 18. While the flag is on:"
 msgstr ""
 
-#: assets/js/admin.js:2515
+#: assets/js/admin.js:2516
 msgid "Clear it only if the request was marked by mistake. Permanent deletion, restore and the normal purge of removed files apply again."
 msgstr ""
 
-#: assets/js/admin.js:2523
+#: assets/js/admin.js:2524
 msgid "Marked as involving a person under 18."
 msgstr ""
 
-#: assets/js/admin.js:2523
+#: assets/js/admin.js:2524
 msgid "Under-18 flag cleared."
 msgstr ""
 
-#: assets/js/admin.js:2538
+#: assets/js/admin.js:2539
 msgid "CyberTipline report number"
 msgstr ""
 
-#: assets/js/admin.js:2539
+#: assets/js/admin.js:2540
 msgid "Reported on"
 msgstr ""
 
-#: assets/js/admin.js:2541
+#: assets/js/admin.js:2542
 msgid "Update report details"
 msgstr ""
 
-#: assets/js/admin.js:2541
+#: assets/js/admin.js:2542
 msgid "Save report details"
 msgstr ""
 
-#: assets/js/admin.js:2547
+#: assets/js/admin.js:2548
 msgid "Enter the report number from NCMEC."
 msgstr ""
 
-#: assets/js/admin.js:2554
+#: assets/js/admin.js:2555
 msgid "Report details saved to the record."
 msgstr ""
 
-#: assets/js/admin.js:2565
+#: assets/js/admin.js:2566
 msgid "If your site is not registered yet, register it with NCMEC as an electronic service provider."
 msgstr ""
 
-#: assets/js/admin.js:2565
+#: assets/js/admin.js:2566
 msgid "Register at esp.ncmec.org"
 msgstr ""
 
-#: assets/js/admin.js:2566
+#: assets/js/admin.js:2567
 msgid "File a report with the link to the item and what you know about it."
 msgstr ""
 
-#: assets/js/admin.js:2566
+#: assets/js/admin.js:2567
 msgid "Report at report.cybertip.org"
 msgstr ""
 
-#: assets/js/admin.js:2567
+#: assets/js/admin.js:2568
 msgid "Take the item offline. Do not delete it, download it or share it."
 msgstr ""
 
-#: assets/js/admin.js:2568
+#: assets/js/admin.js:2569
 msgid "Enter the report number below."
 msgstr ""
 
-#: assets/js/admin.js:2573
+#: assets/js/admin.js:2574
 msgid "Report to the NCMEC CyberTipline"
 msgstr ""
 
-#: assets/js/admin.js:2577
+#: assets/js/admin.js:2578
 msgid "This request involves a person who was under 18 in the image. U.S. law (18 U.S.C. 2258A) asks online services that learn of apparent child sexual abuse material to report it to the NCMEC CyberTipline as soon as they reasonably can, and to keep it for 1 year."
 msgstr ""
 
-#: assets/js/admin.js:2578
+#: assets/js/admin.js:2579
 msgid "While this flag is on, Takedown Desk only takes items offline, keeps the removed files out of public reach, never deletes them automatically and shows no image previews."
 msgstr ""
 
 #. translators: 1: date, 2: report number, 3: date.
-#: assets/js/admin.js:2590
+#: assets/js/admin.js:2591
 #, js-format
 msgid "Reported on %1$s, report number %2$s. The files are kept until at least %3$s."
 msgstr ""
 
 #. translators: %s: date.
-#: assets/js/admin.js:2602
+#: assets/js/admin.js:2603
 #, js-format
 msgid "You can clear the flag from %s, 1 year after the report."
 msgstr ""
 
-#: assets/js/admin.js:2603
+#: assets/js/admin.js:2604
 msgid "This is not legal advice."
 msgstr ""
 
-#: assets/js/admin.js:2617
+#: assets/js/admin.js:2618
 msgid "Moderator"
 msgstr ""
 
-#: assets/js/admin.js:2630
+#: assets/js/admin.js:2631
 msgid "Show contact details"
 msgstr ""
 
-#: assets/js/admin.js:2658
+#: assets/js/admin.js:2659
 msgid "Paste the item's link or ID"
 msgstr ""
 
-#: assets/js/admin.js:2662
+#: assets/js/admin.js:2663
 msgid "Item type"
 msgstr ""
 
-#: assets/js/admin.js:2663
+#: assets/js/admin.js:2664
 msgid "Used when you paste an ID."
 msgstr ""
 
-#: assets/js/admin.js:2665
+#: assets/js/admin.js:2666
 msgid "Post or page"
 msgstr ""
 
-#: assets/js/admin.js:2666
+#: assets/js/admin.js:2667
 msgid "Media file"
 msgstr ""
 
-#: assets/js/admin.js:2670
+#: assets/js/admin.js:2671
 msgid "Match item"
 msgstr ""
 
-#: assets/js/admin.js:2686
+#: assets/js/admin.js:2687
 msgid "Item matched."
 msgstr ""
 
-#: assets/js/admin.js:2704
+#: assets/js/admin.js:2705
 msgid "We could not match the link to an item automatically."
 msgstr ""
 
-#: assets/js/admin.js:2756
+#: assets/js/admin.js:2757
 msgid "Looking for copies..."
 msgstr ""
 
-#: assets/js/admin.js:2764
+#: assets/js/admin.js:2765
 msgid "The copy search failed. You can still remove the reported item."
 msgstr ""
 
-#: assets/js/admin.js:2765
+#: assets/js/admin.js:2766
 msgid "Search again"
 msgstr ""
 
 #. translators: %d: percentage of media files indexed.
-#: assets/js/admin.js:2776
+#: assets/js/admin.js:2777
 #, js-format
 msgid "Media index %d%% complete. Results may be partial."
 msgstr ""
 
 #. translators: %d: number of files checked.
-#: assets/js/admin.js:2786
+#: assets/js/admin.js:2787
 #, js-format
 msgid "No copies found. We checked %d files."
 msgstr ""
 
-#: assets/js/admin.js:2791
+#: assets/js/admin.js:2792
 msgid "Copies on this site"
 msgstr ""
 
 #. translators: %s: date.
-#: assets/js/admin.js:2817
+#: assets/js/admin.js:2818
 #, js-format
 msgid "Can be restored until %s"
 msgstr ""
 
 #. translators: %s: item name.
-#: assets/js/admin.js:2845
+#: assets/js/admin.js:2846
 #, js-format
 msgid "Open %s (opens in a new tab)"
 msgstr ""
 
-#: assets/js/admin.js:2847
-#: assets/js/admin.js:3463
+#: assets/js/admin.js:2848
+#: assets/js/admin.js:3464
 msgid "Restore item"
 msgstr ""
 
-#: assets/js/admin.js:2864
+#: assets/js/admin.js:2865
 msgid "Show it again"
 msgstr ""
 
-#: assets/js/admin.js:2864
+#: assets/js/admin.js:2865
 msgid "The item is back on the site."
 msgstr ""
 
-#: assets/js/admin.js:2866
+#: assets/js/admin.js:2867
 msgid "Take the item offline now and decide later. The request stays open, and you can show the item again with one click."
 msgstr ""
 
-#: assets/js/admin.js:2868
+#: assets/js/admin.js:2869
 msgid "Visitors cannot see it. It stays offline because the person in the image was under 18."
 msgstr ""
 
-#: assets/js/admin.js:2868
+#: assets/js/admin.js:2869
 msgid "Visitors cannot see it. The request stays open until you decide."
 msgstr ""
 
-#: assets/js/admin.js:2878
+#: assets/js/admin.js:2879
 msgid "Hidden while you review"
 msgstr ""
 
-#: assets/js/admin.js:2878
+#: assets/js/admin.js:2879
 msgid "Hide it while you review?"
 msgstr ""
 
-#: assets/js/admin.js:2883
+#: assets/js/admin.js:2884
 msgid "Hide while reviewing"
 msgstr ""
 
-#: assets/js/admin.js:2883
+#: assets/js/admin.js:2884
 msgid "Item hidden. The request stays open."
 msgstr ""
 
-#: assets/js/admin.js:2896
+#: assets/js/admin.js:2897
 msgid "Waiting for the requester to reply."
 msgstr ""
 
-#: assets/js/admin.js:2899
+#: assets/js/admin.js:2900
 msgid "Continue without waiting"
 msgstr ""
 
-#: assets/js/admin.js:2899
+#: assets/js/admin.js:2900
 msgid "The request is back in review."
 msgstr ""
 
-#: assets/js/admin.js:2907
+#: assets/js/admin.js:2908
 msgid "Images in this item"
 msgstr ""
 
-#: assets/js/admin.js:2932
+#: assets/js/admin.js:2933
 msgid "What to remove"
 msgstr ""
 
-#: assets/js/admin.js:2934
+#: assets/js/admin.js:2935
 msgid "The whole item"
 msgstr ""
 
-#: assets/js/admin.js:2935
+#: assets/js/admin.js:2936
 msgid "Only the selected images"
 msgstr ""
 
-#: assets/js/admin.js:2953
+#: assets/js/admin.js:2954
 msgid "How"
 msgstr ""
 
-#: assets/js/admin.js:2955
+#: assets/js/admin.js:2956
 msgid "Take offline (the files are kept)"
 msgstr ""
 
 #. translators: %d: number of days.
-#: assets/js/admin.js:2958
+#: assets/js/admin.js:2959
 #, js-format
 msgid "Take offline (can be restored for %d days)"
 msgstr ""
 
-#: assets/js/admin.js:2959
+#: assets/js/admin.js:2960
 msgid "Delete permanently now"
 msgstr ""
 
-#: assets/js/admin.js:2966
+#: assets/js/admin.js:2967
 msgid "Permanent deletion is off because the person in the image was under 18."
 msgstr ""
 
-#: assets/js/admin.js:2969
+#: assets/js/admin.js:2970
 msgid "This request is past its deadline. Add the reason for the delay to your note."
 msgstr ""
 
-#: assets/js/admin.js:2971
+#: assets/js/admin.js:2972
 msgid "This notice is past its target. Add the reason for the delay to your note."
 msgstr ""
 
-#: assets/js/admin.js:2976
-#: assets/js/admin.js:3320
+#: assets/js/admin.js:2977
+#: assets/js/admin.js:3321
 msgid "Decision note (saved to the record)"
 msgstr ""
 
-#: assets/js/admin.js:2991
+#: assets/js/admin.js:2992
 msgid "Mark as spam"
 msgstr ""
 
-#: assets/js/admin.js:2993
-#: assets/js/admin.js:3438
+#: assets/js/admin.js:2994
+#: assets/js/admin.js:3439
 msgid "Add a note"
 msgstr ""
 
-#: assets/js/admin.js:3014
-#: assets/js/admin.js:3264
+#: assets/js/admin.js:3015
+#: assets/js/admin.js:3265
 msgid "Ask requester for details"
 msgstr ""
 
-#: assets/js/admin.js:3015
-#: assets/js/admin.js:3389
+#: assets/js/admin.js:3016
+#: assets/js/admin.js:3390
 msgid "Do not remove"
 msgstr ""
 
-#: assets/js/admin.js:3022
+#: assets/js/admin.js:3023
 msgid "Choose at least one image above, or switch to The whole item."
 msgstr ""
 
-#: assets/js/admin.js:3022
+#: assets/js/admin.js:3023
 msgid "Choose at least one item under Copies on this site."
 msgstr ""
 
 #. translators: %d: number of items.
-#: assets/js/admin.js:3042
+#: assets/js/admin.js:3043
 #, js-format
 msgid "Remove %d item"
 msgid_plural "Remove %d items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:3042
+#: assets/js/admin.js:3043
 msgid "Select what to remove"
 msgstr ""
 
-#: assets/js/admin.js:3063
+#: assets/js/admin.js:3064
 msgid "More actions"
 msgstr ""
 
-#: assets/js/admin.js:3130
+#: assets/js/admin.js:3131
 msgid "Undone. The request is open again."
 msgstr ""
 
-#: assets/js/admin.js:3131
+#: assets/js/admin.js:3132
 msgid "Undone. Waiting for details again."
 msgstr ""
 
-#: assets/js/admin.js:3166
-#: assets/js/admin.js:3405
-#: assets/js/admin.js:3480
-#: assets/js/admin.js:4483
+#: assets/js/admin.js:3167
+#: assets/js/admin.js:3406
+#: assets/js/admin.js:3481
+#: assets/js/admin.js:4485
 msgid "Add a short note about your decision."
 msgstr ""
 
 #. translators: %s: date.
-#: assets/js/admin.js:3181
+#: assets/js/admin.js:3182
 #, js-format
 msgid "It disappears from the site now and can be restored until %s."
 msgid_plural "They disappear from the site now and can be restored until %s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:3182
+#: assets/js/admin.js:3183
 msgid "It disappears from the site now. The files are kept."
 msgstr ""
 
-#: assets/js/admin.js:3183
+#: assets/js/admin.js:3184
 msgid "It is deleted permanently. This cannot be undone."
 msgid_plural "They are deleted permanently. This cannot be undone."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:3185
+#: assets/js/admin.js:3186
 msgid "The requester gets the outcome email."
 msgstr ""
 
 #. translators: %d: number of items.
-#: assets/js/admin.js:3190
+#: assets/js/admin.js:3191
 #, js-format
 msgid "Remove %d item?"
 msgid_plural "Remove %d items?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:3196
+#: assets/js/admin.js:3197
 msgid "Delete permanently:"
 msgstr ""
 
-#: assets/js/admin.js:3196
+#: assets/js/admin.js:3197
 msgid "Take offline:"
 msgstr ""
 
-#: assets/js/admin.js:3200
-#: assets/js/admin.js:3927
-#: assets/js/admin.js:4019
+#: assets/js/admin.js:3201
+#: assets/js/admin.js:3928
+#: assets/js/admin.js:4020
 msgid "Remove"
 msgstr ""
 
-#: assets/js/admin.js:3216
+#: assets/js/admin.js:3217
 msgid "Removing items. Please wait."
 msgstr ""
 
 #. translators: 1: item name, 2: reason.
-#: assets/js/admin.js:3230
+#: assets/js/admin.js:3231
 #, js-format
 msgid "Could not remove %1$s: %2$s. Nothing else was changed."
 msgstr ""
 
 #. translators: 1: number of items removed, 2: number of items tried.
-#: assets/js/admin.js:3235
+#: assets/js/admin.js:3236
 #, js-format
 msgid "%1$d of %2$d items removed."
 msgstr ""
 
-#: assets/js/admin.js:3255
+#: assets/js/admin.js:3256
 msgid "What do you need to know?"
 msgstr ""
 
-#: assets/js/admin.js:3257
+#: assets/js/admin.js:3258
 msgid "Could you tell us which image on the page you mean, or add a direct link?"
 msgstr ""
 
-#: assets/js/admin.js:3262
+#: assets/js/admin.js:3263
 msgid "Send question"
 msgstr ""
 
-#: assets/js/admin.js:3269
+#: assets/js/admin.js:3270
 msgid "Write a short question for the requester."
 msgstr ""
 
-#: assets/js/admin.js:3278
+#: assets/js/admin.js:3279
 msgid "Question sent to the requester."
 msgstr ""
 
-#: assets/js/admin.js:3300
+#: assets/js/admin.js:3301
 msgid "We could not locate the item"
 msgstr ""
 
 #. translators: %s: site name.
-#: assets/js/admin.js:3302
+#: assets/js/admin.js:3303
 msgid "The item is not hosted on this site"
 msgstr ""
 
-#: assets/js/admin.js:3303
+#: assets/js/admin.js:3304
 msgid "Required information is still missing after we asked"
 msgstr ""
 
-#: assets/js/admin.js:3304
+#: assets/js/admin.js:3305
 msgid "The item does not show what the request describes"
 msgstr ""
 
-#: assets/js/admin.js:3306
+#: assets/js/admin.js:3307
 msgid "[request ID]"
 msgstr ""
 
-#: assets/js/admin.js:3309
+#: assets/js/admin.js:3310
 msgid "Put back after a further review"
 msgstr ""
 
-#: assets/js/admin.js:3316
+#: assets/js/admin.js:3317
 msgid "Reason"
 msgstr ""
 
-#: assets/js/admin.js:3317
+#: assets/js/admin.js:3318
 msgid "Choose a reason"
 msgstr ""
 
-#: assets/js/admin.js:3321
+#: assets/js/admin.js:3322
 msgid "Message to the requester (optional)"
 msgstr ""
 
-#: assets/js/admin.js:3321
+#: assets/js/admin.js:3322
 msgid "Added to the email after the reason."
 msgstr ""
 
-#: assets/js/admin.js:3326
+#: assets/js/admin.js:3327
 msgid "(Choose a reason)"
 msgstr ""
 
-#: assets/js/admin.js:3334
-#: assets/js/admin.js:4312
-#: assets/js/admin.js:4362
-#: assets/js/admin.js:4764
+#: assets/js/admin.js:3335
+#: assets/js/admin.js:4314
+#: assets/js/admin.js:4364
+#: assets/js/admin.js:4766
 msgid "Subject"
 msgstr ""
 
-#: assets/js/admin.js:3340
+#: assets/js/admin.js:3341
 msgid "We reviewed your request and did not remove the item."
 msgstr ""
 
 #. translators: %s: reason sentence.
-#: assets/js/admin.js:3340
+#: assets/js/admin.js:3341
 #, js-format
 msgid "Reason: %s"
 msgstr ""
 
-#: assets/js/admin.js:3342
+#: assets/js/admin.js:3343
 msgid "If you think this is a mistake, or you have more details, reply here:"
 msgstr ""
 
-#: assets/js/admin.js:3342
+#: assets/js/admin.js:3343
 msgid "[Private link]"
 msgstr ""
 
-#: assets/js/admin.js:3368
+#: assets/js/admin.js:3369
 msgid "The item stays offline because the person in the image was under 18."
 msgstr ""
 
-#: assets/js/admin.js:3372
+#: assets/js/admin.js:3373
 msgid "Restore the hidden item?"
 msgstr ""
 
-#: assets/js/admin.js:3374
+#: assets/js/admin.js:3375
 msgid "Yes, put it back on the site"
 msgstr ""
 
-#: assets/js/admin.js:3375
+#: assets/js/admin.js:3376
 msgid "No, keep it offline"
 msgstr ""
 
-#: assets/js/admin.js:3386
+#: assets/js/admin.js:3387
 msgid "Close request"
 msgstr ""
 
-#: assets/js/admin.js:3387
+#: assets/js/admin.js:3388
 msgid "Close request and email requester"
 msgstr ""
 
-#: assets/js/admin.js:3398
+#: assets/js/admin.js:3399
 msgid "Email preview"
 msgstr ""
 
-#: assets/js/admin.js:3404
+#: assets/js/admin.js:3405
 msgid "Choose a reason."
 msgstr ""
 
-#: assets/js/admin.js:3417
+#: assets/js/admin.js:3418
 msgid "Request closed."
 msgstr ""
 
-#: assets/js/admin.js:3417
+#: assets/js/admin.js:3418
 msgid "Request closed. The requester was emailed."
 msgstr ""
 
-#: assets/js/admin.js:3431
+#: assets/js/admin.js:3432
 msgid "Note (saved to the record)"
 msgstr ""
 
-#: assets/js/admin.js:3433
+#: assets/js/admin.js:3434
 msgid "Add note"
 msgstr ""
 
-#: assets/js/admin.js:3447
+#: assets/js/admin.js:3448
 msgid "Note added to the record."
 msgstr ""
 
-#: assets/js/admin.js:3460
+#: assets/js/admin.js:3461
 msgid "Why are you restoring it? (saved to the record)"
 msgstr ""
 
 #. translators: %s: item name.
-#: assets/js/admin.js:3466
+#: assets/js/admin.js:3467
 #, js-format
 msgid "Restore %s?"
 msgstr ""
 
-#: assets/js/admin.js:3471
+#: assets/js/admin.js:3472
 msgid "The item goes back where it was. If no removed item remains, the request closes as not removed."
 msgstr ""
 
-#: assets/js/admin.js:3472
+#: assets/js/admin.js:3473
 msgid "The item goes back where it was. If no removed item remains, the request closes as not removed and the requester is emailed."
 msgstr ""
 
 #. translators: 1: item name, 2: reason.
-#: assets/js/admin.js:3492
+#: assets/js/admin.js:3493
 #, js-format
 msgid "Could not restore %1$s: %2$s"
 msgstr ""
 
-#: assets/js/admin.js:3495
+#: assets/js/admin.js:3496
 msgid "Item restored."
 msgstr ""
 
 #. translators: 1: time of the first entry, 2: time of the last entry.
-#: assets/js/admin.js:3525
+#: assets/js/admin.js:3526
 #, js-format
 msgid "%1$s to %2$s"
 msgstr ""
 
 #. translators: %d: number of identical entries shown as one.
-#: assets/js/admin.js:3535
+#: assets/js/admin.js:3536
 #, js-format
 msgid "(%d entry)"
 msgid_plural "(%d entries)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:3554
-#: assets/js/admin.js:5792
+#: assets/js/admin.js:3555
+#: assets/js/admin.js:5794
 msgid "Record"
 msgstr ""
 
-#: assets/js/admin.js:3554
+#: assets/js/admin.js:3555
 msgid "Export this request (CSV)"
 msgstr ""
 
-#: assets/js/admin.js:3576
+#: assets/js/admin.js:3577
 msgid "Nothing recorded yet."
 msgstr ""
 
-#: assets/js/admin.js:3592
+#: assets/js/admin.js:3593
 msgid "All events"
 msgstr ""
 
-#: assets/js/admin.js:3594
+#: assets/js/admin.js:3595
 msgid "Opened"
 msgstr ""
 
-#: assets/js/admin.js:3595
+#: assets/js/admin.js:3596
 msgid "Assigned"
 msgstr ""
 
-#: assets/js/admin.js:3596
+#: assets/js/admin.js:3597
 msgid "Item matched"
 msgstr ""
 
-#: assets/js/admin.js:3597
+#: assets/js/admin.js:3598
 msgid "Copy search"
 msgstr ""
 
-#: assets/js/admin.js:3599
+#: assets/js/admin.js:3600
 msgid "Asked for details"
 msgstr ""
 
-#: assets/js/admin.js:3601
+#: assets/js/admin.js:3602
 msgid "Item taken offline"
 msgstr ""
 
-#: assets/js/admin.js:3603
+#: assets/js/admin.js:3604
 msgid "Item deleted"
 msgstr ""
 
-#: assets/js/admin.js:3604
+#: assets/js/admin.js:3605
 msgid "Removal failed"
 msgstr ""
 
-#: assets/js/admin.js:3605
+#: assets/js/admin.js:3606
 msgid "Closed as removed"
 msgstr ""
 
-#: assets/js/admin.js:3606
+#: assets/js/admin.js:3607
 msgid "Closed as not removed"
 msgstr ""
 
-#: assets/js/admin.js:3607
+#: assets/js/admin.js:3608
 msgid "Item restored"
 msgstr ""
 
-#: assets/js/admin.js:3608
+#: assets/js/admin.js:3609
 msgid "Reopened"
 msgstr ""
 
-#: assets/js/admin.js:3610
+#: assets/js/admin.js:3611
 msgid "Note added"
 msgstr ""
 
-#: assets/js/admin.js:3611
+#: assets/js/admin.js:3612
 msgid "24-hour reminder"
 msgstr ""
 
-#: assets/js/admin.js:3612
+#: assets/js/admin.js:3613
 msgid "8-hours-left reminder"
 msgstr ""
 
-#: assets/js/admin.js:3614
+#: assets/js/admin.js:3615
 msgid "Email sent"
 msgstr ""
 
-#: assets/js/admin.js:3615
+#: assets/js/admin.js:3616
 msgid "Email failed"
 msgstr ""
 
-#: assets/js/admin.js:3616
+#: assets/js/admin.js:3617
 msgid "Email turned off"
 msgstr ""
 
-#: assets/js/admin.js:3617
+#: assets/js/admin.js:3618
 msgid "Requester not emailed"
 msgstr ""
 
-#: assets/js/admin.js:3618
+#: assets/js/admin.js:3619
 msgid "Record exported"
 msgstr ""
 
-#: assets/js/admin.js:3619
+#: assets/js/admin.js:3620
 msgid "Settings changed"
 msgstr ""
 
-#: assets/js/admin.js:3628
+#: assets/js/admin.js:3629
 msgid "From"
 msgstr ""
 
-#: assets/js/admin.js:3629
+#: assets/js/admin.js:3630
 msgid "To"
 msgstr ""
 
-#: assets/js/admin.js:3631
+#: assets/js/admin.js:3632
 msgid "Event type"
 msgstr ""
 
-#: assets/js/admin.js:3644
+#: assets/js/admin.js:3645
 msgid "Entries to show"
 msgstr ""
 
-#: assets/js/admin.js:3646
+#: assets/js/admin.js:3647
 msgid "Key events"
 msgstr ""
 
-#: assets/js/admin.js:3647
+#: assets/js/admin.js:3648
 msgid "Everything"
 msgstr ""
 
-#: assets/js/admin.js:3679
+#: assets/js/admin.js:3680
 msgid "Export CSV"
 msgstr ""
 
-#: assets/js/admin.js:3680
+#: assets/js/admin.js:3681
 msgid "Verify record"
 msgstr ""
 
-#: assets/js/admin.js:3687
-#: assets/js/admin.js:3841
+#: assets/js/admin.js:3688
+#: assets/js/admin.js:3842
 msgid "Record of actions"
 msgstr ""
 
-#: assets/js/admin.js:3688
+#: assets/js/admin.js:3689
 msgid "The dated record of every request and decision, ready for a lawyer or the FTC."
 msgstr ""
 
-#: assets/js/admin.js:3690
+#: assets/js/admin.js:3691
 msgid "About the record"
 msgstr ""
 
-#: assets/js/admin.js:3690
+#: assets/js/admin.js:3691
 msgid "Entries cannot be edited or deleted from here. Each entry is chained to the one before it so changes can be detected."
 msgstr ""
 
-#: assets/js/admin.js:3692
+#: assets/js/admin.js:3693
 msgid "Filter the record"
 msgstr ""
 
-#: assets/js/admin.js:3722
+#: assets/js/admin.js:3723
 msgid "Loading the record"
 msgstr ""
 
 #. translators: %s: request ID.
-#: assets/js/admin.js:3740
+#: assets/js/admin.js:3741
 #, js-format
 msgid "Showing the record for %s"
 msgstr ""
 
-#: assets/js/admin.js:3742
+#: assets/js/admin.js:3743
 msgid "Clear the Request ID filter"
 msgstr ""
 
-#: assets/js/admin.js:3742
+#: assets/js/admin.js:3743
 msgid "Clear"
 msgstr ""
 
-#: assets/js/admin.js:3765
+#: assets/js/admin.js:3766
 msgid "No actions recorded in this range."
 msgstr ""
 
-#: assets/js/admin.js:3766
+#: assets/js/admin.js:3767
 msgid "Show last 90 days"
 msgstr ""
 
 #. translators: %d: number of entries.
-#: assets/js/admin.js:3781
+#: assets/js/admin.js:3782
 #, js-format
 msgid "%d entry found."
 msgid_plural "%d entries found."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:3790
+#: assets/js/admin.js:3791
 msgid "We could not load the record. Check your connection and try again."
 msgstr ""
 
-#: assets/js/admin.js:3800
+#: assets/js/admin.js:3801
 msgid "Requests that arrived in this date range. Test requests and spam are not counted."
 msgstr ""
 
-#: assets/js/admin.js:3801
+#: assets/js/admin.js:3802
 msgid "Requests closed in this range by removing the item."
 msgstr ""
 
-#: assets/js/admin.js:3802
+#: assets/js/admin.js:3803
 msgid "Requests closed in this range without removing anything. Each one has a recorded reason."
 msgstr ""
 
-#: assets/js/admin.js:3803
+#: assets/js/admin.js:3804
 msgid "None yet"
 msgstr ""
 
-#: assets/js/admin.js:3803
+#: assets/js/admin.js:3804
 msgid "The middle value: Half of the removals in this range were faster than this, half were slower."
 msgstr ""
 
 #. translators: 1: number of requests, 2: percentage.
-#: assets/js/admin.js:3809
+#: assets/js/admin.js:3810
 #, js-format
 msgid "%1$d (%2$d%%)"
 msgstr ""
 
-#: assets/js/admin.js:3810
+#: assets/js/admin.js:3811
 msgid "Requests closed before their 48-hour deadline, and their share of all requests closed in this range."
 msgstr ""
 
 #. translators: %s: tile name.
-#: assets/js/admin.js:3823
+#: assets/js/admin.js:3824
 #, js-format
 msgid "About %s"
 msgstr ""
 
 #. translators: %s: timezone abbreviation.
-#: assets/js/admin.js:3833
+#: assets/js/admin.js:3834
 #, js-format
 msgid "Time (%s)"
 msgstr ""
 
-#: assets/js/admin.js:3835
+#: assets/js/admin.js:3836
 msgid "Who"
 msgstr ""
 
-#: assets/js/admin.js:3836
+#: assets/js/admin.js:3837
 msgid "What happened"
 msgstr ""
 
-#: assets/js/admin.js:3851
+#: assets/js/admin.js:3852
 msgid "Site"
 msgstr ""
 
 #. translators: %d: number of entries.
-#: assets/js/admin.js:3867
+#: assets/js/admin.js:3868
 #, js-format
 msgid "Record verified: %d entries, no gaps."
 msgstr ""
 
 #. translators: %d: entry ID.
-#: assets/js/admin.js:3870
+#: assets/js/admin.js:3871
 #, js-format
 msgid "Record check failed at entry %d."
 msgstr ""
 
-#: assets/js/admin.js:3889
+#: assets/js/admin.js:3890
 msgid "Test email sent to you."
 msgstr ""
 
-#: assets/js/admin.js:3901
+#: assets/js/admin.js:3902
 msgid "Built-in bot protection"
 msgstr ""
 
-#: assets/js/admin.js:3901
+#: assets/js/admin.js:3902
 msgid "Stops automated spam with an invisible check that runs on your own site. Nothing is sent to other services, and people filling in the forms do not see it. Recommended."
 msgstr ""
 
-#: assets/js/admin.js:3902
+#: assets/js/admin.js:3903
 msgid "To use Google reCAPTCHA instead, turn off the built-in protection."
 msgstr ""
 
-#: assets/js/admin.js:3903
+#: assets/js/admin.js:3904
 msgid "Use Google reCAPTCHA"
 msgstr ""
 
-#: assets/js/admin.js:3903
+#: assets/js/admin.js:3904
 msgid "Checks the request form and the review form with Google reCAPTCHA. Google loads its script on those pages and can see who visits them, and the forms then need JavaScript."
 msgstr ""
 
-#: assets/js/admin.js:3904
+#: assets/js/admin.js:3905
 msgid "Type of reCAPTCHA"
 msgstr ""
 
-#: assets/js/admin.js:3905
+#: assets/js/admin.js:3906
 msgid "Version 3: invisible, scores each visit"
 msgstr ""
 
-#: assets/js/admin.js:3906
+#: assets/js/admin.js:3907
 msgid "Version 2: \"I'm not a robot\" checkbox"
 msgstr ""
 
-#: assets/js/admin.js:3908
+#: assets/js/admin.js:3909
 msgid "Site key"
 msgstr ""
 
-#: assets/js/admin.js:3914
+#: assets/js/admin.js:3915
 msgid "Secret key"
 msgstr ""
 
-#: assets/js/admin.js:3915
+#: assets/js/admin.js:3916
 msgid "Stored encrypted and never shown again."
 msgstr ""
 
-#: assets/js/admin.js:3926
-#: assets/js/admin.js:4018
+#: assets/js/admin.js:3927
+#: assets/js/admin.js:4019
 msgid "Saved"
 msgstr ""
 
-#: assets/js/admin.js:3953
+#: assets/js/admin.js:3954
 msgid "Lowest score that passes"
 msgstr ""
 
-#: assets/js/admin.js:3954
+#: assets/js/admin.js:3955
 msgid "Google scores each visit from 0.0 (likely a bot) to 1.0 (likely a person)."
 msgstr ""
 
-#: assets/js/admin.js:3955
+#: assets/js/admin.js:3956
 msgid "0.3: lenient"
 msgstr ""
 
-#: assets/js/admin.js:3955
+#: assets/js/admin.js:3956
 msgid "0.5: recommended"
 msgstr ""
 
-#: assets/js/admin.js:3955
+#: assets/js/admin.js:3956
 msgid "0.7: strict"
 msgstr ""
 
-#: assets/js/admin.js:3959
+#: assets/js/admin.js:3960
 msgid "Test the secret key"
 msgstr ""
 
-#: assets/js/admin.js:3967
+#: assets/js/admin.js:3968
 msgid "Google accepts this secret key."
 msgstr ""
 
-#: assets/js/admin.js:3983
+#: assets/js/admin.js:3984
 msgid "Create a key pair for this site's domain in the reCAPTCHA admin console, with the same type you choose here."
 msgstr ""
 
-#: assets/js/admin.js:3984
+#: assets/js/admin.js:3985
 msgid "Google reCAPTCHA admin console"
 msgstr ""
 
-#: assets/js/admin.js:3996
+#: assets/js/admin.js:3997
 msgid "Spam protection"
 msgstr ""
 
-#: assets/js/admin.js:4004
+#: assets/js/admin.js:4005
 msgid "Zone ID"
 msgstr ""
 
-#: assets/js/admin.js:4005
+#: assets/js/admin.js:4006
 msgid "Shown on the Overview page of your site in the Cloudflare dashboard."
 msgstr ""
 
-#: assets/js/admin.js:4011
+#: assets/js/admin.js:4012
 msgid "API token"
 msgstr ""
 
-#: assets/js/admin.js:4012
+#: assets/js/admin.js:4013
 msgid "Create a token with the Cache Purge permission for this zone. It is stored encrypted and never shown again."
 msgstr ""
 
-#: assets/js/admin.js:4046
+#: assets/js/admin.js:4047
 msgid "Test connection"
 msgstr ""
 
-#: assets/js/admin.js:4054
+#: assets/js/admin.js:4055
 msgid "Cloudflare connection works."
 msgstr ""
 
-#: assets/js/admin.js:4066
+#: assets/js/admin.js:4067
 msgid "Cloudflare"
 msgstr ""
 
-#: assets/js/admin.js:4068
+#: assets/js/admin.js:4069
 msgid "If your site runs behind Cloudflare, removed links are purged from its cache as soon as an item is removed or hidden. Leave these fields empty if you do not use Cloudflare."
 msgstr ""
 
-#: assets/js/admin.js:4076
+#: assets/js/admin.js:4077
 msgid "Your encryption key is set with TKDESK_KEY in wp-config.php."
 msgstr ""
 
-#: assets/js/admin.js:4086
+#: assets/js/admin.js:4087
 msgid "Hide"
 msgstr ""
 
-#: assets/js/admin.js:4086
-#: assets/js/admin.js:4088
+#: assets/js/admin.js:4087
+#: assets/js/admin.js:4089
 msgid "Show"
 msgstr ""
 
-#: assets/js/admin.js:4107
+#: assets/js/admin.js:4108
 msgid "Recommended: Paste this line into wp-config.php, above the line that says to stop editing. It holds the key in use now, so saved contact details stay readable, and the copy in the database is then deleted. Keep a copy of the line somewhere safe: without it, contact details cannot be read."
 msgstr ""
 
-#: assets/js/admin.js:4108
+#: assets/js/admin.js:4109
 msgid "Line for wp-config.php"
 msgstr ""
 
-#: assets/js/admin.js:4141
+#: assets/js/admin.js:4142
 msgid "Open your footer in the Site Editor."
 msgstr ""
 
-#: assets/js/admin.js:4141
+#: assets/js/admin.js:4142
 msgid "Click + and search for Removal request link."
 msgstr ""
 
-#: assets/js/admin.js:4141
+#: assets/js/admin.js:4142
 msgid "Place it and save."
 msgstr ""
 
-#: assets/js/admin.js:4142
+#: assets/js/admin.js:4143
 msgid "Open Appearance > Widgets."
 msgstr ""
 
-#: assets/js/admin.js:4142
+#: assets/js/admin.js:4143
 msgid "Add the Removal request link block, or a Shortcode widget with [takedown_desk_link]."
 msgstr ""
 
-#: assets/js/admin.js:4142
+#: assets/js/admin.js:4143
 msgid "Save."
 msgstr ""
 
-#: assets/js/admin.js:4146
+#: assets/js/admin.js:4147
 msgid "Add the Removal request link block where people will find it, usually in your footer:"
 msgstr ""
 
-#: assets/js/admin.js:4152
+#: assets/js/admin.js:4153
 msgid "Open the Site Editor"
 msgstr ""
 
-#: assets/js/admin.js:4152
+#: assets/js/admin.js:4153
 msgid "Open Widgets"
 msgstr ""
 
-#: assets/js/admin.js:4153
+#: assets/js/admin.js:4154
 msgid "Shortcode"
 msgstr ""
 
-#: assets/js/admin.js:4158
+#: assets/js/admin.js:4159
 msgid "Footer link"
 msgstr ""
 
-#: assets/js/admin.js:4160
+#: assets/js/admin.js:4161
 msgid "Automatic"
 msgstr ""
 
-#: assets/js/admin.js:4161
+#: assets/js/admin.js:4162
 msgid "I will place it myself"
 msgstr ""
 
-#: assets/js/admin.js:4176
+#: assets/js/admin.js:4177
 msgid "Request received, to the requester"
 msgstr ""
 
-#: assets/js/admin.js:4176
+#: assets/js/admin.js:4177
 msgid "Right after someone sends a request, or you log one for them."
 msgstr ""
 
-#: assets/js/admin.js:4176
+#: assets/js/admin.js:4177
 msgid "Requesters will not get this email, so they will not have their private link to check the status or add details. They still see the request ID on screen after they send the form."
 msgstr ""
 
-#: assets/js/admin.js:4177
+#: assets/js/admin.js:4178
 msgid "Request received, person under 18, to the requester"
 msgstr ""
 
-#: assets/js/admin.js:4177
+#: assets/js/admin.js:4178
 msgid "Instead of the usual confirmation, when the requester says the person in the image was under 18."
 msgstr ""
 
-#: assets/js/admin.js:4177
+#: assets/js/admin.js:4178
 msgid "Requesters will not get this email, so they will not have their private link or the links to NCMEC services."
 msgstr ""
 
-#: assets/js/admin.js:4178
+#: assets/js/admin.js:4179
 msgid "Question, to the requester"
 msgstr ""
 
-#: assets/js/admin.js:4178
+#: assets/js/admin.js:4179
 msgid "When you ask the requester for details."
 msgstr ""
 
-#: assets/js/admin.js:4178
+#: assets/js/admin.js:4179
 msgid "Requesters will not get your questions, so they cannot send the details you ask for."
 msgstr ""
 
-#: assets/js/admin.js:4179
+#: assets/js/admin.js:4180
 msgid "Removed, to the requester"
 msgstr ""
 
-#: assets/js/admin.js:4179
+#: assets/js/admin.js:4180
 msgid "When you close a request as removed."
 msgstr ""
 
-#: assets/js/admin.js:4179
+#: assets/js/admin.js:4180
 msgid "Requesters will not get this email. FTC guidance on the Take It Down Act expects you to tell requesters the outcome."
 msgstr ""
 
-#: assets/js/admin.js:4180
+#: assets/js/admin.js:4181
 msgid "Not removed, to the requester"
 msgstr ""
 
-#: assets/js/admin.js:4180
+#: assets/js/admin.js:4181
 msgid "When you close a request as not removed."
 msgstr ""
 
-#: assets/js/admin.js:4180
+#: assets/js/admin.js:4181
 msgid "Requesters will not get this email. FTC guidance on the Take It Down Act expects you to tell requesters the outcome and why the item was not removed."
 msgstr ""
 
-#: assets/js/admin.js:4181
+#: assets/js/admin.js:4182
 msgid "New request, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4181
+#: assets/js/admin.js:4182
 msgid "Right after a request arrives."
 msgstr ""
 
-#: assets/js/admin.js:4182
+#: assets/js/admin.js:4183
 msgid "24 hours left, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4182
+#: assets/js/admin.js:4183
 msgid "When 24 hours of the 48-hour deadline are left."
 msgstr ""
 
-#: assets/js/admin.js:4183
+#: assets/js/admin.js:4184
 msgid "8 hours left, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4183
+#: assets/js/admin.js:4184
 msgid "When 8 hours of the 48-hour deadline are left."
 msgstr ""
 
-#: assets/js/admin.js:4184
+#: assets/js/admin.js:4185
 msgid "Overdue, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4184
+#: assets/js/admin.js:4185
 msgid "When the 48-hour deadline passes and the request is still open."
 msgstr ""
 
-#: assets/js/admin.js:4185
+#: assets/js/admin.js:4186
 msgid "Requester replied, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4185
+#: assets/js/admin.js:4186
 msgid "When the requester sends the details you asked for."
 msgstr ""
 
-#: assets/js/admin.js:4186
+#: assets/js/admin.js:4187
 msgid "Still open after 6 days, to the requester"
 msgstr ""
 
-#: assets/js/admin.js:4186
+#: assets/js/admin.js:4187
 msgid "Once, when a request is still open 6 days after it arrived."
 msgstr ""
 
-#: assets/js/admin.js:4186
+#: assets/js/admin.js:4187
 msgid "Requesters will not hear from you while a request stays open. California law asks social media platforms to send an update within 7 days."
 msgstr ""
 
-#: assets/js/admin.js:4187
+#: assets/js/admin.js:4188
 msgid "Content removed, to the person who posted it"
 msgstr ""
 
-#: assets/js/admin.js:4187
-#: assets/js/admin.js:4196
+#: assets/js/admin.js:4188
+#: assets/js/admin.js:4197
 msgid "After a removal, when \"Notify the person who posted the item\" is on."
 msgstr ""
 
-#: assets/js/admin.js:4187
+#: assets/js/admin.js:4188
 msgid "People whose content you remove will not be told why or how to ask for a review. The EU Digital Services Act expects a reason to be given."
 msgstr ""
 
-#: assets/js/admin.js:4188
+#: assets/js/admin.js:4189
 msgid "Review requested, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4188
+#: assets/js/admin.js:4189
 msgid "When the person who posted removed content asks for a review."
 msgstr ""
 
-#: assets/js/admin.js:4192
+#: assets/js/admin.js:4193
 msgid "Notice received, to the sender"
 msgstr ""
 
-#: assets/js/admin.js:4192
+#: assets/js/admin.js:4193
 msgid "Right after someone sends a copyright notice, or you log one for them."
 msgstr ""
 
-#: assets/js/admin.js:4192
+#: assets/js/admin.js:4193
 msgid "Senders will not get this email, so they will not have their private link to check the status or add details."
 msgstr ""
 
-#: assets/js/admin.js:4193
+#: assets/js/admin.js:4194
 msgid "Question, to the sender"
 msgstr ""
 
-#: assets/js/admin.js:4193
+#: assets/js/admin.js:4194
 msgid "When you ask the sender of a copyright notice for details."
 msgstr ""
 
-#: assets/js/admin.js:4193
+#: assets/js/admin.js:4194
 msgid "Senders will not get your questions, so they cannot send the details you ask for."
 msgstr ""
 
-#: assets/js/admin.js:4194
+#: assets/js/admin.js:4195
 msgid "Removed, to the sender"
 msgstr ""
 
-#: assets/js/admin.js:4194
+#: assets/js/admin.js:4195
 msgid "When you close a copyright notice as removed."
 msgstr ""
 
-#: assets/js/admin.js:4194
+#: assets/js/admin.js:4195
 msgid "Senders will not hear that the material was removed."
 msgstr ""
 
-#: assets/js/admin.js:4195
+#: assets/js/admin.js:4196
 msgid "Not removed, to the sender"
 msgstr ""
 
-#: assets/js/admin.js:4195
+#: assets/js/admin.js:4196
 msgid "When you close a copyright notice as not removed."
 msgstr ""
 
-#: assets/js/admin.js:4195
+#: assets/js/admin.js:4196
 msgid "Senders will not hear that the material stayed up or why."
 msgstr ""
 
-#: assets/js/admin.js:4196
+#: assets/js/admin.js:4197
 msgid "Content removed after a copyright notice, to the person who posted it"
 msgstr ""
 
-#: assets/js/admin.js:4196
+#: assets/js/admin.js:4197
 msgid "People whose content you remove will not be told why or how to ask for a review."
 msgstr ""
 
-#: assets/js/admin.js:4197
+#: assets/js/admin.js:4198
 msgid "New copyright notice, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4197
+#: assets/js/admin.js:4198
 msgid "Right after a copyright notice arrives."
 msgstr ""
 
-#: assets/js/admin.js:4198
+#: assets/js/admin.js:4199
 msgid "Target reminder, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4198
+#: assets/js/admin.js:4199
 msgid "When half of the target time has passed, and again near the end."
 msgstr ""
 
-#: assets/js/admin.js:4199
+#: assets/js/admin.js:4200
 msgid "Past target, to moderators"
 msgstr ""
 
-#: assets/js/admin.js:4199
+#: assets/js/admin.js:4200
 msgid "When the target time passes and the notice is still open."
 msgstr ""
 
-#: assets/js/admin.js:4249
+#: assets/js/admin.js:4250
 msgid "Custom text"
 msgstr ""
 
-#: assets/js/admin.js:4254
-#: assets/js/admin.js:4872
+#: assets/js/admin.js:4255
+#: assets/js/admin.js:4874
 msgid "On"
 msgstr ""
 
-#: assets/js/admin.js:4254
-#: assets/js/admin.js:4872
+#: assets/js/admin.js:4255
+#: assets/js/admin.js:4874
 msgid "Off"
 msgstr ""
 
-#: assets/js/admin.js:4280
+#: assets/js/admin.js:4281
 msgid "Preview"
 msgstr ""
 
-#: assets/js/admin.js:4281
+#: assets/js/admin.js:4282
 msgid "Edit"
 msgstr ""
 
-#: assets/js/admin.js:4289
+#: assets/js/admin.js:4290
 msgid "Send me a test"
 msgstr ""
 
-#: assets/js/admin.js:4298
+#: assets/js/admin.js:4299
 msgid "Copyright notice emails"
 msgstr ""
 
-#: assets/js/admin.js:4312
+#: assets/js/admin.js:4314
 msgid "One line, up to 200 characters."
 msgstr ""
 
-#: assets/js/admin.js:4313
+#: assets/js/admin.js:4315
 msgid "Text"
 msgstr ""
 
-#: assets/js/admin.js:4313
+#: assets/js/admin.js:4315
 msgid "Plain text, up to 5,000 characters. Leave an empty line between paragraphs."
 msgstr ""
 
-#: assets/js/admin.js:4337
+#: assets/js/admin.js:4339
 msgid "Write a subject."
 msgstr ""
 
-#: assets/js/admin.js:4339
+#: assets/js/admin.js:4341
 msgid "Write the text of the email."
 msgstr ""
 
-#: assets/js/admin.js:4346
+#: assets/js/admin.js:4348
 msgid "Save"
 msgstr ""
 
-#: assets/js/admin.js:4347
+#: assets/js/admin.js:4349
 msgid "Reset to default"
 msgstr ""
 
-#: assets/js/admin.js:4354
+#: assets/js/admin.js:4356
 msgid "The default subject and text are back. Save to keep them."
 msgstr ""
 
 #. translators: %s: a field such as {request_id}.
-#: assets/js/admin.js:4376
+#: assets/js/admin.js:4378
 #, js-format
 msgid "Added %s."
 msgstr ""
 
 #. translators: %s: a field such as {request_id}.
-#: assets/js/admin.js:4387
+#: assets/js/admin.js:4389
 #, js-format
 msgid "Insert %s"
 msgstr ""
 
-#: assets/js/admin.js:4388
+#: assets/js/admin.js:4390
 msgid "Required"
 msgstr ""
 
 #. translators: %s: email name, such as "Request received, to the requester".
-#: assets/js/admin.js:4401
+#: assets/js/admin.js:4403
 #, js-format
 msgid "Edit email: %s"
 msgstr ""
 
-#: assets/js/admin.js:4412
+#: assets/js/admin.js:4414
 msgid "Fields you can add"
 msgstr ""
 
-#: assets/js/admin.js:4413
+#: assets/js/admin.js:4415
 msgid "Select a field to add it where your cursor is. A line is left out when all its fields are empty."
 msgstr ""
 
-#: assets/js/admin.js:4417
+#: assets/js/admin.js:4419
 msgid "Preview with sample details"
 msgstr ""
 
-#: assets/js/admin.js:4432
+#: assets/js/admin.js:4434
 msgid "Email saved."
 msgstr ""
 
 #. translators: %s: name typed as a signature.
-#: assets/js/admin.js:4467
+#: assets/js/admin.js:4469
 #, js-format
 msgid "Signed: %s"
 msgstr ""
 
-#: assets/js/admin.js:4473
+#: assets/js/admin.js:4475
 msgid "Why does it stay offline? (saved to the record)"
 msgstr ""
 
-#: assets/js/admin.js:4476
-#: assets/js/admin.js:4535
+#: assets/js/admin.js:4478
+#: assets/js/admin.js:4537
 msgid "Keep it offline"
 msgstr ""
 
-#: assets/js/admin.js:4478
+#: assets/js/admin.js:4480
 msgid "Keep it offline?"
 msgstr ""
 
-#: assets/js/admin.js:4479
+#: assets/js/admin.js:4481
 msgid "The content stays removed and the review closes. Nobody is emailed."
 msgstr ""
 
-#: assets/js/admin.js:4492
+#: assets/js/admin.js:4494
 msgid "Review closed. The content stays offline."
 msgstr ""
 
-#: assets/js/admin.js:4515
+#: assets/js/admin.js:4517
 msgid "Only an administrator can put it back."
 msgstr ""
 
-#: assets/js/admin.js:4517
+#: assets/js/admin.js:4519
 msgid "Putting it back closes the request as not removed and emails the requester."
 msgstr ""
 
-#: assets/js/admin.js:4517
+#: assets/js/admin.js:4519
 msgid "It cannot be put back: it was deleted, or its restore window has ended."
 msgstr ""
 
-#: assets/js/admin.js:4528
+#: assets/js/admin.js:4530
 msgid "The person who posted it thinks the removal was a mistake. It stays offline until you decide. The deadline and the record of the removal do not change."
 msgstr ""
 
-#: assets/js/admin.js:4538
+#: assets/js/admin.js:4540
 msgid "Put it back"
 msgstr ""
 
 #. translators: %s: item name.
-#: assets/js/admin.js:4540
+#: assets/js/admin.js:4542
 #, js-format
 msgid "Put back %s"
 msgstr ""
 
 #. translators: %s: date and time.
-#: assets/js/admin.js:4558
+#: assets/js/admin.js:4560
 #, js-format
 msgid "Emailed the reason and a review link on %s."
 msgstr ""
 
 #. translators: 1: date and time, 2: reason.
-#: assets/js/admin.js:4559
+#: assets/js/admin.js:4561
 #, js-format
 msgid "Not emailed on %1$s: %2$s"
 msgstr ""
 
-#: assets/js/admin.js:4571
+#: assets/js/admin.js:4573
 msgid "No notice was sent for this removal."
 msgstr ""
 
-#: assets/js/admin.js:4571
+#: assets/js/admin.js:4573
 msgid "Notices to the person who posted it are off."
 msgstr ""
 
-#: assets/js/admin.js:4577
+#: assets/js/admin.js:4579
 msgid "Turn on in Settings"
 msgstr ""
 
-#: assets/js/admin.js:4582
+#: assets/js/admin.js:4584
 msgid "Earlier reviews"
 msgstr ""
 
 #. translators: 1: moderator name, 2: date and time, 3: decision note.
-#: assets/js/admin.js:4592
+#: assets/js/admin.js:4594
 #, js-format
 msgid "Kept offline by %1$s on %2$s. Note: %3$s"
 msgstr ""
 
 #. translators: 1: moderator name, 2: date and time.
-#: assets/js/admin.js:4593
+#: assets/js/admin.js:4595
 #, js-format
 msgid "Put back by %1$s on %2$s."
 msgstr ""
 
-#: assets/js/admin.js:4607
+#: assets/js/admin.js:4609
 msgid "This site has visitors in the EU"
 msgstr ""
 
-#: assets/js/admin.js:4608
+#: assets/js/admin.js:4610
 msgid "Outcome emails then say how to contest the decision, as the EU Digital Services Act asks, and the person who posted removed content is always told why."
 msgstr ""
 
-#: assets/js/admin.js:4612
+#: assets/js/admin.js:4614
 msgid "Notify the person who posted the item"
 msgstr ""
 
-#: assets/js/admin.js:4613
+#: assets/js/admin.js:4615
 msgid "After a removal, emails them the reason and a link to ask for a review. It never says who sent the request. Not sent when the person in the image was under 18 or when your team filed the request. Always on while the EU switch is on."
 msgstr ""
 
-#: assets/js/admin.js:4629
+#: assets/js/admin.js:4631
 msgid "Notices and other laws"
 msgstr ""
 
-#: assets/js/admin.js:4633
+#: assets/js/admin.js:4635
 msgid "A request still open 6 days after it arrived gets one status update to the requester, as California law asks for social media platforms. You can turn it off under Email templates."
 msgstr ""
 
-#: assets/js/admin.js:4641
+#: assets/js/admin.js:4643
 msgid "Accept copyright notices"
 msgstr ""
 
-#: assets/js/admin.js:4642
+#: assets/js/admin.js:4644
 msgid "Adds a copyright notice form, a Copyright filter under Requests and the copyright notice emails. Notices follow the target time below, not the 48-hour deadline."
 msgstr ""
 
-#: assets/js/admin.js:4654
+#: assets/js/admin.js:4656
 msgid "Target time"
 msgstr ""
 
-#: assets/js/admin.js:4655
+#: assets/js/admin.js:4657
 msgid "How long your team aims to take to act on a notice, counted from when it arrives. Saturdays and Sundays do not count. The DMCA asks you to act expeditiously and sets no number of days."
 msgstr ""
 
 #. translators: %d: number of business days.
-#: assets/js/admin.js:4658
+#: assets/js/admin.js:4660
 #, js-format
 msgid "%d business day"
 msgid_plural "%d business days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:4664
+#: assets/js/admin.js:4666
 msgid "Designated agent registered or renewed on"
 msgstr ""
 
-#: assets/js/admin.js:4665
+#: assets/js/admin.js:4667
 msgid "Register a designated agent with the US Copyright Office so people know where to send notices. A registration expires after 3 years unless you renew it. The status card reminds you 60 days before."
 msgstr ""
 
 #. translators: %s: date.
-#: assets/js/admin.js:4676
+#: assets/js/admin.js:4678
 #, js-format
 msgid "Renew by %s."
 msgstr ""
 
-#: assets/js/admin.js:4685
+#: assets/js/admin.js:4687
 msgid "Create the page"
 msgstr ""
 
-#: assets/js/admin.js:4704
+#: assets/js/admin.js:4706
 msgid "Copyright notice page"
 msgstr ""
 
-#: assets/js/admin.js:4709
+#: assets/js/admin.js:4711
 msgid "Published"
 msgstr ""
 
-#: assets/js/admin.js:4709
+#: assets/js/admin.js:4711
 msgid "Not published"
 msgstr ""
 
-#: assets/js/admin.js:4710
+#: assets/js/admin.js:4712
 msgid "View page"
 msgstr ""
 
-#: assets/js/admin.js:4711
+#: assets/js/admin.js:4713
 msgid "Edit page"
 msgstr ""
 
-#: assets/js/admin.js:4713
+#: assets/js/admin.js:4715
 msgid "No page holds the copyright notice form yet."
 msgstr ""
 
-#: assets/js/admin.js:4714
+#: assets/js/admin.js:4716
 msgid "This page has no copyright notice form. Add the Copyright notice form block or the shortcode below."
 msgstr ""
 
-#: assets/js/admin.js:4715
+#: assets/js/admin.js:4717
 msgid "Shortcode for the form"
 msgstr ""
 
-#: assets/js/admin.js:4722
+#: assets/js/admin.js:4724
 msgid "Copyright notices (DMCA)"
 msgstr ""
 
-#: assets/js/admin.js:4726
+#: assets/js/admin.js:4728
 msgid "Show a Copyright notices link in the footer"
 msgstr ""
 
-#: assets/js/admin.js:4726
+#: assets/js/admin.js:4728
 msgid "Adds a second link next to the removal request link once the copyright notice page is published."
 msgstr ""
 
-#: assets/js/admin.js:4729
+#: assets/js/admin.js:4731
 msgid "US Copyright Office agent directory"
 msgstr ""
 
-#: assets/js/admin.js:4738
-#: assets/js/admin.js:5793
+#: assets/js/admin.js:4740
+#: assets/js/admin.js:5795
 msgid "Settings"
 msgstr ""
 
-#: assets/js/admin.js:4738
+#: assets/js/admin.js:4740
 msgid "How your removal process works, who handles it and what people are told."
 msgstr ""
 
-#: assets/js/admin.js:4748
+#: assets/js/admin.js:4750
 msgid "We could not load settings. Check your connection and try again."
 msgstr ""
 
-#: assets/js/admin.js:4774
-#: assets/js/admin.js:5067
+#: assets/js/admin.js:4776
+#: assets/js/admin.js:5069
 msgid "Delete test data"
 msgstr ""
 
 #. translators: %d: number of test requests.
-#: assets/js/admin.js:4784
+#: assets/js/admin.js:4786
 #, js-format
 msgid "Deleted %d test request."
 msgid_plural "Deleted %d test requests."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:4796
+#: assets/js/admin.js:4798
 msgid "Delete test data?"
 msgstr ""
 
 #. translators: %d: number of test requests.
-#: assets/js/admin.js:4799
+#: assets/js/admin.js:4801
 #, js-format
 msgid "%d test request, its items and the private test post will be deleted."
 msgid_plural "%d test requests, their items and the private test posts will be deleted."
@@ -5764,662 +5813,666 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: block title, for example Removal request link.
-#: assets/js/admin.js:4807
+#: assets/js/admin.js:4809
 #, js-format
 msgid "Shortcode for %s"
 msgstr ""
 
 #. translators: %s: block title, for example Removal request link.
-#: assets/js/admin.js:4810
+#: assets/js/admin.js:4812
 #, js-format
 msgid "Copy the %s shortcode"
 msgstr ""
 
 #. translators: %s: block title, for example Removal request link.
-#: assets/js/admin.js:4816
+#: assets/js/admin.js:4818
 #, js-format
 msgid "In the editor, click + and search for %s."
 msgstr ""
 
-#: assets/js/admin.js:4825
+#: assets/js/admin.js:4827
 msgid "Create a draft page"
 msgstr ""
 
-#: assets/js/admin.js:4831
+#: assets/js/admin.js:4833
 msgid "Open the draft page"
 msgstr ""
 
-#: assets/js/admin.js:4832
+#: assets/js/admin.js:4834
 msgid "Draft page created. It is not published."
 msgstr ""
 
-#: assets/js/admin.js:4842
+#: assets/js/admin.js:4844
 msgid "A short section for your terms of service or community rules: no intimate images shared without consent, no deepfakes of real people, how to report and what happens next. It links to your notice page."
 msgstr ""
 
-#: assets/js/admin.js:4843
+#: assets/js/admin.js:4845
 msgid "Suggested text"
 msgstr ""
 
-#: assets/js/admin.js:4844
+#: assets/js/admin.js:4846
 msgid "Your notice page is not published yet, so the text shows a placeholder where its link goes."
 msgstr ""
 
-#: assets/js/admin.js:4845
+#: assets/js/admin.js:4847
 msgid "This is not legal advice. Read the text and adapt it to your site before you use it."
 msgstr ""
 
-#: assets/js/admin.js:4846
+#: assets/js/admin.js:4848
 msgid "Copy text"
 msgstr ""
 
-#: assets/js/admin.js:4853
+#: assets/js/admin.js:4855
 msgid "Save changes"
 msgstr ""
 
-#: assets/js/admin.js:4915
-#: assets/js/admin.js:5261
+#: assets/js/admin.js:4917
+#: assets/js/admin.js:5263
 msgid "Notice page"
 msgstr ""
 
-#: assets/js/admin.js:4915
+#: assets/js/admin.js:4917
 msgid "No page selected"
 msgstr ""
 
-#: assets/js/admin.js:4930
-#: assets/js/admin.js:5468
+#: assets/js/admin.js:4932
+#: assets/js/admin.js:5470
 msgid "Notice page created."
 msgstr ""
 
-#: assets/js/admin.js:4946
+#: assets/js/admin.js:4948
 msgid "Notice and links"
 msgstr ""
 
-#: assets/js/admin.js:4952
+#: assets/js/admin.js:4954
 msgid "Footer link text"
 msgstr ""
 
-#: assets/js/admin.js:4953
+#: assets/js/admin.js:4955
 msgid "Content types that show \"Request removal\""
 msgstr ""
 
-#: assets/js/admin.js:4954
+#: assets/js/admin.js:4956
 msgid "Show the link under comments"
 msgstr ""
 
-#: assets/js/admin.js:4955
+#: assets/js/admin.js:4957
 msgid "Show the link on media pages"
 msgstr ""
 
-#: assets/js/admin.js:4960
+#: assets/js/admin.js:4962
 msgid "Blocks and shortcodes"
 msgstr ""
 
-#: assets/js/admin.js:4965
+#: assets/js/admin.js:4967
 msgid "Removal request link"
 msgstr ""
 
-#: assets/js/admin.js:4965
+#: assets/js/admin.js:4967
 msgid "Links to your notice page. Only needed when the automatic footer link is off."
 msgstr ""
 
-#: assets/js/admin.js:4966
+#: assets/js/admin.js:4968
 msgid "Removal request form"
 msgstr ""
 
-#: assets/js/admin.js:4966
+#: assets/js/admin.js:4968
 msgid "Already on your notice page. Use it only if you build your own page."
 msgstr ""
 
-#: assets/js/admin.js:4967
+#: assets/js/admin.js:4969
 msgid "Takedown Desk summary"
 msgstr ""
 
-#: assets/js/admin.js:4967
+#: assets/js/admin.js:4969
 msgid "Optional. Shows your public numbers on the notice page or a transparency page."
 msgstr ""
 
-#: assets/js/admin.js:4973
+#: assets/js/admin.js:4975
 msgid "Request form"
 msgstr ""
 
-#: assets/js/admin.js:4975
+#: assets/js/admin.js:4977
 msgid "Intro text"
 msgstr ""
 
-#: assets/js/admin.js:4976
-#: assets/js/admin.js:5608
+#: assets/js/admin.js:4978
+#: assets/js/admin.js:5610
 msgid "Fallback contact email"
 msgstr ""
 
-#: assets/js/admin.js:4976
+#: assets/js/admin.js:4978
 msgid "Shown in error messages on the form."
 msgstr ""
 
-#: assets/js/admin.js:4977
+#: assets/js/admin.js:4979
 msgid "Leave this page button"
 msgstr ""
 
-#: assets/js/admin.js:4977
+#: assets/js/admin.js:4979
 msgid "Shows a small button on the request form and status pages that leaves at once for a weather search, for people who may be watched. Pressing Esc twice does the same."
 msgstr ""
 
-#: assets/js/admin.js:4978
+#: assets/js/admin.js:4980
 msgid "Allowed site addresses"
 msgstr ""
 
-#: assets/js/admin.js:4978
+#: assets/js/admin.js:4980
 msgid "Extra hosts such as a CDN or mapped domain, one per line."
 msgstr ""
 
-#: assets/js/admin.js:4984
+#: assets/js/admin.js:4986
 msgid "Deadline and reminders"
 msgstr ""
 
-#: assets/js/admin.js:4986
+#: assets/js/admin.js:4988
 msgid "Deadline: 48 hours from receipt (set by the Act)"
 msgstr ""
 
-#: assets/js/admin.js:4987
+#: assets/js/admin.js:4989
 msgid "Extra reminder recipients"
 msgstr ""
 
-#: assets/js/admin.js:4987
-#: assets/js/admin.js:5586
+#: assets/js/admin.js:4989
+#: assets/js/admin.js:5588
 msgid "Email addresses that also get reminders, one per line. Up to 10."
 msgstr ""
 
-#: assets/js/admin.js:4988
-#: assets/js/admin.js:5595
+#: assets/js/admin.js:4990
+#: assets/js/admin.js:5597
 msgid "Send a test reminder"
 msgstr ""
 
-#: assets/js/admin.js:4988
-#: assets/js/admin.js:5595
+#: assets/js/admin.js:4990
+#: assets/js/admin.js:5597
 msgid "Test reminder sent to you."
 msgstr ""
 
-#: assets/js/admin.js:4993
+#: assets/js/admin.js:4995
 msgid "Removal"
 msgstr ""
 
-#: assets/js/admin.js:4995
+#: assets/js/admin.js:4997
 msgid "Default method"
 msgstr ""
 
-#: assets/js/admin.js:4996
+#: assets/js/admin.js:4998
 msgid "Take offline"
 msgstr ""
 
-#: assets/js/admin.js:4997
+#: assets/js/admin.js:4999
 msgid "Delete permanently"
 msgstr ""
 
-#: assets/js/admin.js:5003
+#: assets/js/admin.js:5005
 msgid "Delete items that were taken offline after"
 msgstr ""
 
 #. translators: %d: number of days.
-#: assets/js/admin.js:5005
+#: assets/js/admin.js:5007
 #, js-format
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:5011
+#: assets/js/admin.js:5013
 msgid "Content types moderators may remove"
 msgstr ""
 
-#: assets/js/admin.js:5013
+#: assets/js/admin.js:5015
 msgid "Media files"
 msgstr ""
 
-#: assets/js/admin.js:5014
-#: assets/js/admin.js:5513
-#: assets/js/admin.js:5564
+#: assets/js/admin.js:5016
+#: assets/js/admin.js:5515
+#: assets/js/admin.js:5566
 msgid "Comments"
 msgstr ""
 
-#: assets/js/admin.js:5016
+#: assets/js/admin.js:5018
 msgid "Leave all unchecked to allow the linked types plus media files and comments."
 msgstr ""
 
-#: assets/js/admin.js:5020
+#: assets/js/admin.js:5022
 msgid "Hide reported items as soon as a request arrives"
 msgstr ""
 
 #. translators: %d: number of requests per person per day.
-#: assets/js/admin.js:5022
+#: assets/js/admin.js:5024
 #, js-format
 msgid "Use with care: anyone can send a request, so this could be misused to hide content that breaks no rule. Items stay hidden only until you decide. Content by an administrator is never hidden, and nothing is hidden after a person's first %d requests in a day."
 msgstr ""
 
-#: assets/js/admin.js:5024
+#: assets/js/admin.js:5026
 msgid "Show a CDN reminder after removal"
 msgstr ""
 
-#: assets/js/admin.js:5027
+#: assets/js/admin.js:5029
 msgid "Check Jetpack image CDN copies"
 msgstr ""
 
-#: assets/js/admin.js:5028
+#: assets/js/admin.js:5030
 msgid "Only for sites that use the Jetpack image CDN (Site Accelerator). The removal check also asks i0.wp.com to i3.wp.com, run by Automattic, whether they still serve each removed image. Each check sends the image link to that service."
 msgstr ""
 
-#: assets/js/admin.js:5032
+#: assets/js/admin.js:5034
 msgid "Block uploads of removed images"
 msgstr ""
 
-#: assets/js/admin.js:5033
+#: assets/js/admin.js:5035
 msgid "Refuses a new upload when it is an exact copy of a file removed after a request. The person uploading only sees that the file cannot be uploaded."
 msgstr ""
 
-#: assets/js/admin.js:5042
+#: assets/js/admin.js:5044
 msgid "Data"
 msgstr ""
 
-#: assets/js/admin.js:5048
+#: assets/js/admin.js:5050
 msgid "Delete requester contact details and request text"
 msgstr ""
 
-#: assets/js/admin.js:5049
-#: assets/js/admin.js:5065
+#: assets/js/admin.js:5051
+#: assets/js/admin.js:5067
 msgid "Requests marked as involving a person under 18 are kept for at least 1 year."
 msgstr ""
 
 #. translators: %d: number of days.
-#: assets/js/admin.js:5051
+#: assets/js/admin.js:5053
 #, js-format
 msgid "%d day after a request is closed"
 msgid_plural "%d days after a request is closed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:5059
+#: assets/js/admin.js:5061
 msgid "Keep the record of actions"
 msgstr ""
 
-#: assets/js/admin.js:5060
+#: assets/js/admin.js:5062
 msgid "Forever"
 msgstr ""
 
 #. translators: %d: number of years.
-#: assets/js/admin.js:5060
+#: assets/js/admin.js:5062
 #, js-format
 msgid "%d year"
 msgid_plural "%d years"
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/admin.js:5065
+#: assets/js/admin.js:5067
 msgid "Delete all Takedown Desk data when the plugin is deleted"
 msgstr ""
 
-#: assets/js/admin.js:5073
+#: assets/js/admin.js:5075
 msgid "Team"
 msgstr ""
 
-#: assets/js/admin.js:5075
+#: assets/js/admin.js:5077
 msgid "These people can act on requests."
 msgstr ""
 
-#: assets/js/admin.js:5077
+#: assets/js/admin.js:5079
 msgid "Manage users"
 msgstr ""
 
-#: assets/js/admin.js:5082
+#: assets/js/admin.js:5084
 msgid "Email templates"
 msgstr ""
 
-#: assets/js/admin.js:5087
+#: assets/js/admin.js:5089
 msgid "From name"
 msgstr ""
 
-#: assets/js/admin.js:5087
+#: assets/js/admin.js:5089
 msgid "Leave empty to use the site name."
 msgstr ""
 
-#: assets/js/admin.js:5088
+#: assets/js/admin.js:5090
 msgid "Reply-to address"
 msgstr ""
 
-#: assets/js/admin.js:5088
+#: assets/js/admin.js:5090
 msgid "Leave empty to use the admin email address."
 msgstr ""
 
-#: assets/js/admin.js:5090
+#: assets/js/admin.js:5092
 msgid "Footer line"
 msgstr ""
 
-#: assets/js/admin.js:5093
+#: assets/js/admin.js:5095
 msgid "Policy text"
 msgstr ""
 
-#: assets/js/admin.js:5098
+#: assets/js/admin.js:5100
 msgid "Discard changes"
 msgstr ""
 
-#: assets/js/admin.js:5109
+#: assets/js/admin.js:5111
 msgid "No unsaved changes."
 msgstr ""
 
-#: assets/js/admin.js:5109
+#: assets/js/admin.js:5111
 msgid "Changes take effect when you save."
 msgstr ""
 
-#: assets/js/admin.js:5115
+#: assets/js/admin.js:5117
 msgid "Settings sections"
 msgstr ""
 
-#: assets/js/admin.js:5155
+#: assets/js/admin.js:5157
 msgid "Settings saved."
 msgstr ""
 
 #. translators: %s: reason.
-#: assets/js/admin.js:5162
+#: assets/js/admin.js:5164
 #, js-format
 msgid "Settings were not saved. %s"
 msgstr ""
 
-#: assets/js/admin.js:5185
+#: assets/js/admin.js:5187
 msgid "Likely covered"
 msgstr ""
 
-#: assets/js/admin.js:5185
+#: assets/js/admin.js:5187
 msgid "Sites built around photos, videos or posts that members share are the platforms the Act is written for. Plan on having a removal process."
 msgstr ""
 
-#: assets/js/admin.js:5186
+#: assets/js/admin.js:5188
 msgid "Grey area"
 msgstr ""
 
-#: assets/js/admin.js:5186
+#: assets/js/admin.js:5188
 msgid "Members can post, but it is not the main thing your site offers. The Act may still apply. A simple removal process costs little and protects people."
 msgstr ""
 
-#: assets/js/admin.js:5187
+#: assets/js/admin.js:5189
 msgid "Likely excluded"
 msgstr ""
 
-#: assets/js/admin.js:5187
+#: assets/js/admin.js:5189
 msgid "The Act leaves out sites whose main content comes from the site itself, where comments or other member features are a small extra."
 msgstr ""
 
-#: assets/js/admin.js:5188
+#: assets/js/admin.js:5190
 msgid "Likely not covered"
 msgstr ""
 
-#: assets/js/admin.js:5188
+#: assets/js/admin.js:5190
 msgid "If members cannot post anything, the Act's removal duty most likely does not apply to your site."
 msgstr ""
 
-#: assets/js/admin.js:5200
+#: assets/js/admin.js:5202
 msgid "Set up Takedown Desk"
 msgstr ""
 
-#: assets/js/admin.js:5201
+#: assets/js/admin.js:5203
 msgid "From install to a working removal process in about three minutes."
 msgstr ""
 
-#: assets/js/admin.js:5202
+#: assets/js/admin.js:5204
 msgid "Skip setup"
 msgstr ""
 
-#: assets/js/admin.js:5240
+#: assets/js/admin.js:5242
 msgid "We could not load setup. Check your connection and try again."
 msgstr ""
 
-#: assets/js/admin.js:5261
+#: assets/js/admin.js:5263
 msgid "Does the Act apply?"
 msgstr ""
 
-#: assets/js/admin.js:5261
+#: assets/js/admin.js:5263
 msgid "Where links appear"
 msgstr ""
 
-#: assets/js/admin.js:5261
+#: assets/js/admin.js:5263
 msgid "Who handles requests"
 msgstr ""
 
-#: assets/js/admin.js:5261
+#: assets/js/admin.js:5263
 msgid "Contact email"
 msgstr ""
 
-#: assets/js/admin.js:5261
-#: assets/js/admin.js:5715
+#: assets/js/admin.js:5263
+#: assets/js/admin.js:5717
 msgid "Try it once"
 msgstr ""
 
-#: assets/js/admin.js:5264
+#: assets/js/admin.js:5266
 msgid "Setup steps"
 msgstr ""
 
-#: assets/js/admin.js:5272
+#: assets/js/admin.js:5274
 msgid "(done)"
 msgstr ""
 
 #. translators: 1: step number, 2: number of steps.
-#: assets/js/admin.js:5286
+#: assets/js/admin.js:5288
 #, js-format
 msgid "Step %1$d of %2$d"
 msgstr ""
 
-#: assets/js/admin.js:5292
+#: assets/js/admin.js:5294
 msgid "Back"
 msgstr ""
 
-#: assets/js/admin.js:5301
+#: assets/js/admin.js:5303
 msgid "Continue"
 msgstr ""
 
-#: assets/js/admin.js:5347
+#: assets/js/admin.js:5349
 msgid "Setup finished."
 msgstr ""
 
-#: assets/js/admin.js:5355
+#: assets/js/admin.js:5357
 msgid "Setup finished"
 msgstr ""
 
-#: assets/js/admin.js:5355
+#: assets/js/admin.js:5357
 msgid "Takedown Desk is set up with the removal links turned off."
 msgstr ""
 
-#: assets/js/admin.js:5360
+#: assets/js/admin.js:5362
 msgid "If members start posting on your site later, turn the links on in Settings > Notice and links. The record of actions and \"Log a request\" work either way."
 msgstr ""
 
-#: assets/js/admin.js:5361
+#: assets/js/admin.js:5363
 msgid "Go to requests"
 msgstr ""
 
-#: assets/js/admin.js:5361
+#: assets/js/admin.js:5363
 msgid "Open settings"
 msgstr ""
 
-#: assets/js/admin.js:5388
+#: assets/js/admin.js:5390
 msgid "This is a first read, not legal advice."
 msgstr ""
 
-#: assets/js/admin.js:5394
+#: assets/js/admin.js:5396
 msgid "I do not need this"
 msgstr ""
 
-#: assets/js/admin.js:5403
+#: assets/js/admin.js:5405
 msgid "Is that the main thing your site offers?"
 msgstr ""
 
-#: assets/js/admin.js:5405
+#: assets/js/admin.js:5407
 msgid "Yes, it is the main thing"
 msgstr ""
 
-#: assets/js/admin.js:5406
+#: assets/js/admin.js:5408
 msgid "It is one important part"
 msgstr ""
 
-#: assets/js/admin.js:5407
+#: assets/js/admin.js:5409
 msgid "No, it is a small extra, such as comments"
 msgstr ""
 
-#: assets/js/admin.js:5418
+#: assets/js/admin.js:5420
 msgid "Can members post their own photos, videos or posts?"
 msgstr ""
 
-#: assets/js/admin.js:5421
+#: assets/js/admin.js:5423
 msgid "No"
 msgstr ""
 
-#: assets/js/admin.js:5431
+#: assets/js/admin.js:5433
 msgid "Does the Act apply to your site?"
 msgstr ""
 
-#: assets/js/admin.js:5453
+#: assets/js/admin.js:5455
 msgid "Your notice page is ready."
 msgstr ""
 
-#: assets/js/admin.js:5458
+#: assets/js/admin.js:5460
 msgid "Use an existing page"
 msgstr ""
 
-#: assets/js/admin.js:5459
+#: assets/js/admin.js:5461
 msgid "Choose a page"
 msgstr ""
 
-#: assets/js/admin.js:5461
+#: assets/js/admin.js:5463
 msgid "Use this page"
 msgstr ""
 
-#: assets/js/admin.js:5461
+#: assets/js/admin.js:5463
 msgid "Notice page set."
 msgstr ""
 
-#: assets/js/admin.js:5475
+#: assets/js/admin.js:5477
 msgid "Preview of the default notice"
 msgstr ""
 
-#: assets/js/admin.js:5486
+#: assets/js/admin.js:5488
 msgid "Create your notice page"
 msgstr ""
 
-#: assets/js/admin.js:5488
+#: assets/js/admin.js:5490
 msgid "People who need an image removed start here. The page explains the process and holds the request form."
 msgstr ""
 
-#: assets/js/admin.js:5513
-#: assets/js/admin.js:5567
+#: assets/js/admin.js:5515
+#: assets/js/admin.js:5569
 msgid "Media pages"
 msgstr ""
 
 #. translators: %s: list of places.
-#: assets/js/admin.js:5515
+#: assets/js/admin.js:5517
 #, js-format
 msgid "The \"Request removal\" link appears on: %s."
 msgstr ""
 
-#: assets/js/admin.js:5515
+#: assets/js/admin.js:5517
 msgid "The \"Request removal\" link does not appear on any content yet."
 msgstr ""
 
-#: assets/js/admin.js:5533
+#: assets/js/admin.js:5535
 msgid "Choose where the \"Request removal\" link appears"
 msgstr ""
 
-#: assets/js/admin.js:5535
+#: assets/js/admin.js:5537
 msgid "Types where members post are checked for you. The link takes people to your notice page with the item already filled in."
 msgstr ""
 
-#: assets/js/admin.js:5545
+#: assets/js/admin.js:5547
 msgid "Content types"
 msgstr ""
 
 #. translators: %s: content type name.
-#: assets/js/admin.js:5551
+#: assets/js/admin.js:5553
 #, js-format
 msgid "%s (detected)"
 msgstr ""
 
-#: assets/js/admin.js:5560
+#: assets/js/admin.js:5562
 msgid "Also show it on"
 msgstr ""
 
-#: assets/js/admin.js:5573
+#: assets/js/admin.js:5575
 msgid "Live preview"
 msgstr ""
 
-#: assets/js/admin.js:5585
+#: assets/js/admin.js:5587
 msgid "Extra reminder emails"
 msgstr ""
 
-#: assets/js/admin.js:5590
+#: assets/js/admin.js:5592
 msgid "Who handles requests?"
 msgstr ""
 
-#: assets/js/admin.js:5609
+#: assets/js/admin.js:5611
 msgid "Shown in error messages on the request form. Use an inbox that someone checks every day."
 msgstr ""
 
-#: assets/js/admin.js:5621
+#: assets/js/admin.js:5623
 msgid "Where can people reach you?"
 msgstr ""
 
-#: assets/js/admin.js:5622
+#: assets/js/admin.js:5624
 msgid "If someone cannot send the request form, its messages give them this address, so they still have a way to reach you."
 msgstr ""
 
-#: assets/js/admin.js:5626
+#: assets/js/admin.js:5628
 msgid "Enter an email address."
 msgstr ""
 
-#: assets/js/admin.js:5637
+#: assets/js/admin.js:5639
 msgid "Finish without a test"
 msgstr ""
 
-#: assets/js/admin.js:5647
+#: assets/js/admin.js:5649
 msgid "You are ready."
 msgstr ""
 
-#: assets/js/admin.js:5648
+#: assets/js/admin.js:5650
 msgid "Your test request went from start to finish. Delete the test data any time in Settings > Data."
 msgstr ""
 
-#: assets/js/admin.js:5649
+#: assets/js/admin.js:5651
 msgid "Finish setup"
 msgstr ""
 
-#: assets/js/admin.js:5661
+#: assets/js/admin.js:5663
 msgid "Waiting for you to remove the test item."
 msgstr ""
 
-#: assets/js/admin.js:5662
+#: assets/js/admin.js:5664
 msgid "Open the test request, remove the item, then come back here. This page checks on its own."
 msgstr ""
 
-#: assets/js/admin.js:5664
+#: assets/js/admin.js:5666
 msgid "Open the test request"
 msgstr ""
 
-#: assets/js/admin.js:5716
+#: assets/js/admin.js:5718
 msgid "Send yourself a test request to see the whole process: The clock starts, the emails arrive (only to you), and you remove the test item. Test requests stay out of the record exports and counts."
 msgstr ""
 
-#: assets/js/admin.js:5727
+#: assets/js/admin.js:5729
 msgid "Takedown Desk sections"
 msgstr ""
 
-#: assets/js/admin.js:5756
+#: assets/js/admin.js:5758
 msgid "Leave without saving? Your changes to Settings will be lost."
 msgstr ""
 
-#: assets/js/admin.js:5790
+#: assets/js/admin.js:5792
 msgid "Setup"
 msgstr ""
 
-#: assets/js/admin.js:5791
+#: assets/js/admin.js:5793
 msgid "Requests"
 msgstr ""
 
-#: assets/js/admin.js:5829
+#: assets/js/admin.js:5834
 msgid "Takedown Desk is a tool, not legal advice. Talk to a lawyer about your duties under the Act."
+msgstr ""
+
+#: assets/js/admin.js:5835
+msgid "Takedown Desk documentation"
 msgstr ""
 
 #: assets/js/block.js:37

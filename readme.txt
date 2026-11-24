@@ -4,7 +4,7 @@ Tags: take it down act, dmca, takedown, content moderation, bbpress
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,10 @@ Counter-notices are not part of this version. The form is off until you turn it 
 
 * Plus Jakarta Sans font by the Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans), SIL Open Font License 1.1. The license is in assets/fonts/OFL.txt.
 * Admin icons from Lucide (https://lucide.dev), ISC License.
+
+= Documentation =
+
+The [Takedown Desk documentation](https://swiftwebdev.com/takedown-desk/docs/) covers setup, the request form, reviewing and removing requests, and each setting. The [Takedown Desk plugin page](https://swiftwebdev.com/takedown-desk/) has an overview and screenshots.
 
 = Not legal advice =
 
@@ -209,6 +213,10 @@ Yes, from version 1.1. Turn on "Accept copyright notices" in Settings. Takedown 
 
 Six things under 17 U.S.C. 512(c)(3)(A): a physical or electronic signature, the copyrighted work, the material that is claimed to infringe and where it is, contact information, a statement of good-faith belief that the use is not authorized, and a statement that the notice is accurate and, under penalty of perjury, that the sender may act for the copyright owner. The copyright notice form asks for exactly these.
 
+= Is there a paid version? =
+
+Yes, an optional add-on: [Takedown Desk Pro](https://swiftwebdev.com/takedown-desk-pro/). It adds altered-copy matching, integrations with more community plugins, escalation alerts, evidence packets, monthly reports and agency tools. Everything described on this page is in the free plugin and works without the add-on.
+
 == Screenshots ==
 
 1. The request inbox with a live 48-hour clock on every case
@@ -221,8 +229,19 @@ Six things under 17 U.S.C. 512(c)(3)(A): a physical or electronic signature, the
 8. Setup: Check whether the Act applies to your site
 9. Settings: Where the "Request removal" link appears
 10. The notice link in a site footer and on a forum reply
+11. The public copyright notice form: The six parts of a DMCA notice
+12. A copyright notice in the request detail, with its target in business days
+13. Settings: Turn on copyright notices and set the target time
 
 == Changelog ==
+
+= 1.1.1 =
+* Fix: In Settings, the editor for the copyright notice emails described its fields and filled its preview as for an intimate image request (48-hour deadline, removal request page). It now shows the target time, the sender and the copyright notice page, like Preview.
+* Fix: Preview and Send me a test for the copyright notice emails use a sample notice with its business-day target and copyright wording.
+* Fix: Log a request no longer accepts a link that does not start with http:// or https://.
+* Fix: In Log a request, the list of errors follows the order of the fields.
+* New: A link to the documentation at the bottom of the Takedown Desk screens.
+* Readme: Links to the plugin page and the documentation, and three screenshots of copyright notices.
 
 = 1.1.0 =
 * New: Copyright (DMCA) takedown notice form. Turn it on in Settings to add a "Copyright notices" page, a footer link, a block and the shortcode `[takedown_desk_copyright_form]`.
@@ -241,6 +260,9 @@ Six things under 17 U.S.C. 512(c)(3)(A): a physical or electronic signature, the
 * First release: notice link and page, request form with four required parts, 48-hour clock with reminders, one-step removal of the item and its identical copies, outcome emails, tamper-evident log with CSV export, setup check, privacy exporter and eraser, retention purge.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Fixes for the copyright notice email editor and the Log a request dialog, and a link to the documentation.
 
 = 1.1.0 =
 Adds an optional DMCA takedown notice form for copyright complaints. Off until you turn it on.

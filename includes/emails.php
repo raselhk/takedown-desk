@@ -371,10 +371,22 @@ function tkdesk_email_aftercare(): string {
 /**
  * What each field fills in, for the template editor.
  *
+ * @param string $type Request type: `ncii` (default) or `dmca` (copyright notice emails).
  * @return array tag => description.
  */
-function tkdesk_email_tag_labels(): array {
-	return array(
+function tkdesk_email_tag_labels( string $type = 'ncii' ): array {
+	// A copyright notice has a target, a sender and its own notice page.
+	$dmca = 'dmca' !== $type ? array() : array(
+		'request_id'    => __( 'The notice ID', 'takedown-desk' ),
+		'received_time' => __( 'Date and time the notice arrived', 'takedown-desk' ),
+		'deadline'      => __( 'Date and time of the target', 'takedown-desk' ),
+		'status_link'   => __( 'Private link where the sender checks the status and replies', 'takedown-desk' ),
+		'question'      => __( 'Your question to the sender', 'takedown-desk' ),
+		'message'       => __( 'Your optional message to the sender', 'takedown-desk' ),
+		'notice_link'   => __( 'Link to your copyright notice page', 'takedown-desk' ),
+		'hours_left'    => __( 'Whole hours left before the target', 'takedown-desk' ),
+	);
+	return $dmca + array(
 		'site_name'     => __( 'Your site name', 'takedown-desk' ),
 		'site_url'      => __( 'Link to your home page', 'takedown-desk' ),
 		'request_id'    => __( 'The request ID', 'takedown-desk' ),
@@ -598,35 +610,39 @@ function tkdesk_sanitize_emails( $in ): array {
 /**
  * Sample request and values for Preview, Send me a test and the editor's live preview.
  *
+ * @param string $type Request type: `ncii` (default) or `dmca`, whose sample has its target, reason and links.
  * @return array array( 'request' => row, 'vars' => template vars ).
  */
-function tkdesk_email_sample(): array {
+function tkdesk_email_sample( string $type = 'ncii' ): array {
 	$received = tkdesk_now() - 6 * HOUR_IN_SECONDS;
+	$dmca     = 'dmca' === $type;
+	$review   = array(
+		'tkdesk_review' => 'TD-' . wp_date( 'ym', $received ) . '-0000',
+		'token'         => 'sample',
+	);
+	// The review page of a copyright notice is the copyright page, as in poster.php.
+	$link = $dmca && function_exists( 'tkdesk_copyright_url' ) ? tkdesk_copyright_url( $review ) : '';
 	return array(
 		'request' => array(
 			'id'             => 0,
-			'public_id'      => 'TD-' . wp_date( 'ym', $received ) . '-0000',
+			'type'           => $dmca ? 'dmca' : 'ncii',
+			'public_id'      => $review['tkdesk_review'],
 			'item_label'     => __( 'Sample forum post', 'takedown-desk' ),
 			'received_at'    => tkdesk_mysql( $received ),
-			'due_at'         => tkdesk_mysql( tkdesk_due( $received ) ),
+			'due_at'         => tkdesk_mysql( tkdesk_due( $received, $dmca ? 'dmca' : 'ncii' ) ),
 			'resolved_at'    => null,
-			'decline_reason' => 'not_found',
+			'decline_reason' => $dmca ? 'dmca_not_found' : 'not_found',
 			'locale'         => get_user_locale(),
 			'is_test'        => 1,
 		),
 		'vars'    => array(
-			'question'      => __( 'Which page shows the image? Paste its link.', 'takedown-desk' ),
-			'message'       => __( 'We checked the page you linked and every image on it.', 'takedown-desk' ),
+			'question'      => $dmca ? __( 'Which page on this site shows the material? Paste its link.', 'takedown-desk' ) : __( 'Which page shows the image? Paste its link.', 'takedown-desk' ),
+			'message'       => $dmca ? __( 'We checked the page you linked and could not find the material your notice describes.', 'takedown-desk' ) : __( 'We checked the page you linked and every image on it.', 'takedown-desk' ),
 			'removed_count' => 2,
 			'token'         => 'sample',
 			'sample'        => true,
 			'poster_items'  => '- ' . __( 'Sample forum post', 'takedown-desk' ),
-			'review_link'   => tkdesk_notice_url(
-				array(
-					'tkdesk_review' => 'TD-' . wp_date( 'ym', $received ) . '-0000',
-					'token'         => 'sample',
-				)
-			),
+			'review_link'   => '' !== $link ? $link : tkdesk_notice_url( $review ),
 		),
 	);
 }

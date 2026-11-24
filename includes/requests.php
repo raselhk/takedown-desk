@@ -228,12 +228,14 @@ function tkdesk_validate_request( array $in, bool $manual = false, bool $by_admi
 	/* translators: %s: site address. */
 	$off_site = sprintf( __( 'That link is not on this site. Paste a link that starts with %s.', 'takedown-desk' ), home_url() );
 	$missing  = $dmca ? __( 'Add the link to the page that shows the material.', 'takedown-desk' ) : __( 'Add the link to the page that shows the image.', 'takedown-desk' );
+	// A manual entry may point off this site, but it must still be a full link: esc_url_raw() would turn "page" into http://page.
+	$link_ok = (bool) preg_match( '#^https?://[^\s/?\#]+\S*$#i', $v['url'] );
 	// Field => array( field-specific check passed, error code, error message ).
 	$rules = array(
 		'url'          => array(
-			'' !== $url && ( $manual || tkdesk_url_on_site( $url ) ),
-			'' === $v['url'] ? 'tkdesk_missing_url' : 'tkdesk_link_not_on_site',
-			'' === $v['url'] ? $missing : $off_site,
+			'' !== $url && ( $manual ? $link_ok : tkdesk_url_on_site( $url ) ),
+			'' === $v['url'] ? 'tkdesk_missing_url' : ( $manual ? 'tkdesk_invalid_url' : 'tkdesk_link_not_on_site' ),
+			'' === $v['url'] ? $missing : ( $manual ? __( 'Paste the full link, starting with https:// or http://.', 'takedown-desk' ) : $off_site ),
 		),
 		'work'         => array( true, 'tkdesk_missing_work', __( 'Describe the copyrighted work in 10 to 2,000 characters.', 'takedown-desk' ) ),
 		// The original may be anywhere on the web, so only the form of the link is checked.

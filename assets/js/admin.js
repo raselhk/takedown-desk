@@ -1793,8 +1793,9 @@
 								  }
 								: {}
 						);
-						const list = Object.keys( fields )
-							.filter( ( k ) => F[ k ] )
+						// In the order the dialog shows the fields (the server lists them in the public form's order).
+						const list = Object.keys( F )
+							.filter( ( k ) => fields[ k ] )
 							.map( ( k ) => [ F[ k ], own[ k ] || fields[ k ] ] );
 						if ( list.length ) {
 							fail( list );
@@ -4303,7 +4304,8 @@
 	function editEmail( m, editor, cur, done ) {
 		const key = m[ 0 ];
 		const tpl = editor.templates[ key ];
-		const info = editor.tags || {};
+		// Copyright notice emails describe and fill their fields as a notice (target, sender, copyright page).
+		const info = ( 'dmca' === tpl.type && editor.tags_dmca ) || editor.tags || {};
 		const vals = {};
 		tpl.tags.forEach( ( t ) => {
 			vals[ t ] = String( ( info[ t ] || [] )[ 1 ] || '' );
@@ -5826,7 +5828,12 @@
 				tablist
 			),
 			el( 'div', { class: 'tkd-content' }, el( 'div', { class: 'tkd-wrap' }, panel ) ),
-			el( 'footer', { class: 'tkd-footer' }, el( 'p', { text: __( 'Takedown Desk is a tool, not legal advice. Talk to a lawyer about your duties under the Act.', 'takedown-desk' ) } ) ),
+			el(
+				'footer',
+				{ class: 'tkd-footer' },
+				el( 'p', { text: __( 'Takedown Desk is a tool, not legal advice. Talk to a lawyer about your duties under the Act.', 'takedown-desk' ) } ),
+				el( 'p', null, linkChip( __( 'Takedown Desk documentation', 'takedown-desk' ), 'https://swiftwebdev.com/takedown-desk/docs/', true ) )
+			),
 			toasts
 		);
 		window.addEventListener( 'hashchange', route );

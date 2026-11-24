@@ -1443,12 +1443,14 @@ function tkdesk_rest_admin_settings( WP_REST_Request $request ) {
 			'title' => $page->post_title,
 		);
 	}
-	// Template editor: each field's description and sample value (the same values Preview uses).
-	$sample = tkdesk_email_sample();
-	$values = tkdesk_email_values( $sample['request'], $sample['vars'] );
-	$tags   = array();
-	foreach ( tkdesk_email_tag_labels() as $tag => $label ) {
-		$tags[ $tag ] = array( $label, $values[ $tag ] ?? '' );
+	// Template editor: each field's description and sample value (the same values Preview uses), per request type.
+	$tags = array();
+	foreach ( array( 'ncii', 'dmca' ) as $type ) {
+		$sample = tkdesk_email_sample( $type );
+		$values = tkdesk_email_values( $sample['request'], $sample['vars'] );
+		foreach ( tkdesk_email_tag_labels( $type ) as $tag => $label ) {
+			$tags[ $type ][ $tag ] = array( $label, $values[ $tag ] ?? '' );
+		}
 	}
 	$source = tkdesk_key_source();
 	return array(
@@ -1464,7 +1466,8 @@ function tkdesk_rest_admin_settings( WP_REST_Request $request ) {
 		'pages'        => $pages,
 		'email_editor' => array(
 			'templates' => tkdesk_email_templates(),
-			'tags'      => $tags,
+			'tags'      => $tags['ncii'],
+			'tags_dmca' => $tags['dmca'], // For the templates with type dmca.
 		),
 		'admin_email'  => (string) get_option( 'admin_email' ), // Setup suggests it as the fallback contact email.
 		'policy_text'  => tkdesk_policy_text(), // Settings card "Policy text".
@@ -1659,12 +1662,8 @@ function tkdesk_rest_admin_test_email( WP_REST_Request $request ) {
 	if ( ! isset( tkdesk_email_templates()[ $key ] ) ) {
 		return new WP_Error( 'tkdesk_bad_email', __( 'Choose one of the listed emails.', 'takedown-desk' ), array( 'status' => 400 ) );
 	}
-	$sample = tkdesk_email_sample();
-	if ( 'dmca' === ( tkdesk_email_templates()[ $key ]['type'] ?? '' ) ) {
-		// A copyright notice email shows a sample notice: its own reason sentences and links.
-		$sample['request']['type']           = 'dmca';
-		$sample['request']['decline_reason'] = 'dmca_not_found';
-	}
+	// A copyright notice email shows a sample notice: its own target, reason sentences and links.
+	$sample = tkdesk_email_sample( (string) ( tkdesk_email_templates()[ $key ]['type'] ?? 'ncii' ) );
 	if ( 'GET' === $request->get_method() ) {
 		$email          = tkdesk_email_template( $key, $sample['request'], $sample['vars'] );
 		$footer         = (string) tkdesk_setting( 'email_footer' );

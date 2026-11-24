@@ -1,8 +1,9 @@
 <?php
 /**
  * Plugin Name:       Takedown Desk: Take It Down Act Removal Requests and DMCA Takedown Notices
+ * Plugin URI:        https://swiftwebdev.com/takedown-desk/
  * Description:       Receive Take It Down Act removal requests, track the 48-hour deadline, remove the item and its copies, and keep a record.
- * Version:           1.1.0
+ * Version:           1.1.1
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            SwiftWebDev
@@ -16,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TKDESK_VERSION', '1.1.0' );
+define( 'TKDESK_VERSION', '1.1.1' );
 define( 'TKDESK_DB_VERSION', 2 );
 define( 'TKDESK_FILE', __FILE__ );
 define( 'TKDESK_PATH', plugin_dir_path( __FILE__ ) );
